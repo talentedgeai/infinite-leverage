@@ -1,0 +1,205 @@
+---
+name: infiniteleverage-onboard
+description: This skill should be used when the operator says "onboard the client", "set up the client laptop", "bootstrap track B", "run the onboard skill", or "connect the client machine". Guides the CEO onboarding — connects their personal laptop to the existing AI team (canonical agent templates at `talentedgeai/infiniteleverage-8-agents-template`) — across two phases: manual prerequisites in Claude Chat (ending with the live site running locally as the first reward), then full configuration and agent install in Claude Code.
+version: 0.2.0
+---
+
+# Infinite Leverage — Personal Laptop Setup
+
+## Welcome
+
+The hard part is already done — the Mac Mini is running your AI team and your website is live. Now we're connecting *your* laptop so you can talk to your agents, queue content, and push updates from wherever you are. This won't take long, and you'll see your real website running locally before we touch any configuration 😊
+
+The Infinite Leverage 18 Protocols are the principles behind how this all works. You'll see them called out **[Protocol N]** at the moments they become relevant — so you understand *why* things are set up the way they are, not just what buttons to press.
+
+**Prerequisite**: Mac Mini bootstrap complete — accounts exist, website is live on Vercel.
+
+---
+
+## Canonical Source
+
+All 8 agent definition templates live at:
+**https://github.com/talentedgeai/infiniteleverage-8-agents-template**
+
+This repo is the single source of truth. Agent templates are fetched from here during setup. A bundled copy exists in this skill's `agents/` as fallback.
+
+```bash
+# Fetch canonical agents at any time:
+gh repo clone talentedgeai/infiniteleverage-8-agents-template /tmp/il-agents
+cp /tmp/il-agents/agents/*.md ~/.claude/agents/
+rm -rf /tmp/il-agents
+```
+
+---
+
+## Smart Start — Find Out Where You Are
+
+Already started this and not sure where you left off? Run this first in Claude Code (or Claude chat):
+
+> **"I'm setting up my personal laptop for the Infinite Leverage system. Please check my current status: claude --version, vercel whoami, gh auth status, node --version, ls ~/.claude/agents/, ls ~/code-projects/. Then tell me in plain English: what's already done, what's missing, and which Phase 2 prompt I should start from."**
+
+Claude will scan your machine and give you a friendly "here's where you are" summary. No restarting, no guessing.
+
+**First time?** Start at Phase 1 — everything is explained step by step.
+**Returning?** Run the smart start above first.
+
+---
+
+## What You're Building
+
+| Track | The Principles |
+|-------|---------------|
+| 🧠 Mindset | You're the orchestrator — agents act when you ask **[P1]** · AI handles publishing; you just push to go live **[P2]** · Stack = Claude + GitHub + Vercel + Supabase **[P3]** |
+| 🏗 Infrastructure | GitHub keeps everything in sync across machines **[P5]** · Vercel deploys only via `git push` — nothing goes live until you push **[P6]** |
+| 🔨 Building | Content pipeline runs automatically Mon–Wed **[P9][P10]** · Skills like `daily-checkin` give you a team briefing in seconds **[P11]** |
+| 👥 Team & Ops | 8 fixed roles — each knows its job **[P13]** · Your PM reads git history so it always knows what shipped **[P15]** |
+| ♻️ Continuity | Both machines stay in sync via the universal template repo **[P18]** · Context travels with the project, not the machine **[P17]** |
+
+---
+
+## Phase Structure
+
+```
+PHASE 1 — Claude Chat (manual)
+  Prerequisites + quick win — client does this (Dave guides)
+  ├── [P3] Check/install: Chrome, Homebrew, git, gh, Node, supabase CLI, resend CLI
+  ├── [P5] Authenticate: GitHub CLI (browser OAuth)
+  ├── Install: Claude Code Desktop (signed in with Claude Pro)
+  ├── Install + authenticate: Claude Code CLI (required for automation)
+  ├── Install + authenticate: supabase CLI (`brew install supabase/tap/supabase`)
+  ├── Install + authenticate: resend CLI (`npm install -g resend`)
+  ├── [P6] Install + authenticate: Vercel CLI
+  ├── Transfer: credentials file from Mac Mini (AirDrop or secure share)
+  └── [P3][P5] QUICK WIN: clone live project → npm install → npm run dev → localhost:3000
+      │
+      └─ Client sees their live site running locally ──►
+
+PHASE 2 — Claude Code (automated)
+  Machine config + agent install — Claude Code does all of this
+  ├── Check: all CLIs (gh, vercel, supabase, resend, claude) authenticated
+  ├── [P3] Global dirs: ~/.claude/agents/, ~/.claude/skills/, ~/.claude/rules/
+  ├── Permissions: ~/.claude/settings.local.json (Bash(*), acceptEdits, MCP)
+  ├── Global CLAUDE.md: identity, agents pointer, content queue, schedule **[P9]**
+  ├── [P3] Global rules: ~/.claude/rules/global-engineering.md
+  ├── Credentials: ~/.claude/.env with all API keys
+  ├── [P7] Supabase MCP: configure in settings.local.json + verify auth against SUPABASE_URL + SERVICE_ROLE_KEY
+  ├── [P11] Global skills: daily-checkin, create-routines
+  ├── [P13] Agent templates: fetch from GitHub canonical repo (fallback: bundled `agents/`)
+  ├── [P13][P1] Agent install: copy all 8 to `~/.claude/agents/`
+  ├── Test: all 8 agents respond in Claude Code
+  └── [P1][P14] First run: @product-manager gathers business context
+```
+
+---
+
+## Running Phase 1 — Claude Chat
+
+Open claude.ai or use Claude Code Desktop. Narrate each step — the client acts. Dave guides.
+
+The rewarding UX principle: **end Phase 1 with something visible** before any configuration work.
+
+**The quick win sequence** (at the end of Phase 1):
+```bash
+mkdir -p ~/code-projects
+cd ~/code-projects
+gh repo clone {clientslug}/{project-slug}  # [P5] — cloning from GitHub
+cd {project-slug}
+npm install --prefix website
+npm run dev --prefix website
+# Open http://localhost:3000
+```
+
+The client sees their live deployed website running locally. That's the reward — the real site, before we touch any settings.
+
+**Decision points:**
+- Tools already installed? Check first with `brew --version`, `gh --version`, etc. — skip what's present.
+- Client already has GitHub? Use it. Confirm it has access to the operator repo.
+- Claude Code Desktop already installed and signed in? Skip that step — go straight to CLI install.
+- `npm run dev` fails? Re-run `npm install --prefix website` first, then retry.
+
+**Phase 1 is complete when:**
+- Claude Code Desktop is open and signed in
+- Claude Code CLI is installed and authenticated
+- Credentials file is on the laptop
+- `http://localhost:3000` shows the live site
+
+See `references/phase1-manual.md` for complete step-by-step.
+
+---
+
+## Running Phase 2 — Claude Code
+
+Open Claude Code Desktop in the project directory: click "Open Folder" → select `~/code-projects/{project-slug}` — or run in terminal: `cd ~/code-projects/{project-slug} && claude`
+
+Run prompts from `references/phase2-prompts.md` in sequence. Each is self-contained.
+
+**The only manual step in Phase 2**: Supabase MCP OAuth. Claude outputs a URL → open in browser → Authorize → tell Claude "done". **[P7]**
+
+**Phase 2 is complete when:**
+- `~/.claude/agents/` shows all 8 agents **[P13]**
+- All 8 agents respond when tested
+- Product Manager has been briefed on business context **[P14]**
+
+See `references/phase2-prompts.md` for the full prompt sequence.
+
+---
+
+## Resume Paths
+
+Stopped partway through? Here's exactly where to pick up.
+
+| Stopped at | Check | Resume from |
+|-----------|-------|-------------|
+| Phase 1, tools step | `gh --version` or `node --version` fails | Phase 1, Step 3 |
+| Phase 1, auth step | `gh auth status` shows no account | Phase 1, Step 4 |
+| Phase 1, Claude Code | `claude --version` fails | Phase 1, Step 5 |
+| Phase 1, credentials | No `{project-slug}-credentials.md` on laptop | Phase 1, Step 7 |
+| Phase 1, quick win | No `~/code-projects/{project-slug}` folder | Phase 1, Step 8 |
+| Phase 2 Prompt 1–2 | `ls ~/.claude/rules/` empty | Phase 2, Prompt 1 |
+| Phase 2 Prompt 3–5 | No `~/.claude/.env` file | Phase 2, Prompt 4 |
+| Phase 2 Prompt 6–7 | `ls ~/.claude/agents/` shows 0 agents | Phase 2, Prompt 6 |
+| Phase 2 nearly done | Agents present, PM not briefed | Phase 2, Prompt 10 |
+
+---
+
+## Checklist
+
+### Phase 1 — Manual
+- [ ] Chrome installed
+- [ ] Homebrew installed and in PATH
+- [ ] git, gh CLI, Node, supabase CLI, resend CLI installed
+- [ ] GitHub CLI authenticated as operator account **[P5]**
+- [ ] Claude Code Desktop installed and signed in
+- [ ] Claude Code CLI installed and authenticated
+- [ ] Vercel CLI installed and authenticated **[P6]**
+- [ ] supabase CLI installed and authenticated
+- [ ] resend CLI installed and authenticated
+- [ ] Credentials file transferred from Mac Mini (secure transfer — never email)
+- [ ] Live project cloned to `~/code-projects/{project-slug}/` **[P5]**
+- [ ] `npm run dev` runs successfully at `http://localhost:3000`
+
+### Phase 2 — Claude Code
+- [ ] All CLIs authenticated: gh, vercel, supabase, resend, claude
+- [ ] `~/.claude/agents/`, `~/.claude/skills/`, `~/.claude/rules/` created
+- [ ] `~/.claude/settings.local.json` with `Bash(*)` + `acceptEdits` + MCP permissions **[P3]**
+- [ ] `~/.claude/CLAUDE.md` written (matches Mac Mini)
+- [ ] `~/.claude/rules/global-engineering.md` written
+- [ ] `~/.claude/.env` written with all API keys
+- [ ] Supabase MCP configured and authenticated **[P7]**
+- [ ] Global skills: `daily-checkin`, `create-routines` **[P11]**
+- [ ] All 8 agents fetched from GitHub canonical repo (or bundled fallback) to `~/.claude/agents/` **[P13]**
+- [ ] All 8 agents tested and responding
+- [ ] `email-index.md` verified — Stage 0 populated
+- [ ] Mac Mini scheduled work confirmed running **[P10]**
+- [ ] Product Manager briefed on business context **[P1][P14]**
+
+**Client is now operational. Point them to the first-actions guide in `references/first-actions.md`.**
+
+---
+
+## Additional Resources
+
+- **`references/phase1-manual.md`** — Complete step-by-step for tool installation, authentication, and the quick-win project clone
+- **`references/phase2-prompts.md`** — Full Claude Code prompt sequence for machine configuration and agent installation
+- **`references/first-actions.md`** — Client-facing guide: 8 agents, daily workflow, content pipeline, how to update agents
+- **`scripts/setup-permissions.py`** — Python script to write `~/.claude/settings.local.json` without overwriting existing content

@@ -1,30 +1,20 @@
 #!/usr/bin/env bash
 # Rebuilds all 3 bootstrap skill zips with the latest agent templates.
-# Run this from the repo root after updating agents/*.md.
+# Run from repo root after updating .claude/agents/*.md.
 #
-# Usage: ./scripts/rebuild-zips.sh <path-to-skills-dir>
-#   skills-dir: the directory containing the 3 skill subdirs (init, onboard, patch)
+# Usage: ./scripts/rebuild-zips.sh
+#   Output: skills/<skill>.zip for each of the 3 bootstrap skills
 
 set -euo pipefail
 
-SKILLS_DIR="${1:-}"
-if [ -z "$SKILLS_DIR" ] || [ ! -d "$SKILLS_DIR" ]; then
-  echo "Usage: $0 <path-to-skills-dir>"
-  echo "  skills-dir must contain: infiniteleverage-init/ infiniteleverage-onboard/ infiniteleverage-patch/"
-  exit 1
-fi
-
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-AGENTS_SRC="$REPO_ROOT/agents"
+AGENTS_SRC="$REPO_ROOT/.claude/agents"
+SKILLS_DIR="$REPO_ROOT/skills"
 
 for skill in infiniteleverage-init infiniteleverage-onboard infiniteleverage-patch; do
   SKILL_DIR="$SKILLS_DIR/$skill"
-  if [ ! -d "$SKILL_DIR" ]; then
-    echo "⚠️  Skipping $skill — not found at $SKILL_DIR"
-    continue
-  fi
-  echo "→ Syncing agents to $skill..."
+  echo "→ Syncing canonical agents to $skill/agents/..."
   cp "$AGENTS_SRC"/*.md "$SKILL_DIR/agents/"
   echo "→ Rebuilding $skill.zip..."
   cd "$SKILLS_DIR"
@@ -34,4 +24,7 @@ for skill in infiniteleverage-init infiniteleverage-onboard infiniteleverage-pat
 done
 
 echo ""
-echo "✅ All 3 zips rebuilt. Ready to deploy."
+echo "✅ All 3 zips rebuilt at:"
+for f in "$SKILLS_DIR"/*.zip; do
+  echo "   $f"
+done

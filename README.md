@@ -1,47 +1,81 @@
 # Infinite Leverage — 8-Agent Templates
 
-Universal agent definition templates for the Infinite Leverage bootstrap system. These 8 files are the canonical agent definitions bundled into `infiniteleverage-init`, `infiniteleverage-onboard`, and `infiniteleverage-patch` skills.
+Universal agent definition templates and bootstrap skills for the Infinite Leverage system.
+
+## Repo Structure
+
+```
+.claude/                       ← Claude Code convention layout
+├── agents/                    ← Canonical 8-agent templates (single source of truth)
+│   ├── product-manager.md
+│   ├── developer.md
+│   ├── qa.md
+│   ├── devops.md
+│   ├── writer.md
+│   ├── designer.md
+│   ├── web-publisher.md
+│   └── email-marketer.md
+└── rules/
+    └── global-engineering.md  ← Shared engineering guardrails
+
+skills/                        ← Bootstrap skills (outside .claude, for release zips)
+├── infiniteleverage-init/     ← Full Mac Mini setup
+│   ├── SKILL.md
+│   ├── agents/                ← Bundled copy (synced from .claude/agents/)
+│   ├── references/
+│   └── scripts/
+├── infiniteleverage-onboard/  ← Client laptop setup
+│   ├── SKILL.md
+│   ├── agents/
+│   ├── references/
+│   └── scripts/
+└── infiniteleverage-patch/    ← Machine sync & agent update
+    ├── SKILL.md
+    ├── agents/
+    ├── references/
+    └── scripts/
+
+.env.example                   ← Required env vars template
+scripts/
+└── rebuild-zips.sh            ← Sync agents → rebuild all 3 zips
+```
 
 ## The 8 Agents
 
 ### Build Team
 | Agent | Role |
 |-------|------|
-| product-manager.md | OKRs, epics, standups, RAG status |
-| developer.md | Code to project standards, TDD |
-| qa.md | Testing pyramid — knows what AI can and cannot test |
-| devops.md | Git, CI/CD, Vercel operations |
+| product-manager | OKRs, epics, standups, RAG status |
+| developer | Code to project standards, TDD |
+| qa | Testing pyramid — knows what AI can and cannot test |
+| devops | Git, CI/CD, Vercel operations |
 
 ### GTM Team
 | Agent | Role |
 |-------|------|
-| writer.md | One blog post per run, owner's voice |
-| designer.md | One hero image per run, Gemini |
-| web-publisher.md | Publishes post, stages git commit |
-| email-marketer.md | Subscriber nurture via Resend |
+| writer | One blog post per run, owner's voice |
+| designer | One hero image per run, Gemini |
+| web-publisher | Publishes post, stages git commit |
+| email-marketer | Subscriber nurture via Resend |
 
-## Usage
+## Updating Agent Templates
 
-These templates are bundled directly into each bootstrap skill. To update, use the rebuild script:
+1. Edit `.claude/agents/*.md` — these are canonical
+2. Run `./scripts/rebuild-zips.sh` — syncs to skill bundles and rebuilds zips
+3. Upload new zips to GitHub Releases for deployment
 
 ```bash
-# Update all 3 skill zips at once
-./scripts/rebuild-zips.sh path/to/skills
-
-# Or manually:
-cp agents/*.md path/to/infiniteleverage-init/agents/
-cp agents/*.md path/to/infiniteleverage-onboard/agents/
-cp agents/*.md path/to/infiniteleverage-patch/agents/
-cd path/to/skills && zip -r infiniteleverage-init.zip infiniteleverage-init/
+# One-command update:
+./scripts/rebuild-zips.sh
+# Output: skills/infiniteleverage-{init,onboard,patch}.zip
 ```
 
 ## Template Format
 
-Each `.md` file contains:
-
+Each agent `.md` follows:
 - YAML frontmatter: `name`, `description`
 - Role definition
 - Workflow / work loop
-- References to the skills the agent depends on
+- Skill dependencies
 
-Templates are project-agnostic. Project-specific context lives in the project repo (personas, style guides), not in these templates.
+Templates are project-agnostic. Project-specific context lives in per-project repos.
