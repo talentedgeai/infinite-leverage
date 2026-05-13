@@ -22,15 +22,16 @@ Universal agent definition templates for the Infinite Leverage bootstrap system.
 
 ## Usage
 
-These templates are bundled directly into each bootstrap skill. To update:
+These templates are bundled directly into each bootstrap skill. To update, use the rebuild script:
 
 ```bash
-# Copy updated templates into each skill
+# Update all 3 skill zips at once
+./scripts/rebuild-zips.sh path/to/skills
+
+# Or manually:
 cp agents/*.md path/to/infiniteleverage-init/agents/
 cp agents/*.md path/to/infiniteleverage-onboard/agents/
 cp agents/*.md path/to/infiniteleverage-patch/agents/
-
-# Rebuild zips
 cd path/to/skills && zip -r infiniteleverage-init.zip infiniteleverage-init/
 ```
 
