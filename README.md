@@ -15,6 +15,15 @@ Universal agent definition templates and bootstrap skills for the Infinite Lever
 │   ├── designer.md
 │   ├── web-publisher.md
 │   └── email-marketer.md
+├── skills/                    ← Dedicated per-agent skills (each agent's workflow)
+│   ├── pm/                   ← Client interview, documentation, standup, epic writing
+│   ├── dev/                  ← Planning, multi-agent, Karpathy, GitHub hygiene, QA delegation
+│   ├── qa/                   ← Best practices, planning, documentation
+│   ├── designer/             ← Design system, UI/UX, style-to-photo, image generation
+│   ├── writer/               ← SEO content, Neil Patel critique
+│   ├── devops/               ← CI/CD, Vercel ops, escalation
+│   ├── web-publisher/        ← Markdown→component publishing pipeline
+│   └── email-marketer/       ← Resend sequences, subscriber nurture
 └── rules/
     └── global-engineering.md  ← Shared engineering guardrails
 
@@ -40,23 +49,23 @@ scripts/
 └── rebuild-zips.sh            ← Sync agents → rebuild all 3 zips
 ```
 
-## The 8 Agents
+## The 8 Agents & Their Skills
 
 ### Build Team
-| Agent | Role |
-|-------|------|
-| product-manager | OKRs, epics, standups, RAG status |
-| developer | Code to project standards, TDD |
-| qa | Testing pyramid — knows what AI can and cannot test |
-| devops | Git, CI/CD, Vercel operations |
+| Agent | Dedicated Skill (.claude/skills/) | Covers |
+|-------|----------------------------------|--------|
+| product-manager | `pm/` | Client interview, 4-file documentation, project-status dashboard, standup set, Dan Shipper epic writing |
+| developer | `dev/` | Plan from project-status, multi-agent delegation, Karpathy principles, GitHub hygiene, QA delegation |
+| qa | `qa/` | Test pyramid best practices, Dan Shipper QA planning, docs/qa + dashboard reporting |
+| devops | `devops/` | Vercel/GitHub CI/CD monitoring, deployment model, escalation triggers |
 
 ### GTM Team
-| Agent | Role |
-|-------|------|
-| writer | One blog post per run, owner's voice |
-| designer | One hero image per run, Gemini |
-| web-publisher | Publishes post, stages git commit |
-| email-marketer | Subscriber nurture via Resend |
+| Agent | Dedicated Skill (.claude/skills/) | Covers |
+|-------|----------------------------------|--------|
+| writer | `writer/` | SEO-optimized content, Neil Patel self-critique, brief-driven workflow |
+| designer | `designer/` | 5-preset design system, UI/UX best practices, style-to-photo alignment, image generation |
+| web-publisher | `web-publisher/` | Markdown-to-component pipeline, blog index update, quality checklist |
+| email-marketer | `email-marketer/` | Resend sequences, welcome flow, weekly digest, subscriber lifecycle |
 
 ## Updating Agent Templates
 
