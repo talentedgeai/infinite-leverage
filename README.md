@@ -70,6 +70,11 @@ scripts/
 # Output: skills/infiniteleverage-{init,onboard,patch}.zip
 ```
 
+## Releases
+
+Pre-built zips are published to [GitHub Releases](https://github.com/talentedgeai/infiniteleverage-8-agents-template/releases).
+Import these into your Claude Team account or deploy to RemoteTrigger schedules.
+
 ## Template Format
 
 Each agent `.md` follows:
