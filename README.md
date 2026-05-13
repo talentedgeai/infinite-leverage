@@ -6,7 +6,7 @@ Universal agent definition templates and bootstrap skills for the Infinite Lever
 
 ```
 .claude/                       ← Claude Code convention layout
-├── agents/                    ← Canonical 8-agent templates (single source of truth)
+├── agents/                    ← Thin agent shells (8 files, ~25 lines each — role + skill references)
 │   ├── product-manager.md
 │   ├── developer.md
 │   ├── qa.md
@@ -15,15 +15,28 @@ Universal agent definition templates and bootstrap skills for the Infinite Lever
 │   ├── designer.md
 │   ├── web-publisher.md
 │   └── email-marketer.md
-├── skills/                    ← Dedicated per-agent skills (each agent's workflow)
-│   ├── pm/                   ← Client interview, documentation, standup, epic writing
-│   ├── dev/                  ← Planning, multi-agent, Karpathy, GitHub hygiene, QA delegation
-│   ├── qa/                   ← Best practices, planning, documentation
-│   ├── designer/             ← Design system, UI/UX, style-to-photo, image generation
-│   ├── writer/               ← SEO content, Neil Patel critique
-│   ├── devops/               ← CI/CD, Vercel ops, escalation
-│   ├── web-publisher/        ← Markdown→component publishing pipeline
-│   └── email-marketer/       ← Resend sequences, subscriber nurture
+├── skills/                    ← 21 standalone skill files (one per capability, rich standalone context)
+│   ├── pm-client-interview/
+│   ├── pm-documentation/
+│   ├── pm-project-status/
+│   ├── pm-standup/
+│   ├── pm-epic-writing/
+│   ├── dev-planning/
+│   ├── dev-karpathy/
+│   ├── dev-github-hygiene/
+│   ├── dev-qa-delegation/
+│   ├── dev-multi-agent/
+│   ├── qa-best-practices/
+│   ├── qa-planning/
+│   ├── qa-documentation/
+│   ├── designer-design-system/
+│   ├── designer-ui-ux/
+│   ├── designer-style-to-photo/
+│   ├── designer-image-generation/
+│   ├── writer-seo-content/
+│   ├── devops-ops/
+│   ├── web-publisher-publish/
+│   └── email-marketer-nurture/
 └── rules/
     └── global-engineering.md  ← Shared engineering guardrails
 
@@ -52,20 +65,20 @@ scripts/
 ## The 8 Agents & Their Skills
 
 ### Build Team
-| Agent | Dedicated Skill (.claude/skills/) | Covers |
-|-------|----------------------------------|--------|
-| product-manager | `pm/` | Client interview, 4-file documentation, project-status dashboard, standup set, Dan Shipper epic writing |
-| developer | `dev/` | Plan from project-status, multi-agent delegation, Karpathy principles, GitHub hygiene, QA delegation |
-| qa | `qa/` | Test pyramid best practices, Dan Shipper QA planning, docs/qa + dashboard reporting |
-| devops | `devops/` | Vercel/GitHub CI/CD monitoring, deployment model, escalation triggers |
+| Agent | Skills (`.claude/skills/`) |
+|-------|---------------------------|
+| product-manager | `pm-client-interview`, `pm-documentation`, `pm-project-status`, `pm-standup`, `pm-epic-writing` |
+| developer | `dev-planning`, `dev-karpathy`, `dev-github-hygiene`, `dev-qa-delegation`, `dev-multi-agent` |
+| qa | `qa-best-practices`, `qa-planning`, `qa-documentation` |
+| devops | `devops-ops` |
 
 ### GTM Team
-| Agent | Dedicated Skill (.claude/skills/) | Covers |
-|-------|----------------------------------|--------|
-| writer | `writer/` | SEO-optimized content, Neil Patel self-critique, brief-driven workflow |
-| designer | `designer/` | 5-preset design system, UI/UX best practices, style-to-photo alignment, image generation |
-| web-publisher | `web-publisher/` | Markdown-to-component pipeline, blog index update, quality checklist |
-| email-marketer | `email-marketer/` | Resend sequences, welcome flow, weekly digest, subscriber lifecycle |
+| Agent | Skills (`.claude/skills/`) |
+|-------|---------------------------|
+| writer | `writer-seo-content` |
+| designer | `designer-design-system`, `designer-ui-ux`, `designer-style-to-photo`, `designer-image-generation` |
+| web-publisher | `web-publisher-publish` |
+| email-marketer | `email-marketer-nurture` |
 
 ## Updating Agent Templates
 
