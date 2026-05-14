@@ -22,3 +22,15 @@ Before writing tests, research current testing patterns:
 - `site:github.com "[framework] testing" stars:>1000` for the relevant stack
 - Reference: Kent C. Dodds (Testing Library), Playwright team, Supabase test patterns
 - Apply the most widely-adopted patterns for each test layer — never copy-paste from memory
+
+## Folder structure (CRITICAL)
+
+This project follows the canonical Infinite Leverage folder structure. The spec is in `templates/project-scaffold/FOLDER-STRUCTURE.md` in the agent template repo (`talentedgeai/infiniteleverage-8-agents-template`).
+
+Before creating any file, you MUST:
+1. Identify which top-level slot it belongs in (`docs/`, `content/`, `agents/`, `website/`, etc.)
+2. Use the canonical subpath and filename conventions
+3. NEVER invent new top-level folders
+4. NEVER rename fixed files: `product.md`, `epics.md`, `epic-status.md`, `01-product-timeline.md`, `project-status.html`, `CLAUDE.md`, `README.md`, `.env.example`, `.gitignore`
+
+If you're unsure where something belongs, ask the PM agent.

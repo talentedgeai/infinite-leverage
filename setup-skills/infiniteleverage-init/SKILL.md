@@ -54,6 +54,33 @@ rm -rf /tmp/il-agents
 
 ---
 
+## Project Scaffold
+
+Every project follows the canonical folder structure defined in `templates/project-scaffold/` of this repo. The authoritative spec is `templates/project-scaffold/FOLDER-STRUCTURE.md`.
+
+**During Phase 2 — Prompt 4 (project scaffold)**, the developer agent MUST:
+
+```bash
+# Fetch the canonical scaffold into the new project
+gh repo clone talentedgeai/infiniteleverage-8-agents-template /tmp/il-template
+cp -r /tmp/il-template/templates/project-scaffold/. ~/code-projects/{project-slug}/
+rm -rf /tmp/il-template
+
+# Then rename placeholders:
+#   - All `PH-` prefixed files → real names from the project intake
+#   - YYYY-MM-DD → real first publish date
+#   - {Project Name} / {project-slug} → real values
+```
+
+**Fixed files that must NOT be renamed:**
+- `docs/product/product.md`, `epics.md`, `epic-status.md`, `01-product-timeline.md`
+- `docs/project-status.html`
+- `CLAUDE.md`, `README.md`, `.env.example`, `.gitignore`
+
+The PM agent and developer agent both reference this structure on every action — read `FOLDER-STRUCTURE.md` before creating any new file.
+
+---
+
 ## Phase Structure
 
 ```
