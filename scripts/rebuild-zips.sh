@@ -11,7 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 AGENTS_SRC="$REPO_ROOT/.claude/agents"
 SKILLS_SRC="$REPO_ROOT/.claude/skills"
-SKILLS_DIR="$REPO_ROOT/skills"
+SKILLS_DIR="$REPO_ROOT/setup-skills"
 
 for skill in infiniteleverage-init infiniteleverage-onboard infiniteleverage-patch; do
   SKILL_DIR="$SKILLS_DIR/$skill"

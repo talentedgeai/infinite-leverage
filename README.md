@@ -40,7 +40,7 @@ Universal agent definition templates and bootstrap skills for the Infinite Lever
 └── rules/
     └── global-engineering.md  ← Shared engineering guardrails
 
-skills/                        ← Bootstrap skills (outside .claude, for release zips)
+setup-skills/                  ← Bootstrap skills (outside .claude, for release zips)
 ├── infiniteleverage-init/     ← Full Mac Mini setup
 │   ├── SKILL.md
 │   ├── agents/                ← Bundled copy (synced from .claude/agents/)
@@ -89,7 +89,7 @@ scripts/
 ```bash
 # One-command update:
 ./scripts/rebuild-zips.sh
-# Output: skills/infiniteleverage-{init,onboard,patch}.zip
+# Output: setup-skills/infiniteleverage-{init,onboard,patch}.zip
 ```
 
 ## Releases
