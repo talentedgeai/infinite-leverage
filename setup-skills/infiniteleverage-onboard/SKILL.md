@@ -1,7 +1,6 @@
 ---
 name: infiniteleverage-onboard
-description: This skill should be used when the operator says "onboard the client", "set up the client laptop", "bootstrap track B", "run the onboard skill", or "connect the client machine". Guides the CEO onboarding — connects their personal laptop to the existing AI team (canonical agent templates at `talentedgeai/infiniteleverage-8-agents-template`) — across two phases: manual prerequisites in Claude Chat (ending with the live site running locally as the first reward), then full configuration and agent install in Claude Code.
-version: 0.2.0
+description: Connect a client laptop to the existing AI team. Two phases: prerequisites with live-site quick win (Claude Chat) then config and agent install (Claude Code).
 ---
 
 # Infinite Leverage — Personal Laptop Setup

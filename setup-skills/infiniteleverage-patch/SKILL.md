@@ -1,7 +1,6 @@
 ---
 name: infiniteleverage-patch
-description: This skill should be used when the user says "patch agents", "update my agents", "sync agent changes", "what changed in agents", "agents out of date", "patch this machine", "check my setup", or "apply agent updates". Runs a full two-phase update: (1) health-checks the local Claude Code setup against the bootstrap spec, then (2) fetches the latest universal agent templates from the GitHub canonical repo (`talentedgeai/infiniteleverage-8-agents-template`), diffs against installed agents, and applies updates after confirmation. Safe to run on any machine — Mac Mini or personal laptop.
-version: 2.0.0
+description: Health-check local Claude Code setup, then fetch latest agent templates from GitHub and apply updates. Safe on Mac Mini or laptop.
 ---
 
 # infiniteleverage-patch — Machine Sync Skill

@@ -1,7 +1,6 @@
 ---
 name: infiniteleverage-init
-description: This skill should be used when the operator says "run init", "initialize the system", "set up the mac mini", "bootstrap track A", "run the init skill", or "start client onboarding". Guides the full first-time setup — from zero to a live website, 8-agent team (canonical templates at `talentedgeai/infiniteleverage-8-agents-template`), and cloud schedules — across two phases: manual prerequisites in Claude Chat, then full automation in Claude Code.
-version: 0.2.0
+description: Full Mac Mini bootstrap: zero to live website, 8-agent team, and cloud schedules. Two phases: manual prerequisites (Claude Chat) then automated setup (Claude Code).
 ---
 
 # Infinite Leverage — Mac Mini Bootstrap
