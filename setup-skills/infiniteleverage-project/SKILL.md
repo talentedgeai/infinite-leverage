@@ -35,17 +35,30 @@ The operator wants a fresh project folder that follows the canonical Infinite Le
 
 ## Inputs to gather
 
-| Input | Example | Required |
-|---|---|---|
-| Project slug (kebab-case, used as folder name + repo name) | `acme-bookstore` | yes |
-| Project display name | `Acme Bookstore` | yes |
-| Parent directory | `~/code-projects` | yes (default `~/code-projects`) |
-| First topic date | `2026-05-20` | optional (defaults to today) |
-| First topic slug | `welcome-launch` | optional |
-| Owner name | `Dave Hajdu` | optional |
-| Primary author for content | `Dave Hajdu` | optional |
+| Input | Example | Required | Notes |
+|---|---|---|---|
+| Project slug (kebab-case) | `acme-bookstore` | yes | used as folder name AND GitHub repo name |
+| Project display name | `Acme Bookstore` | yes | |
+| Parent directory | `~/code-projects` | yes (default `~/code-projects`) | |
+| First topic date | `2026-05-20` | optional (defaults to today) | |
+| First topic slug | `welcome-launch` | optional | |
+| Owner name | `Dave Hajdu` | optional | |
+| Primary author for content | `Dave Hajdu` | optional | |
+| GitHub placement | personal vs org | **interactive** | resolved during Step 11 — never assume |
 
-**Confirm with the operator before running step 1.** Print a dry-run preview showing target dir, project name, slug, first date, and whether Next.js + GitHub repo will be created.
+**Confirm with the operator before running step 1.** Print a dry-run preview:
+
+```
+About to scaffold:
+  Target          : /Users/.../acme-bookstore
+  Project         : Acme Bookstore
+  Slug            : acme-bookstore
+  First date      : 2026-05-20
+  First topic     : welcome-launch
+  Next.js         : YES (App Router, TypeScript, Tailwind)        [mandatory]
+  GitHub repo     : asked at the end as a tail question           [optional]
+Proceed? (y/N)
+```
 
 ---
 
@@ -194,48 +207,120 @@ fi
 rm -rf "$TMP"
 ```
 
-### Step 9 — Initialize git + first commit
+### Step 9 — Scaffold Next.js into `website/` (mandatory)
+
+This always runs — every Infinite Leverage project ships a Next.js app at `website/`.
+
+```bash
+cd "$TARGET"
+npx create-next-app@latest website \
+  --typescript --tailwind --app --eslint \
+  --src-dir --import-alias "@/*" --yes
+```
+
+If the operator wants the legacy Pages Router instead (some older projects do), substitute `--no-app` for `--app`. Default is App Router per the canonical stack.
+
+### Step 10 — Initialize git + first commit
 
 ```bash
 cd "$TARGET"
 git init -b main
 git add .
-git commit -m "init: scaffold $PROJECT_NAME from infiniteleverage-project template"
+git commit -m "init: scaffold $PROJECT_NAME (template + Next.js website/)"
 ```
 
-### Step 10 — Offer to scaffold Next.js + create GitHub repo
+### Step 11 — Print local-only summary
 
-Ask the operator (each gated on explicit "y"):
-
-> Scaffold the Next.js app into `website/` now? (y/N)
-
-```bash
-cd "$TARGET"
-npx create-next-app@latest website --typescript --tailwind --app --eslint --src-dir --import-alias "@/*" --yes
-git add website && git commit -m "feat(website): scaffold Next.js app"
-```
-
-> Create the GitHub repo `<github-org>/<project-slug>` and push? (y/N)
-
-```bash
-gh repo create "<github-org>/$PROJECT_SLUG" --private --source=. --remote=origin --push
-```
-
-### Step 11 — Print next steps
+At this point the project is fully scaffolded **locally** — Next.js is in place, git is initialized, the first commit exists. Show the operator:
 
 ```
 ✅ Project scaffolded at $TARGET
+✅ Next.js installed at $TARGET/website
+✅ Git initialized, first commit made (local only — no remote yet)
 
-Next:
+Next steps locally:
 1. cd $TARGET
-2. Open in Claude Code
-3. Invoke @product-manager — runs pm-client-interview, fills docs/product/{product,epics,epic-status,01-product-timeline}.md
-4. Rename remaining PH- placeholders deliberately as you start real work:
-   - docs/architecture/plans/PH-plan-name.md
-   - docs/features/PH-feature-slug/
-   - context/source-material/PH-research-topic/
-5. Read FOLDER-STRUCTURE.md once — it's the canonical layout spec
-6. cp .env.example .env.local and fill in real keys
+2. cp .env.example .env.local and fill in real keys
+3. cd website && npm run dev   # verify the app starts
+4. Open the repo in Claude Code
+5. Invoke @product-manager — runs pm-client-interview, fills docs/product/{product,epics,epic-status,01-product-timeline}.md
+6. Rename PH- placeholders deliberately as you start real work
+7. Read FOLDER-STRUCTURE.md once — canonical layout spec
+```
+
+### Step 12 — Tail-end question: push to GitHub now? (interactive, optional)
+
+Ask the operator — this is the LAST thing the skill does and it is fully optional:
+
+> Do you want to create a GitHub repo for this project and push the initial commit now?
+> (You can always do this later with `gh repo create` from inside `$TARGET`.)
+>
+> y / N
+
+**If the operator answers "n":** stop here. Print:
+```
+Skipped GitHub push. To do it later:
+  cd $TARGET
+  gh repo create <owner>/$PROJECT_SLUG --private --source=. --remote=origin --push
+```
+
+**If the operator answers "y":** continue with the org-placement sub-flow below.
+
+#### 12a — Detect GitHub orgs
+
+```bash
+gh auth status >/dev/null 2>&1 || { echo "❌ Not authenticated to GitHub — run: gh auth login"; exit 1; }
+ORGS=$(gh api user/orgs --jq '.[].login' 2>/dev/null || echo "")
+GH_USER=$(gh api user --jq '.login')
+```
+
+#### 12b — Ask where the repo should live
+
+Ask one of these depending on what `ORGS` returned:
+
+**Case A — operator has one or more orgs:**
+> Your GitHub account has access to these organizations:
+> 1. `<org-1>`
+> 2. `<org-2>`
+> 3. Use your personal account (`<gh-user>`)
+>
+> Where should `<project-slug>` live? (1/2/3, or type a different org name)
+
+**Case B — operator has no orgs:**
+> Your GitHub account doesn't belong to any organizations.
+> 1. Create a new org now (recommended for client work — keeps client work separate from your personal account)
+> 2. Use your personal account (`<gh-user>`)
+>
+> Which? (1/2)
+>
+> If "1": ask for the org name. github.com orgs cannot be created via API — direct the operator to https://github.com/account/organizations/new and confirm when done before continuing.
+
+**Case C — operator types a custom org name not listed:**
+> Will `<org-name>` accept the repo? (y/N)
+> If no, return to Case A.
+
+Set `GH_OWNER` to the resolved owner (org login or `$GH_USER`).
+
+#### 12c — Create the repo and push
+
+```bash
+gh repo create "$GH_OWNER/$PROJECT_SLUG" \
+  --private \
+  --source="$TARGET" \
+  --remote=origin \
+  --push \
+  --description "$PROJECT_NAME — Infinite Leverage project"
+```
+
+If creation fails because the repo already exists, ask: "Use the existing repo and push to it, or pick a different slug?" Do NOT silently overwrite.
+
+#### 12d — Print remote URL
+
+```
+✅ Pushed to https://github.com/$GH_OWNER/$PROJECT_SLUG (private)
+
+To wire up auto-deploys on Vercel:
+  cd $TARGET && vercel link
 ```
 
 ---
@@ -243,9 +328,11 @@ Next:
 ## What this skill does NOT do
 
 - Configure Supabase / Vercel / Resend / Brevo — those are done in `infiniteleverage-init` Phase 2
+- Link the repo to Vercel for auto-deploy — printed as a next-step for the operator (`vercel link`)
 - Generate any content — that's the writer agent
 - Write product.md / epics.md content — that's `pm-documentation` via the PM agent
-- Push to GitHub without explicit confirmation
+- Skip Next.js scaffolding — that step is mandatory
+- Push to GitHub silently — the GitHub repo creation+push is asked as a tail-end question and skipped if the operator declines. The skill prints the exact command they can run later.
 
 ## Why no .sh files
 
