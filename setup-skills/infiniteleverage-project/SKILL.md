@@ -211,8 +211,11 @@ rm -rf "$TMP"
 
 This always runs — every Infinite Leverage project ships a Next.js app at `website/`.
 
+**Important:** the canonical scaffold ships a stub `website/README.md` that documents what `create-next-app` will produce. `create-next-app` refuses to install into a non-empty directory, so delete the stub README first (keep the `website/` folder itself) — `create-next-app` will then populate it and write its own README.
+
 ```bash
 cd "$TARGET"
+rm -f "$TARGET/website/README.md"   # remove stub README so create-next-app sees an empty dir
 npx create-next-app@latest website \
   --typescript --tailwind --app --eslint \
   --src-dir --import-alias "@/*" --yes
