@@ -38,17 +38,33 @@ Claude will give you a personalised status report — no redoing steps you've al
 
 ---
 
-## Canonical Source
+## Canonical Source — Read This First
 
-All 8 agent definition templates live at:
-**https://github.com/talentedgeai/infiniteleverage-8-agents-template**
+**ALL of the following live in ONE repo — the single source of truth:**
 
-This repo is the single source of truth. Agent templates are fetched from here during setup and patching. A bundled copy exists in this skill's `agents/` as fallback.
+> https://github.com/talentedgeai/infiniteleverage-8-agents-template
+
+| What | Where in the canonical repo |
+|---|---|
+| 8 agent definitions | `.claude/agents/*.md` |
+| Global skills | `.claude/skills/*/SKILL.md` |
+| Engineering rules | `.claude/rules/global-engineering.md` |
+| Project folder scaffold | `templates/project-scaffold/` |
+| Folder structure spec | `templates/project-scaffold/FOLDER-STRUCTURE.md` |
+| AGENT-DELEGATION block content | `scripts/inject-agent-delegation.sh` |
+| Bootstrap skills (init/onboard/patch/project) | `setup-skills/` |
+
+**Rules — these are non-negotiable:**
+
+1. **Never hand-edit agents, skills, or scaffold files on the client machine.** Any change must be made in the canonical repo first, committed, and pulled by the patch skill.
+2. **Never invent new agent behavior in CLAUDE.md.** The AGENT-DELEGATION block is generated from `scripts/inject-agent-delegation.sh` — edit that script in the repo, not the CLAUDE.md on disk.
+3. **When in doubt, fetch fresh** with `gh repo clone --depth 1 talentedgeai/infiniteleverage-8-agents-template /tmp/il-template`.
+4. The bundled copy inside this skill's zip is a **fallback** for offline use only. If GitHub is reachable, always prefer the live repo.
 
 ```bash
 # Fetch canonical agents at any time:
 gh repo clone talentedgeai/infiniteleverage-8-agents-template /tmp/il-agents
-cp /tmp/il-agents/agents/*.md ~/.claude/agents/
+cp /tmp/il-agents/.claude/agents/*.md ~/.claude/agents/
 rm -rf /tmp/il-agents
 ```
 

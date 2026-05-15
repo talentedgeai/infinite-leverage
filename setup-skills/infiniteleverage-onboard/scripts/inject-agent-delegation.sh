@@ -1,13 +1,31 @@
-# {Project Name} — Project Instructions
+#!/usr/bin/env bash
+# Inject (or refresh) the AGENT-DELEGATION block in a CLAUDE.md file.
+#
+# Usage:
+#   ./inject-agent-delegation.sh <path-to-CLAUDE.md>
+#
+# Behavior:
+#   - If the file is missing → exit 1 with a clear message
+#   - If the BEGIN/END markers exist → replace the block in place
+#   - If the markers do not exist → append the block at the end of the file
+#
+# The canonical block content lives below in this script (single source of truth).
+# Other skills (init, onboard, patch, project) call this script — no duplication.
 
-This file is the entry point Claude Code reads when this repo is opened. It defines roles, folder conventions, and publishing/engineering workflows.
+set -euo pipefail
 
-## Stack
-- Website: Next.js + Tailwind + shadcn (`website/`)
-- Database: Supabase (`website/supabase/`)
-- Deployment: Vercel (auto-deploy on push to `main`)
-- Email: Resend or Brevo (see `agents/email-marketer/context/`)
+if [ "$#" -lt 1 ]; then
+  echo "Usage: $0 <path-to-CLAUDE.md>"
+  exit 1
+fi
 
+TARGET="$1"
+if [ ! -f "$TARGET" ]; then
+  echo "❌ CLAUDE.md not found: $TARGET"
+  exit 1
+fi
+
+BLOCK=$(cat <<'BLOCK_EOF'
 <!-- BEGIN: AGENT-DELEGATION (managed by infiniteleverage skills — do not delete this block) -->
 ## Agent delegation (auto-routing)
 
@@ -32,13 +50,24 @@ When you receive a request, **delegate to the right specialist agent** before do
 5. Project-level persona overrides for each agent live in `agents/<name>/context/persona.md` — read these on first invocation.
 6. Trigger phrases: `@product-manager`, `@developer`, etc. — but auto-route even without the `@` when intent is clear.
 <!-- END: AGENT-DELEGATION -->
+BLOCK_EOF
+)
 
-## Folder conventions
-See `templates/project-scaffold/FOLDER-STRUCTURE.md` in the agent template repo (`talentedgeai/infiniteleverage-8-agents-template`) for the canonical structure every project follows. Agents MUST honor it — do not invent new top-level folders.
-
-## Publishing workflow
-Read source content from `content/topics/<slug>/` → optimize images → generate React components via `build-page` skill → copy into `website/pages/` → update `website/pages/blog/index.jsx` → commit → hand off push command to operator.
-
-## Cross-tool context bridge
-- Read `~/Documents/Claude/shared-context/BRIDGE.md` at session start
-- Update it at session end with handoff notes
+if grep -q "BEGIN: AGENT-DELEGATION" "$TARGET" 2>/dev/null; then
+  # Replace existing block with perl multi-line substitution
+  TMP=$(mktemp)
+  printf '%s\n' "$BLOCK" > "$TMP"
+  perl -i -0pe '
+    BEGIN { local $/; open($f, "<", $ENV{BLOCK_FILE}); $block = <$f>; chomp $block; }
+    s{<!-- BEGIN: AGENT-DELEGATION.*?<!-- END: AGENT-DELEGATION -->}{$block}s;
+  ' BLOCK_FILE="$TMP" "$TARGET"
+  rm -f "$TMP"
+  echo "✅ Refreshed AGENT-DELEGATION block in $TARGET"
+else
+  # Append
+  {
+    echo ""
+    printf '%s\n' "$BLOCK"
+  } >> "$TARGET"
+  echo "✅ Appended AGENT-DELEGATION block to $TARGET"
+fi

@@ -159,6 +159,22 @@ body { @apply font-sans antialiased; color: var(--ink); background: var(--paper)
 
 Write ~/code-projects/{project-slug}/CLAUDE.md with: business name, stack (Next.js 16 App Router TypeScript), folder structure tree, Next.js 16 conventions (proxy.ts not middleware.ts, server components by default), engineering rules summary, content queue instructions, automated pipeline schedule.
 
+Then inject the canonical Agent Delegation section so Claude knows how to auto-route requests to the 8 agents. Use the bundled script (single source of truth — never hand-write the table):
+
+```bash
+bash ~/.claude/skills/infiniteleverage-init/scripts/inject-agent-delegation.sh \
+  ~/code-projects/{project-slug}/CLAUDE.md
+```
+
+Also inject it into the global ~/.claude/CLAUDE.md so machine-wide invocations route correctly:
+
+```bash
+bash ~/.claude/skills/infiniteleverage-init/scripts/inject-agent-delegation.sh \
+  ~/.claude/CLAUDE.md
+```
+
+The script is idempotent — running it again refreshes the block between the BEGIN/END markers without touching surrounding content.
+
 Research and document design system presets:
 - WebSearch for: "best design systems for [business type] website 2024 typography palette"
 - Document 5 distinct presets in docs/brand/style-guide.md

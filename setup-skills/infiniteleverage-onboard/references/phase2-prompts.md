@@ -76,6 +76,22 @@ The Writer picks the oldest unwritten topic automatically on schedule.
 4. Run: git push origin main (owner only)
 ```
 
+Then inject the canonical Agent Delegation section into ~/.claude/CLAUDE.md so the laptop knows how to auto-route requests to the 8 agents:
+
+```bash
+bash ~/.claude/skills/infiniteleverage-onboard/scripts/inject-agent-delegation.sh \
+  ~/.claude/CLAUDE.md
+```
+
+After cloning the existing project repo (later prompt), repeat for the project's CLAUDE.md:
+
+```bash
+bash ~/.claude/skills/infiniteleverage-onboard/scripts/inject-agent-delegation.sh \
+  ~/code-projects/{project-slug}/CLAUDE.md
+```
+
+The script is idempotent — safe to re-run; only updates the block between the BEGIN/END markers.
+
 ---
 
 ## Prompt 3 — Global engineering rules

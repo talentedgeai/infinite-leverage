@@ -61,6 +61,31 @@ if [ "$MODE" = "full" ]; then
 fi
 
 echo ""
+
+# ── Inject/refresh AGENT-DELEGATION block in all CLAUDE.md files ─────────────
+INJECTOR="$HOME/.claude/skills/infiniteleverage-patch/scripts/inject-agent-delegation.sh"
+if [ -x "$INJECTOR" ]; then
+  echo "→ Refreshing AGENT-DELEGATION block in CLAUDE.md files…"
+  delegation_touched=0
+  if [ -f "$HOME/.claude/CLAUDE.md" ]; then
+    bash "$INJECTOR" "$HOME/.claude/CLAUDE.md" && delegation_touched=$((delegation_touched+1))
+  fi
+  if [ -d "$HOME/code-projects" ]; then
+    shopt -s nullglob
+    for proj in "$HOME/code-projects"/*/; do
+      proj_claude="${proj}CLAUDE.md"
+      if [ -f "$proj_claude" ]; then
+        bash "$INJECTOR" "$proj_claude" && delegation_touched=$((delegation_touched+1))
+      fi
+    done
+    shopt -u nullglob
+  fi
+  echo "   AGENT-DELEGATION refreshed in $delegation_touched CLAUDE.md file(s)"
+else
+  echo "⚠️  inject-agent-delegation.sh not found — skipped CLAUDE.md refresh"
+fi
+
+echo ""
 echo "=== PATCH COMPLETE: $added added · $updated updated · $removed removed ==="
 
 if [ "$errors" -gt 0 ]; then

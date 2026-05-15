@@ -6,6 +6,27 @@ version: 1.0.0
 
 # Infinite Leverage — New Project Scaffold
 
+## Canonical Source — Read This First
+
+**Every file this skill writes comes from ONE repo — the single source of truth:**
+
+> https://github.com/talentedgeai/infiniteleverage-8-agents-template
+
+| What | Where in the canonical repo |
+|---|---|
+| Project folder scaffold + stub files | `templates/project-scaffold/` |
+| Folder structure spec (`FOLDER-STRUCTURE.md`) | `templates/project-scaffold/FOLDER-STRUCTURE.md` |
+| AGENT-DELEGATION block content | `scripts/inject-agent-delegation.sh` |
+| 8 agent definitions installed into `.claude/agents/` | `.claude/agents/*.md` |
+| Project skills installed into `.claude/skills/` | `.claude/skills/*/SKILL.md` |
+
+**Rules:**
+1. Never modify the scaffold template locally. To change what new projects look like, edit `templates/project-scaffold/` in the canonical repo, commit, and push — the next scaffold pulls it automatically.
+2. Always fetch with `--depth 1` from the live repo. Use the bundled copy only if GitHub is unreachable.
+3. After scaffolding, the project carries its own copy of agents/skills — but that copy is expected to be kept in sync via `infiniteleverage-patch`.
+
+---
+
 ## When to invoke
 
 The operator wants a fresh project folder that follows the canonical Infinite Leverage layout. Run this AFTER `infiniteleverage-init` has set up the machine (agents installed in `~/.claude/agents/`, GitHub + Vercel + Supabase accounts ready).
@@ -94,7 +115,16 @@ cp "$TMP/il-agents/.claude/rules/global-engineering.md" "$TARGET/.claude/rules/"
 rm -rf "$TMP/il-agents"
 ```
 
-### 7. Initialize git + first commit
+### 7. Refresh AGENT-DELEGATION block in the project CLAUDE.md
+
+The scaffold ships with the block already, but run the injector so it's the very latest version from the template repo:
+
+```bash
+bash ~/.claude/skills/infiniteleverage-project/scripts/inject-agent-delegation.sh \
+  "$TARGET/CLAUDE.md"
+```
+
+### 8. Initialize git + first commit
 
 ```bash
 cd "$TARGET"
@@ -103,7 +133,7 @@ git add .
 git commit -m "init: scaffold $PROJECT_NAME from infiniteleverage-project template"
 ```
 
-### 8. Offer to scaffold Next.js + create GitHub repo
+### 9. Offer to scaffold Next.js + create GitHub repo
 
 Ask the operator:
 
@@ -125,7 +155,7 @@ If yes to GitHub:
 gh repo create "$GH_ORG/$PROJECT_SLUG" --private --source=. --remote=origin --push
 ```
 
-### 9. Print next steps
+### 10. Print next steps
 
 Tell the operator:
 

@@ -72,6 +72,33 @@ else
   else
     check "  env vars rule" missing "add ## Environment variables section"
   fi
+  # Check for AGENT-DELEGATION block
+  if grep -q "BEGIN: AGENT-DELEGATION" "$CLAUDE_MD" 2>/dev/null; then
+    check "  agent-delegation block" ok ""
+  else
+    check "  agent-delegation block" missing "run scripts/inject-agent-delegation.sh ~/.claude/CLAUDE.md"
+  fi
+fi
+echo ""
+
+# ── 3b. project CLAUDE.md files ──────────────────────────────────────────────
+echo "[ Project CLAUDE.md files ]"
+PROJECTS_DIR="$HOME/code-projects"
+if [ -d "$PROJECTS_DIR" ]; then
+  shopt -s nullglob
+  for proj in "$PROJECTS_DIR"/*/; do
+    proj_claude="${proj}CLAUDE.md"
+    if [ -f "$proj_claude" ]; then
+      if grep -q "BEGIN: AGENT-DELEGATION" "$proj_claude" 2>/dev/null; then
+        check "  $(basename "$proj")/CLAUDE.md delegation block" ok ""
+      else
+        check "  $(basename "$proj")/CLAUDE.md delegation block" missing "run inject-agent-delegation.sh on this file"
+      fi
+    fi
+  done
+  shopt -u nullglob
+else
+  check "  ~/code-projects/" warn "directory not found — skip"
 fi
 echo ""
 
