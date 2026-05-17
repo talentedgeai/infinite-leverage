@@ -655,29 +655,30 @@ Tell me: "Dashboard ready — open ~/{clientslug}-agents/team-dashboard.html"
    Local: ~/{clientslug}-agents/
    Update: say "sync agents" in Claude Code
 
-3. Register 8 local CronCreate schedules:
-   # [Protocol 10] These run locally in Claude Code — Mac Mini must be awake and Claude Code session open
-   # [Protocol 2] Web Publisher is the CMS — no manual page editing after this
+3. Register 10 cloud RemoteTrigger routines:
+   # [Protocol 10] These run in Anthropic's cloud (CCR) — Mac Mini does not need to be awake.
+   # [Protocol 2] Web Publisher is the CMS — no manual page editing after this.
    #
-   # IMPORTANT: Use CronCreate with durable=true for all schedules.
+   # IMPORTANT: Load RemoteTrigger schema first: ToolSearch(query: "select:RemoteTrigger")
    # Read the prompt body from ~/.claude/scheduled-tasks/{name}/SKILL.md for each task.
-   # Use off-minute cron expressions to avoid fleet load spikes.
+   # Cron expressions are in UTC. Client timezone is Asia/Saigon (UTC+7).
+   # environment_id for all routines: env_01Ly7cgFD1z5N2xN9VtNZ42S
 
-   For each task below, call CronCreate(cron="{expression}", prompt="{contents of SKILL.md}", recurring=true, durable=true):
+   For each task below, call RemoteTrigger(action: "create", body: { name, cron_expression, job_config }):
 
-   devops-daily         → cron: "3 6 * * 1-5"    (weekdays 6:03 AM — production health + CI/CD check → epic-status.md)
-   pm-daily-plan        → cron: "3 7 * * 1-5"    (weekdays 7:03 AM — reads epic-status.md, updates project-status.html)
-   developer-daily      → cron: "3 9 * * 1-5"    (weekdays 9:03 AM — picks up approved items, runs dev-tdd loop)
-   pm-standup-compile   → cron: "7 18 * * 1-5"   (weekdays 6:07 PM local)
-   pm-eod-summary       → cron: "37 18 * * 1-5"  (weekdays 6:37 PM local)
-   pm-weekly-rag        → cron: "7 17 * * 5"     (Fridays 5:07 PM local)
-   writer-weekly        → cron: "3 9 * * 1"      (Mondays 9:03 AM local)
-   designer-weekly      → cron: "3 9 * * 2"      (Tuesdays 9:03 AM local)
-   web-publisher-weekly → cron: "3 9 * * 3"      (Wednesdays 9:03 AM local)
-   email-marketer-weekly → cron: "3 10 * * 4"    (Thursdays 10:03 AM local)
+   devops-daily         → cron_expression: "3 23 * * 0-4"   (weekdays 6:03 AM Asia/Saigon — production health + CI/CD → epic-status.md)
+   pm-daily-plan        → cron_expression: "3 0 * * 1-5"    (weekdays 7:03 AM Asia/Saigon — reads epic-status.md, updates project-status.html)
+   developer-daily      → cron_expression: "3 2 * * 1-5"    (weekdays 9:03 AM Asia/Saigon — picks up approved items, runs dev-tdd loop)
+   pm-standup-compile   → cron_expression: "7 11 * * 1-5"   (weekdays 6:07 PM Asia/Saigon)
+   pm-eod-summary       → cron_expression: "37 11 * * 1-5"  (weekdays 6:37 PM Asia/Saigon)
+   pm-weekly-rag        → cron_expression: "7 10 * * 5"     (Fridays 5:07 PM Asia/Saigon)
+   writer-weekly        → cron_expression: "3 2 * * 1"      (Mondays 9:03 AM Asia/Saigon)
+   designer-weekly      → cron_expression: "3 2 * * 2"      (Tuesdays 9:03 AM Asia/Saigon)
+   web-publisher-weekly → cron_expression: "3 2 * * 3"      (Wednesdays 9:03 AM Asia/Saigon)
+   email-marketer-weekly → cron_expression: "3 3 * * 4"     (Thursdays 10:03 AM Asia/Saigon)
 
-   Save all 8 job IDs returned by CronCreate — record them in HANDOFF.md under "Scheduled task IDs".
-   Recurring tasks auto-expire after 7 days and must be re-registered. Tell the client.
+   Save all 10 routine IDs — record them in HANDOFF.md under "Scheduled routine IDs".
+   Routines are persistent — no expiry, no re-registration needed. Manage at: https://claude.ai/code/routines
 
 4. Run verification:
    ls ~/.claude/agents/           # all 8 present
@@ -694,6 +695,6 @@ Tell me: "Dashboard ready — open ~/{clientslug}-agents/team-dashboard.html"
    # [Protocol 17] Context handoff — this document is how the client picks up without Dave present
    # [Protocol 18] Work outlives the operator — agents repo + sync-agents means any machine can be set up from GitHub
    Include: all 8 agents with trigger phrases, content pipeline schedule, sync instructions,
-   live URL, repo URL, first-actions guide for the client, and all 8 CronCreate job IDs with
-   the instruction to re-register after 7 days using: /create-local-task
+   live URL, repo URL, first-actions guide for the client, and all 10 RemoteTrigger routine IDs.
+   Manage routines at: https://claude.ai/code/routines
 ```

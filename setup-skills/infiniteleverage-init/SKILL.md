@@ -124,7 +124,7 @@ PHASE 2 — Claude Code (automated)
   ├── [P12] DevOps agent with escalation rules
   ├── [P15] PM agent that reads git log + standup files
   ├── Agent team dashboard: HTML summary of all 8 agents, weekly calendar, cross-agent flow
-  ├── [P10][P11] 10 CronCreate local schedules registered (durable=true)
+  ├── [P10][P11] 10 RemoteTrigger cloud routines registered (persistent, no session needed)
   └── [P17] HANDOFF.md written for client
 ```
 
@@ -160,7 +160,7 @@ Open Claude Code Desktop on the Mac Mini. Run prompts from `references/phase2-pr
 **Phase 2 is complete when:**
 - `curl -I https://{project-slug}.vercel.app` returns HTTP 200
 - `ls ~/.claude/agents/` shows all 8 agents **[P13]**
-- All 10 CronCreate local schedules confirmed running (`durable=true`) **[P10]**
+- All 10 RemoteTrigger routines confirmed at https://claude.ai/code/routines **[P10]**
 - HANDOFF.md written **[P17]**
 
 See `references/phase2-prompts.md` for the full prompt sequence.
@@ -215,7 +215,7 @@ Stopped partway through? Here's where to pick up — no restarting needed.
 - [ ] Site live on Vercel (HTTP 200)
 - [ ] All 8 agents fetched from GitHub canonical repo to `~/.claude/agents/` **[P13]**
 - [ ] `email-index.md` Stage 0 populated
-- [ ] 10 CronCreate local schedules registered (durable=true, re-register after 7 days) **[P10]**
+- [ ] 10 RemoteTrigger routines registered — verify at https://claude.ai/code/routines **[P10]**
 - [ ] HANDOFF.md written **[P17]**
 
 **Next**: Hand off HANDOFF.md to client → run `infiniteleverage-onboard` skill on client's machine.
