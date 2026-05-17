@@ -665,6 +665,7 @@ Tell me: "Dashboard ready — open ~/{clientslug}-agents/team-dashboard.html"
 
    For each task below, call CronCreate(cron="{expression}", prompt="{contents of SKILL.md}", recurring=true, durable=true):
 
+   devops-daily         → cron: "3 6 * * 1-5"    (weekdays 6:03 AM — production health + CI/CD check → epic-status.md)
    pm-daily-plan        → cron: "3 7 * * 1-5"    (weekdays 7:03 AM — reads epic-status.md, updates project-status.html)
    developer-daily      → cron: "3 9 * * 1-5"    (weekdays 9:03 AM — picks up approved items, runs dev-tdd loop)
    pm-standup-compile   → cron: "7 18 * * 1-5"   (weekdays 6:07 PM local)
