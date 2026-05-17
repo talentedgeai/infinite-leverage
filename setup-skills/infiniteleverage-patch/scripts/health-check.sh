@@ -126,8 +126,8 @@ else
   REQUIRED_KEYS=(
     SUPABASE_URL SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY
     GEMINI_API_KEY RESEND_API_KEY
-    LARK_APP_ID LARK_APP_SECRET LARK_WEBHOOK_URL
   )
+  OPTIONAL_KEYS=(LARK_APP_ID LARK_APP_SECRET LARK_WEBHOOK_URL)
   missing_keys=()
   empty_keys=()
   for key in "${REQUIRED_KEYS[@]}"; do
@@ -146,7 +146,25 @@ else
   elif [ ${#empty_keys[@]} -gt 0 ]; then
     check "required keys present" warn "empty values: ${empty_keys[*]}"
   else
-    check "all 8 required keys present and non-empty" ok ""
+    check "required keys present and non-empty" ok ""
+  fi
+  # Lark is optional — warn if partially configured (e.g. only one of three keys set)
+  lark_set=0
+  lark_missing=0
+  for key in "${OPTIONAL_KEYS[@]}"; do
+    val=$(grep "^${key}=" "$ENV_FILE" 2>/dev/null | cut -d= -f2-)
+    if [ -n "$val" ]; then
+      lark_set=$((lark_set + 1))
+    else
+      lark_missing=$((lark_missing + 1))
+    fi
+  done
+  if [ "$lark_set" -eq 3 ]; then
+    check "Lark (optional)" ok "configured"
+  elif [ "$lark_set" -eq 0 ]; then
+    check "Lark (optional)" warn "not configured — Lark notifications will be skipped"
+  else
+    check "Lark (optional)" warn "partially configured ($lark_set/3 keys set) — check LARK_APP_ID, LARK_APP_SECRET, LARK_WEBHOOK_URL"
   fi
 fi
 echo ""

@@ -72,9 +72,9 @@ git add docs/engineering/changes/{date}-{slug}/HANDOFF.md
 git commit -m "docs: handoff for {feature} — {what/where next}"
 ```
 
-## Step 4 — Notify
+## Step 4 — Notify (optional)
 
-If a Lark notification is appropriate (PM assigned this work), send a Lark message:
+If `LARK_WEBHOOK_URL` is set in the environment, send a Lark notification:
 
 ```
 🔁 Handoff: {feature}
@@ -82,6 +82,8 @@ From: Developer → {recipient}
 Branch: {branch}
 Handoff: docs/engineering/changes/{date}-{slug}/HANDOFF.md
 ```
+
+If Lark is not configured, skip this step silently — the HANDOFF.md commit is the record.
 
 ---
 

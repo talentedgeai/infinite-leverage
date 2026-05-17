@@ -34,7 +34,9 @@ ANTHROPIC_API_KEY=
 RESEND_API_KEY=
 RESEND_FROM_EMAIL=
 
-# ── Lark (internal notifications) ────────────────────────────────────────────
+# ── Lark (internal notifications — OPTIONAL) ─────────────────────────────────
+# Leave blank to disable Lark. All agents check for LARK_WEBHOOK_URL before
+# sending — notifications are silently skipped if these values are absent.
 LARK_APP_ID=
 LARK_APP_SECRET=
 LARK_WEBHOOK_URL=
