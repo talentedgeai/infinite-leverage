@@ -4,193 +4,307 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agent Map — Infinite Leverage 8-Agent Team</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+/* ── IL8 Design System ─────────────────────────────────────────────────────── */
 :root {
-  --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3248;
-  --text: #e2e8f0; --muted: #8892a4; --faint: #555e72;
-  --blue: #4f8ef7; --green: #34d399; --amber: #fbbf24; --purple: #a78bfa;
-  --pink: #f472b6; --teal: #2dd4bf; --orange: #fb923c; --red: #f87171;
-  --chip-ctx: #14532d; --chip-ctx-t: #4ade80;
-  --chip-od: #78350f; --chip-od-t: #fbbf24;
+  --ink:        #02081c;
+  --ink-2:      #060f2c;
+  --ink-3:      #0a1740;
+  --paper:      #eaeef2;
+  --paper-2:    #f5f7fa;
+  --cream:      #fff;
+  --rule:       #eaeef21f;
+  --rule-2:     #eaeef23a;
+  --muted:      #eaeef29e;
+  --accent:     #6ff2c1;
+  --accent-deep:#1a9e74;
+  --accent-2:   #287be8;
+  --pink:       #d1458b;
+  --amber:      #f5c842;
+  --orange:     #f5823c;
+  --serif:      "Fraunces", Georgia, serif;
+  --sans:       "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono:       "JetBrains Mono", ui-monospace, monospace;
+  --maxw:       1280px;
+  --radius:     10px;
 }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.5; }
+
+body {
+  font-family: var(--sans);
+  background: var(--ink);
+  color: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── Typography ── */
+.eyebrow {
+  font-family: var(--mono);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  display: inline-block;
+}
+.h-section {
+  font-family: var(--serif);
+  font-size: clamp(28px,3.4vw,44px);
+  font-weight: 300;
+  letter-spacing: -.02em;
+  line-height: 1.1;
+  color: var(--paper);
+}
+.h-section em { color: var(--accent); font-style: italic; }
+.h-card {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: -.02em;
+  line-height: 1.15;
+}
+code, .mono { font-family: var(--mono); font-size: 11px; }
 
 /* ── Nav ── */
-header { padding: 18px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; }
-header h1 { font-size: 18px; font-weight: 700; }
-header p { color: var(--muted); font-size: 12px; }
-.badge { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 2px 9px; border-radius: 9999px; font-size: 11px; white-space: nowrap; }
+header {
+  position: sticky; top: 0; z-index: 100;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--rule);
+  background: #02081cdb;
+  padding: 0 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+}
+.site-title { font-family: var(--serif); font-size: 18px; font-weight: 300; letter-spacing: -.02em; color: var(--paper); }
+.site-title em { color: var(--accent); font-style: italic; }
+.badge {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  background: var(--ink-3); border: 1px solid var(--rule-2);
+  color: var(--muted); padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+}
 
-nav { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--surface); padding: 0 32px; overflow-x: auto; }
-nav button { padding: 12px 18px; border: none; background: none; color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 500; border-bottom: 2px solid transparent; white-space: nowrap; transition: color .15s; }
-nav button:hover { color: var(--text); }
-nav button.active { color: var(--blue); border-bottom-color: var(--blue); }
+/* ── Tab nav ── */
+nav {
+  border-bottom: 1px solid var(--rule);
+  padding: 0 40px;
+  display: flex; gap: 0;
+  overflow-x: auto;
+  background: var(--ink-2);
+}
+nav button {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  padding: 14px 18px; border: none; background: none; color: var(--muted);
+  cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap;
+  transition: color .15s, border-color .15s;
+}
+nav button:hover { color: var(--paper); }
+nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-.tab { display: none; padding: 28px 32px; }
+.tab { display: none; padding: 40px; }
 .tab.active { display: block; }
 
-/* ── Shared helpers ── */
-.section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 20px; }
-.chip { display: inline-block; padding: 2px 7px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
-.chip.ctx { background: var(--chip-ctx); color: var(--chip-ctx-t); }
-.chip.od { background: var(--chip-od); color: var(--chip-od-t); }
-.skill-tag { background: var(--surface2); border: 1px solid var(--border); color: var(--blue); padding: 2px 7px; border-radius: 5px; font-size: 11px; font-family: monospace; display: inline-block; }
-.rule-pill { background: #1c1020; border-left: 3px solid var(--purple); padding: 5px 10px; border-radius: 0 5px 5px 0; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+/* ── Shared ── */
+.section-label { font-family: var(--mono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; margin-top: 16px; }
 
-/* ── Tab 1: Auto-Trigger Flow ── */
-.flow-wrap { max-width: 900px; margin: 0 auto; }
-.flow-intro { color: var(--muted); font-size: 13px; max-width: 680px; margin-bottom: 32px; line-height: 1.7; }
+.chip {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  font-weight: 500; padding: 3px 8px; border-radius: 999px; display: inline-block; white-space: nowrap;
+}
+.chip.ctx { background: #0d2b1f; color: var(--accent); border: 1px solid #1a4d35; }
+.chip.od  { background: #2a1500; color: var(--amber); border: 1px solid #4d2e00; }
 
-/* Chat mock */
-.chat-mock { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 28px; }
-.chat-mock h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 16px; }
-.chat-msg { display: flex; gap: 10px; margin-bottom: 14px; }
-.chat-msg.user { flex-direction: row-reverse; }
-.avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
-.av-user { background: #1e3a5f; color: var(--blue); }
-.av-bot { background: #1c2d1e; color: var(--green); }
-.bubble { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 13px; max-width: 480px; }
-.chat-msg.user .bubble { background: #1e3a5f; border-color: #2a4d7a; text-align: right; }
-.bubble .trigger-hl { color: var(--amber); font-weight: 600; }
-.bubble .agent-hl { color: var(--green); font-weight: 700; }
-.bubble .skill-hl { color: var(--blue); font-family: monospace; font-size: 12px; }
-.bubble .route-note { display: block; font-size: 11px; color: var(--muted); margin-top: 4px; font-style: italic; }
+.skill-tag {
+  font-family: var(--mono); font-size: 10px;
+  background: var(--ink-3); border: 1px solid var(--rule-2);
+  color: var(--accent-2); padding: 2px 7px; border-radius: 4px; display: inline-block;
+}
 
-/* Step flow */
+/* ── Cards ── */
+.card {
+  background: var(--ink-2); border: 1px solid var(--rule-2);
+  border-radius: var(--radius); padding: 20px;
+  transition: border-color .15s;
+}
+.card:hover { border-color: #eaeef240; }
+.card.active-card { border-color: var(--accent); }
+
+/* ── Tables ── */
+.data-table { width: 100%; border-collapse: collapse; background: var(--ink-2); border: 1px solid var(--rule-2); border-radius: var(--radius); overflow: hidden; font-size: 13px; }
+.data-table th { background: var(--ink-3); padding: 10px 14px; text-align: left; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 500; }
+.data-table td { padding: 9px 14px; border-top: 1px solid var(--rule); vertical-align: middle; }
+.data-table tr:hover td { background: var(--ink-3); }
+
+/* ── Rule pill ── */
+.rule-pill {
+  border-left: 2px solid var(--pink);
+  background: #1a051a; padding: 6px 12px; border-radius: 0 6px 6px 0;
+  font-size: 12px; color: var(--muted); margin-bottom: 5px; display: block;
+}
+
+/* ── Step flow ── */
 .step-flow { display: flex; gap: 0; align-items: stretch; overflow-x: auto; padding-bottom: 8px; margin-bottom: 32px; }
 .step-node { flex: 1; min-width: 130px; }
-.step-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 12px; text-align: center; height: 100%; }
-.step-box .step-num { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+.step-box { background: var(--ink-2); border: 1px solid var(--rule-2); border-radius: var(--radius); padding: 16px 12px; text-align: center; height: 100%; }
+.step-box .step-num { font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
 .step-box .step-icon { font-size: 22px; margin-bottom: 8px; }
-.step-box .step-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-.step-box .step-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
-.step-arrow { display: flex; align-items: center; color: var(--border); font-size: 20px; padding: 0 4px; flex-shrink: 0; }
+.step-box .step-name { font-family: var(--serif); font-size: 16px; font-weight: 400; margin-bottom: 6px; }
+.step-box .step-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.step-arrow { display: flex; align-items: center; color: var(--rule-2); font-size: 18px; padding: 0 4px; flex-shrink: 0; }
 
-/* Routing table */
-.route-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-size: 13px; }
-.route-table th { background: var(--surface2); padding: 10px 14px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
-.route-table td { padding: 9px 14px; border-top: 1px solid var(--border); vertical-align: middle; }
-.route-table tr:hover td { background: var(--surface2); }
-.agent-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+/* ── Chat mock ── */
+.chat-mock { background: var(--ink-2); border: 1px solid var(--rule-2); border-radius: var(--radius); padding: 24px; margin-bottom: 32px; }
+.chat-mock-title { font-family: var(--mono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; }
+.chat-msg { display: flex; gap: 10px; margin-bottom: 16px; }
+.chat-msg.user { flex-direction: row-reverse; }
+.avatar { width: 28px; height: 28px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 10px; font-weight: 700; flex-shrink: 0; }
+.av-user { background: var(--ink-3); color: var(--accent-2); border: 1px solid var(--rule-2); }
+.av-bot { background: #0d2b1f; color: var(--accent); border: 1px solid #1a4d35; }
+.bubble { background: var(--ink-3); border: 1px solid var(--rule-2); border-radius: 10px; padding: 10px 14px; font-size: 13px; max-width: 500px; line-height: 1.55; }
+.chat-msg.user .bubble { background: var(--ink-2); border-color: var(--accent-2); opacity: .8; text-align: right; }
+.trigger-hl { color: var(--amber); font-weight: 600; }
+.agent-hl { color: var(--accent); font-weight: 700; font-family: var(--mono); font-size: 12px; }
+.skill-hl { color: var(--accent-2); font-family: var(--mono); font-size: 11px; }
+.route-note { display: block; font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 6px; letter-spacing: .04em; }
 
-/* ── Tab 2 & 3: Schedules ── */
-.schedule-intro { color: var(--muted); font-size: 13px; margin-bottom: 24px; max-width: 680px; line-height: 1.7; }
-
-/* Daily loop */
-.daily-loop { position: relative; margin-bottom: 40px; }
-.loop-track { display: flex; gap: 0; align-items: stretch; }
+/* ── Loop / chain ── */
+.loop-track { display: flex; gap: 0; align-items: stretch; overflow-x: auto; }
 .loop-node { flex: 1; min-width: 120px; }
-.loop-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px; text-align: center; height: 100%; position: relative; }
-.loop-box .time-badge { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: var(--bg); border: 1px solid var(--border); border-radius: 9999px; padding: 1px 8px; font-size: 10px; color: var(--muted); white-space: nowrap; }
-.loop-box .agent-label { font-size: 13px; font-weight: 700; margin: 10px 0 4px; }
-.loop-box .loop-task { font-size: 11px; color: var(--muted); line-height: 1.4; }
-.loop-box .loop-note { font-size: 10px; color: var(--faint); margin-top: 5px; font-style: italic; }
-.loop-arrow { display: flex; align-items: center; color: var(--faint); font-size: 18px; padding: 0 2px; flex-shrink: 0; }
-.loop-arrow.down { flex-direction: column; height: 40px; justify-content: center; }
-.wait-box { background: #1c2030; border: 1px dashed var(--border); border-radius: 10px; padding: 10px 14px; text-align: center; }
-.wait-box .wait-label { font-size: 12px; font-weight: 700; color: var(--amber); }
-.wait-box .wait-desc { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.loop-box { background: var(--ink-2); border: 1px solid var(--rule-2); border-radius: var(--radius); padding: 14px 10px; text-align: center; height: 100%; position: relative; }
+.loop-box.dashed { border-style: dashed; }
+.time-badge { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: var(--ink); border: 1px solid var(--rule-2); border-radius: 999px; padding: 1px 8px; font-family: var(--mono); font-size: 9px; letter-spacing: .06em; color: var(--muted); white-space: nowrap; }
+.loop-agent { font-family: var(--serif); font-size: 15px; font-weight: 400; margin: 12px 0 4px; }
+.loop-task { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.loop-note { font-family: var(--mono); font-size: 10px; color: #eaeef250; margin-top: 5px; }
+.loop-arrow { display: flex; align-items: center; color: var(--rule-2); font-size: 18px; padding: 0 2px; flex-shrink: 0; }
 
-.loop-section { margin-bottom: 36px; }
-.loop-section h3 { font-size: 13px; font-weight: 700; margin-bottom: 16px; color: var(--text); display: flex; align-items: center; gap: 8px; }
-.loop-section h3 .lbadge { font-size: 10px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 1px 7px; border-radius: 9999px; font-weight: 500; }
+.sub-loop { background: var(--ink-3); border: 1px solid var(--rule-2); border-radius: 8px; padding: 10px 12px; margin-top: 8px; }
+.sub-loop-row { display: flex; align-items: center; gap: 8px; font-size: 11px; margin-bottom: 5px; }
+.sub-loop-row:last-child { margin-bottom: 0; }
+.sl-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.cycle-badge { font-family: var(--mono); font-size: 9px; color: var(--muted); background: var(--ink); border: 1px solid var(--rule-2); padding: 1px 5px; border-radius: 999px; }
 
-/* Sub-loop for dev-qa cycle */
-.sub-loop { display: flex; flex-direction: column; gap: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-top: 8px; }
-.sub-loop-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-.sub-loop-row .sl-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.cycle-badge { font-size: 10px; color: var(--muted); background: var(--bg); border: 1px solid var(--border); padding: 1px 6px; border-radius: 9999px; }
-
-/* Weekly calendar */
-.week-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 32px; }
-.day-col { }
-.day-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 8px; text-align: center; }
-.day-event { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 6px; }
-.day-event .ev-time { font-size: 10px; color: var(--muted); }
-.day-event .ev-agent { font-size: 12px; font-weight: 700; margin: 2px 0; }
-.day-event .ev-task { font-size: 11px; color: var(--muted); }
-.day-event .ev-note { font-size: 10px; color: var(--faint); margin-top: 3px; font-style: italic; }
-.day-empty { background: var(--surface); border: 1px dashed var(--border); border-radius: 8px; padding: 10px; text-align: center; font-size: 11px; color: var(--faint); }
-
-/* ── Tab 4: Agent Overview ── */
+/* ── Agent overview grid ── */
 .agents-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-.agent-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; cursor: pointer; transition: border-color .15s; }
-.agent-card:hover { border-color: #3e4264; }
-.agent-card.active-card { border-color: var(--blue); }
 .ac-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-.ac-name { font-size: 16px; font-weight: 700; }
+.ac-name { font-family: var(--serif); font-size: 18px; font-weight: 400; }
 .ac-role { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.sched-pill { font-size: 10px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 2px 8px; border-radius: 5px; white-space: nowrap; }
+.sched-pill { font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; background: var(--ink-3); border: 1px solid var(--rule-2); color: var(--muted); padding: 3px 8px; border-radius: 5px; white-space: nowrap; }
 .ac-triggers { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
 .ac-skills { display: flex; flex-wrap: wrap; gap: 4px; }
-.detail-btn { margin-top: 12px; width: 100%; padding: 7px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--blue); font-size: 12px; cursor: pointer; text-align: center; }
-.detail-btn:hover { background: #1e2d4a; }
 
-/* ── Tab 5: Agent Detail ── */
-.agent-detail-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
-.ad-btn { padding: 7px 14px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--muted); cursor: pointer; font-size: 12px; font-weight: 600; transition: all .15s; }
-.ad-btn:hover { border-color: #3e4264; color: var(--text); }
-.ad-btn.active { border-color: var(--blue); color: var(--blue); background: #1e2d4a; }
+.detail-btn {
+  margin-top: 14px; width: 100%; padding: 9px;
+  background: transparent; border: 1px solid var(--rule-2);
+  border-radius: 999px; color: var(--accent);
+  font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+  cursor: pointer; transition: background .15s, border-color .15s;
+}
+.detail-btn:hover { background: var(--ink-3); border-color: var(--accent); }
+
+/* ── Hard rules grid ── */
+.hr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.hr-card { background: var(--ink-2); border: 1px solid var(--rule-2); border-left: 2px solid var(--pink); border-radius: 0 8px 8px 0; padding: 10px 14px; }
+.hr-card strong { display: block; font-size: 12px; margin-bottom: 3px; color: var(--paper); }
+.hr-card span { font-size: 11px; color: var(--muted); }
+
+/* ── Weekly calendar ── */
+.week-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 32px; }
+.day-label { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; text-align: center; }
+.day-event { background: var(--ink-2); border: 1px solid var(--rule-2); border-radius: 8px; padding: 10px; margin-bottom: 6px; }
+.ev-time { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.ev-agent { font-family: var(--serif); font-size: 14px; font-weight: 400; margin: 3px 0; }
+.ev-task { font-size: 11px; color: var(--muted); }
+.ev-note { font-family: var(--mono); font-size: 10px; color: #eaeef250; margin-top: 3px; }
+.day-empty { background: var(--ink-2); border: 1px dashed var(--rule-2); border-radius: 8px; padding: 10px; text-align: center; font-family: var(--mono); font-size: 10px; color: #eaeef240; }
+
+/* ── Agent detail ── */
+.agent-detail-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; }
+.ad-btn {
+  padding: 7px 14px; border: 1px solid var(--rule-2); border-radius: 999px;
+  background: var(--ink-2); color: var(--muted);
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  cursor: pointer; transition: all .15s;
+}
+.ad-btn:hover { border-color: var(--rule-2); color: var(--paper); }
+.ad-btn.active { border-color: var(--accent); color: var(--accent); background: #0d2b1f; }
 
 .agent-detail { display: none; }
 .agent-detail.active { display: block; }
 
-.detail-header { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 24px; }
-.detail-avatar { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-.detail-title h2 { font-size: 20px; font-weight: 700; }
-.detail-title p { color: var(--muted); font-size: 13px; margin-top: 3px; }
-.detail-title .file-ref { font-family: monospace; font-size: 11px; color: var(--faint); margin-top: 4px; }
+.detail-header { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 28px; }
+.detail-avatar { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; border: 1px solid var(--rule-2); }
+.detail-title h2 { font-family: var(--serif); font-size: 26px; font-weight: 400; letter-spacing: -.02em; }
+.detail-title p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.detail-title .file-ref { font-family: var(--mono); font-size: 10px; color: #eaeef240; margin-top: 5px; }
 
-.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-.detail-section { }
-.ds-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 10px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
 
-/* Routine timeline */
 .routine-timeline { }
 .rt-step { display: flex; gap: 12px; margin-bottom: 10px; }
 .rt-left { display: flex; flex-direction: column; align-items: center; }
-.rt-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--blue); flex-shrink: 0; margin-top: 3px; }
-.rt-line { width: 2px; flex: 1; background: var(--border); margin: 4px 0; }
+.rt-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; }
+.rt-line { width: 1px; flex: 1; background: var(--rule-2); margin: 4px 0; }
 .rt-right { flex: 1; padding-bottom: 8px; }
-.rt-action { font-size: 13px; font-weight: 600; }
-.rt-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.rt-skill-ref { font-family: monospace; font-size: 11px; color: var(--blue); }
+.rt-action { font-size: 13px; font-weight: 600; color: var(--paper); }
+.rt-desc { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+.rt-skill-ref { font-family: var(--mono); font-size: 10px; color: var(--accent-2); margin-top: 3px; }
 
-/* Skill detail rows */
-.skill-row { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
+.skill-row { background: var(--ink-3); border: 1px solid var(--rule-2); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
 .skill-row-top { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
-.skill-name-big { font-family: monospace; font-size: 12px; font-weight: 700; color: var(--blue); }
+.skill-name-big { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--accent-2); }
 .skill-purpose { font-size: 12px; color: var(--muted); }
-.skill-how { font-size: 12px; color: var(--faint); margin-top: 4px; padding-left: 4px; border-left: 2px solid var(--border); }
+.skill-how { font-size: 12px; color: #eaeef260; margin-top: 5px; padding-left: 8px; border-left: 2px solid var(--rule-2); line-height: 1.55; }
 
-.hard-rules-section { }
 .hr-item { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px; font-size: 12px; }
-.hr-icon { color: var(--red); flex-shrink: 0; margin-top: 1px; }
+.hr-icon { color: var(--pink); flex-shrink: 0; margin-top: 1px; }
 .hr-text { color: var(--muted); }
-.hr-text strong { color: var(--text); }
+.hr-text strong { color: var(--paper); }
 
-.output-paths { }
 .op-item { display: flex; gap: 8px; align-items: center; margin-bottom: 5px; font-size: 12px; }
-.op-arrow { color: var(--blue); }
-.op-path { font-family: monospace; color: var(--muted); font-size: 11px; }
+.op-arrow { font-family: var(--mono); font-size: 10px; color: var(--accent); }
+.op-path { font-family: var(--mono); color: var(--muted); font-size: 11px; }
 
-/* Hard rules grid (overview tab) */
-.hr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-.hr-card { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--purple); border-radius: 0 8px 8px 0; padding: 10px 12px; }
-.hr-card strong { display: block; font-size: 12px; margin-bottom: 2px; }
-.hr-card span { font-size: 11px; color: var(--muted); }
+/* ── Agent color accents ── */
+.c-pm { color: var(--accent-2); }
+.c-dev { color: var(--accent); }
+.c-qa { color: var(--amber); }
+.c-devops { color: var(--pink); }
+.c-writer { color: #6ff2c1; }
+.c-designer { color: #d1458b; }
+.c-publisher { color: var(--orange); }
+.c-email { color: var(--accent-2); }
 
-footer { padding: 16px 32px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+footer {
+  background: var(--ink);
+  border-top: 1px solid var(--rule);
+  padding: 20px 40px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+}
+
+.agent-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.intro-text { color: var(--muted); font-size: 13px; max-width: 640px; margin-bottom: 28px; line-height: 1.7; }
+.loop-section { margin-bottom: 36px; }
+.loop-section-title { font-family: var(--serif); font-size: 18px; font-weight: 400; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.lbadge { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; background: var(--ink-3); border: 1px solid var(--rule-2); color: var(--muted); padding: 2px 7px; border-radius: 999px; }
 </style>
 </head>
 <body>
 
 <header>
-  <div style="flex:1">
-    <h1>Infinite Leverage — Agent Map</h1>
-    <p>8-agent team · context-driven routing · skills-based playbooks</p>
-  </div>
+  <div class="site-title">Infinite <em>Leverage</em> — Agent Map</div>
   <span class="badge">talentedgeai/infiniteleverage-8-agents-template</span>
 </header>
 
@@ -206,298 +320,138 @@ footer { padding: 16px 32px; border-top: 1px solid var(--border); color: var(--m
      TAB 1: AUTO-TRIGGER FLOW
 ════════════════════════════════════════════════════════════════════ -->
 <div id="tab-flow" class="tab active">
-<div class="flow-wrap">
-  <div class="section-title">How Seamless Context Routing Works</div>
-  <p class="flow-intro">
-    No <code>@agent</code> call needed. Claude Code always loads <code>CLAUDE.md</code> and <code>~/.claude/rules/agent-routing.md</code> at every session start.
-    When you type a message, the routing rules match trigger phrases and automatically activate the right agent and skill — before you finish the thought.
-  </p>
+  <div class="eyebrow" style="margin-bottom:12px">Routing</div>
+  <h2 class="h-section" style="margin-bottom:6px">Seamless <em>context-driven</em> routing</h2>
+  <p class="intro-text">No <code>@agent</code> call needed. Claude Code always loads <code>CLAUDE.md</code> and <code>~/.claude/rules/agent-routing.md</code> at every session start. When you type, routing rules match trigger phrases and activate the right agent — before you finish the thought.</p>
 
-  <!-- Step-by-step flow -->
-  <div style="margin-bottom: 28px;">
-    <div class="section-title" style="margin-bottom: 14px;">Routing Steps</div>
-    <div class="step-flow">
-      <div class="step-node">
-        <div class="step-box">
-          <div class="step-num">Step 1</div>
-          <div class="step-icon">💬</div>
-          <div class="step-name">You type</div>
-          <div class="step-desc">Any message in the Claude Code chat — no special syntax needed</div>
-        </div>
-      </div>
-      <div class="step-arrow">→</div>
-      <div class="step-node">
-        <div class="step-box">
-          <div class="step-num">Step 2</div>
-          <div class="step-icon">📄</div>
-          <div class="step-name">Context loads</div>
-          <div class="step-desc"><code>CLAUDE.md</code> + <code>agent-routing.md</code> are always in context</div>
-        </div>
-      </div>
-      <div class="step-arrow">→</div>
-      <div class="step-node">
-        <div class="step-box">
-          <div class="step-num">Step 3</div>
-          <div class="step-icon">🔍</div>
-          <div class="step-name">Phrase match</div>
-          <div class="step-desc">Trigger phrases matched against the routing table — zero latency</div>
-        </div>
-      </div>
-      <div class="step-arrow">→</div>
-      <div class="step-node">
-        <div class="step-box">
-          <div class="step-num">Step 4</div>
-          <div class="step-icon">🤖</div>
-          <div class="step-name">Agent activates</div>
-          <div class="step-desc">The matching agent is invoked; reads its <code>persona.md</code> + context</div>
-        </div>
-      </div>
-      <div class="step-arrow">→</div>
-      <div class="step-node">
-        <div class="step-box">
-          <div class="step-num">Step 5</div>
-          <div class="step-icon">⚡</div>
-          <div class="step-name">Skill fires</div>
-          <div class="step-desc">If a skill matches, it loads and the agent follows the playbook</div>
-        </div>
-      </div>
-      <div class="step-arrow">→</div>
-      <div class="step-node">
-        <div class="step-box">
-          <div class="step-num">Step 6</div>
-          <div class="step-icon">✅</div>
-          <div class="step-name">Output</div>
-          <div class="step-desc">Agent writes to the correct output path; notifies via Lark if needed</div>
-        </div>
-      </div>
-    </div>
+  <!-- Step flow -->
+  <div class="eyebrow" style="margin-bottom:14px">How it works</div>
+  <div class="step-flow">
+    <div class="step-node"><div class="step-box"><div class="step-num">Step 1</div><div class="step-icon">💬</div><div class="step-name">You type</div><div class="step-desc">Any message in Claude Code — no special syntax needed</div></div></div>
+    <div class="step-arrow">→</div>
+    <div class="step-node"><div class="step-box"><div class="step-num">Step 2</div><div class="step-icon">📄</div><div class="step-name">Context loads</div><div class="step-desc"><code>CLAUDE.md</code> + <code>agent-routing.md</code> always in context</div></div></div>
+    <div class="step-arrow">→</div>
+    <div class="step-node"><div class="step-box"><div class="step-num">Step 3</div><div class="step-icon">🔍</div><div class="step-name">Phrase match</div><div class="step-desc">Trigger phrases matched against routing table — zero latency</div></div></div>
+    <div class="step-arrow">→</div>
+    <div class="step-node"><div class="step-box"><div class="step-num">Step 4</div><div class="step-icon">🤖</div><div class="step-name">Agent activates</div><div class="step-desc">Matching agent invoked; reads its <code>persona.md</code> + context</div></div></div>
+    <div class="step-arrow">→</div>
+    <div class="step-node"><div class="step-box"><div class="step-num">Step 5</div><div class="step-icon">⚡</div><div class="step-name">Skill fires</div><div class="step-desc">If a skill matches, it loads and the agent follows the playbook</div></div></div>
+    <div class="step-arrow">→</div>
+    <div class="step-node"><div class="step-box"><div class="step-num">Step 6</div><div class="step-icon">✅</div><div class="step-name">Output</div><div class="step-desc">Agent writes to the correct output path; notifies if Lark configured</div></div></div>
   </div>
 
-  <!-- Chat mock — real examples -->
-  <div class="chat-mock" style="margin-bottom: 28px;">
-    <h3>Example — Seamless Routing in Chat</h3>
+  <!-- Chat mock -->
+  <div class="chat-mock">
+    <div class="chat-mock-title">Live examples — seamless routing in chat</div>
+    <div class="chat-msg user"><div class="avatar av-user">You</div><div class="bubble">Can you <span class="trigger-hl">spec out</span> the new subscriber onboarding flow?</div></div>
+    <div class="chat-msg"><div class="avatar av-bot">PM</div><div class="bubble"><span class="agent-hl">→ product-manager</span> · trigger: "spec out"<br><span class="skill-hl">pm-grill-with-docs</span> — reading project-status.html + epics…<span class="route-note">No @product-manager needed. "spec" → product-manager.</span></div></div>
 
-    <div class="chat-msg user">
-      <div class="avatar av-user">You</div>
-      <div class="bubble">Can you <span class="trigger-hl">spec out</span> the new subscriber onboarding flow?</div>
-    </div>
-    <div class="chat-msg">
-      <div class="avatar av-bot">PM</div>
-      <div class="bubble">
-        <span class="agent-hl">→ product-manager activated</span> · trigger: "spec out"<br>
-        <span class="skill-hl">pm-grill-with-docs</span> — reading project-status.html + epics…
-        <span class="route-note">No @product-manager needed. Routing rule matched "spec" → product-manager.</span>
-      </div>
-    </div>
+    <div class="chat-msg user"><div class="avatar av-user">You</div><div class="bubble">Why is the email sequence <span class="trigger-hl">broken</span>? I <span class="trigger-hl">can't figure out</span> why.</div></div>
+    <div class="chat-msg"><div class="avatar av-bot">Dev</div><div class="bubble"><span class="agent-hl">→ developer</span> · trigger: "can't figure out" + "broken"<br><span class="skill-hl">dev-diagnose</span> — reproduce → minimise → hypothesise…<span class="route-note">"can't figure out" → developer + dev-diagnose skill.</span></div></div>
 
-    <div class="chat-msg user">
-      <div class="avatar av-user">You</div>
-      <div class="bubble">Why is the email sequence <span class="trigger-hl">broken</span> after signup? I can't figure it out.</div>
-    </div>
-    <div class="chat-msg">
-      <div class="avatar av-bot">Dev</div>
-      <div class="bubble">
-        <span class="agent-hl">→ developer activated</span> · trigger: "can't figure out"<br>
-        <span class="skill-hl">dev-diagnose</span> — starting debug loop: reproduce → minimise → hypothesise…
-        <span class="route-note">Phrase "can't figure out" + "broken" → developer + dev-diagnose skill.</span>
-      </div>
-    </div>
+    <div class="chat-msg user"><div class="avatar av-user">You</div><div class="bubble"><span class="trigger-hl">Triage</span> the duplicate emails bug Khang reported.</div></div>
+    <div class="chat-msg"><div class="avatar av-bot">QA</div><div class="bubble"><span class="agent-hl">→ qa</span> · trigger: "triage"<br><span class="skill-hl">qa-triage</span> — classify → score (severity × frequency × blast) → route…<span class="route-note">Single word "triage" → qa + qa-triage automatically.</span></div></div>
 
-    <div class="chat-msg user">
-      <div class="avatar av-user">You</div>
-      <div class="bubble"><span class="trigger-hl">Triage</span> the bug Khang reported about duplicate emails</div>
-    </div>
-    <div class="chat-msg">
-      <div class="avatar av-bot">QA</div>
-      <div class="bubble">
-        <span class="agent-hl">→ qa activated</span> · trigger: "triage"<br>
-        <span class="skill-hl">qa-triage</span> — classify → score (severity × frequency × blast) → route…
-        <span class="route-note">Single word "triage" → qa agent + qa-triage skill automatically.</span>
-      </div>
-    </div>
-
-    <div class="chat-msg user">
-      <div class="avatar av-user">You</div>
-      <div class="bubble"><span class="trigger-hl">Publish</span> the Mahjong Mirror post — images are approved.</div>
-    </div>
-    <div class="chat-msg">
-      <div class="avatar av-bot">Web</div>
-      <div class="bubble">
-        <span class="agent-hl">→ web-publisher activated</span> · trigger: "publish"<br>
-        <span class="skill-hl">web-publisher-publish</span> — reading content/topics/mahjong-mirror/, building React component…
-        <span class="route-note">One word "publish" → web-publisher + web-publisher-publish skill.</span>
-      </div>
-    </div>
+    <div class="chat-msg user"><div class="avatar av-user">You</div><div class="bubble"><span class="trigger-hl">Publish</span> the Mahjong Mirror post — images are approved.</div></div>
+    <div class="chat-msg"><div class="avatar av-bot">Web</div><div class="bubble"><span class="agent-hl">→ web-publisher</span> · trigger: "publish"<br><span class="skill-hl">web-publisher-publish</span> — reading content/topics/, building React component…<span class="route-note">"publish" → web-publisher + web-publisher-publish.</span></div></div>
   </div>
 
-  <!-- Routing table -->
-  <div class="section-title" style="margin-bottom: 14px;">Full Phrase → Agent Routing Map</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+  <!-- Routing tables -->
+  <div class="eyebrow" style="margin-bottom:14px">Full routing map</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
     <div>
-      <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:8px;padding:6px 10px;background:var(--surface2);border-radius:6px;">Dev Team</div>
-      <table class="route-table">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-2);margin-bottom:8px;padding:6px 10px;background:var(--ink-2);border-radius:6px;">Dev Team</div>
+      <table class="data-table">
         <tr><th>Phrase</th><th>Agent</th><th>Skill</th></tr>
-        <tr><td>"plan", "spec", "epic", "acceptance criteria"</td><td><span class="agent-dot" style="background:var(--blue)"></span>PM</td><td>—</td></tr>
-        <tr><td>"create issues", "break into tickets"</td><td><span class="agent-dot" style="background:var(--blue)"></span>PM</td><td><code>pm-to-issues</code></td></tr>
-        <tr><td>"validate plan", "grill with docs"</td><td><span class="agent-dot" style="background:var(--blue)"></span>PM</td><td><code>pm-grill-with-docs</code></td></tr>
-        <tr><td>"build", "implement", "fix", "code this"</td><td><span class="agent-dot" style="background:var(--green)"></span>Dev</td><td>—</td></tr>
-        <tr><td>"debug", "diagnose", "can't figure out"</td><td><span class="agent-dot" style="background:var(--green)"></span>Dev</td><td><code>dev-diagnose</code></td></tr>
-        <tr><td>"zoom out", "context on this module"</td><td><span class="agent-dot" style="background:var(--green)"></span>Dev</td><td><code>dev-zoom-out</code></td></tr>
-        <tr><td>"grill me", "stress-test this"</td><td><span class="agent-dot" style="background:var(--green)"></span>Dev</td><td><code>dev-grill</code></td></tr>
-        <tr><td>"tdd", "test-driven"</td><td><span class="agent-dot" style="background:var(--green)"></span>Dev</td><td><code>dev-tdd</code></td></tr>
-        <tr><td>"spike", "prototype", "feasible?"</td><td><span class="agent-dot" style="background:var(--green)"></span>Dev</td><td><code>dev-prototype</code></td></tr>
-        <tr><td>"improve architecture", "tech debt"</td><td><span class="agent-dot" style="background:var(--green)"></span>Dev</td><td><code>dev-improve-arch</code></td></tr>
-        <tr><td>"handoff", "wrapping up", "passing to QA"</td><td><span class="agent-dot" style="background:var(--green)"></span>Dev</td><td><code>dev-handoff</code></td></tr>
+        <tr><td>"plan", "spec", "epic"</td><td><span class="agent-dot" style="background:var(--accent-2)"></span>PM</td><td>—</td></tr>
+        <tr><td>"create issues", "break into tickets"</td><td><span class="agent-dot" style="background:var(--accent-2)"></span>PM</td><td><code>pm-to-issues</code></td></tr>
+        <tr><td>"validate plan", "grill with docs"</td><td><span class="agent-dot" style="background:var(--accent-2)"></span>PM</td><td><code>pm-grill-with-docs</code></td></tr>
+        <tr><td>"build", "implement", "fix"</td><td><span class="agent-dot" style="background:var(--accent)"></span>Dev</td><td>—</td></tr>
+        <tr><td>"debug", "diagnose", "can't figure out"</td><td><span class="agent-dot" style="background:var(--accent)"></span>Dev</td><td><code>dev-diagnose</code></td></tr>
+        <tr><td>"zoom out", "context on this"</td><td><span class="agent-dot" style="background:var(--accent)"></span>Dev</td><td><code>dev-zoom-out</code></td></tr>
+        <tr><td>"grill me", "stress-test"</td><td><span class="agent-dot" style="background:var(--accent)"></span>Dev</td><td><code>dev-grill</code></td></tr>
+        <tr><td>"tdd", "test-driven"</td><td><span class="agent-dot" style="background:var(--accent)"></span>Dev</td><td><code>dev-tdd</code></td></tr>
+        <tr><td>"spike", "prototype"</td><td><span class="agent-dot" style="background:var(--accent)"></span>Dev</td><td><code>dev-prototype</code></td></tr>
+        <tr><td>"improve architecture", "tech debt"</td><td><span class="agent-dot" style="background:var(--accent)"></span>Dev</td><td><code>dev-improve-arch</code></td></tr>
+        <tr><td>"handoff", "wrapping up"</td><td><span class="agent-dot" style="background:var(--accent)"></span>Dev</td><td><code>dev-handoff</code></td></tr>
         <tr><td>"triage", "classify this bug"</td><td><span class="agent-dot" style="background:var(--amber)"></span>QA</td><td><code>qa-triage</code></td></tr>
         <tr><td>"test strategy", "test plan"</td><td><span class="agent-dot" style="background:var(--amber)"></span>QA</td><td><code>qa-best-practices</code></td></tr>
-        <tr><td>"ci/cd", "pipeline", "pre-commit"</td><td><span class="agent-dot" style="background:var(--purple)"></span>DevOps</td><td><code>devops-setup-pre-commit</code></td></tr>
-        <tr><td>"git hooks", "guardrails"</td><td><span class="agent-dot" style="background:var(--purple)"></span>DevOps</td><td><code>devops-git-guardrails</code></td></tr>
+        <tr><td>"ci/cd", "pipeline", "pre-commit"</td><td><span class="agent-dot" style="background:var(--pink)"></span>DevOps</td><td><code>devops-setup-pre-commit</code></td></tr>
+        <tr><td>"git hooks", "guardrails"</td><td><span class="agent-dot" style="background:var(--pink)"></span>DevOps</td><td><code>devops-git-guardrails</code></td></tr>
       </table>
     </div>
     <div>
-      <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:8px;padding:6px 10px;background:var(--surface2);border-radius:6px;">Marketing Team</div>
-      <table class="route-table">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;padding:6px 10px;background:var(--ink-2);border-radius:6px;">Marketing Team</div>
+      <table class="data-table">
         <tr><th>Phrase</th><th>Agent</th><th>Skill</th></tr>
-        <tr><td>"write a post", "blog post", "draft content"</td><td><span class="agent-dot" style="background:var(--teal)"></span>Writer</td><td>—</td></tr>
-        <tr><td>"seo", "meta description", "keywords"</td><td><span class="agent-dot" style="background:var(--teal)"></span>Writer</td><td><code>writer-seo-content</code></td></tr>
-        <tr><td>"social post", "instagram", "linkedin"</td><td><span class="agent-dot" style="background:var(--teal)"></span>Writer</td><td>—</td></tr>
-        <tr><td>"translate", "vietnamese"</td><td><span class="agent-dot" style="background:var(--teal)"></span>Writer</td><td>—</td></tr>
+        <tr><td>"write a post", "blog post", "draft"</td><td><span class="agent-dot" style="background:var(--accent)"></span>Writer</td><td>—</td></tr>
+        <tr><td>"seo", "meta description"</td><td><span class="agent-dot" style="background:var(--accent)"></span>Writer</td><td><code>writer-seo-content</code></td></tr>
+        <tr><td>"social post", "instagram"</td><td><span class="agent-dot" style="background:var(--accent)"></span>Writer</td><td>—</td></tr>
+        <tr><td>"translate", "vietnamese"</td><td><span class="agent-dot" style="background:var(--accent)"></span>Writer</td><td>—</td></tr>
         <tr><td>"generate image", "hero image"</td><td><span class="agent-dot" style="background:var(--pink)"></span>Designer</td><td><code>designer-image-generation</code></td></tr>
         <tr><td>"design system", "brand tokens"</td><td><span class="agent-dot" style="background:var(--pink)"></span>Designer</td><td><code>designer-design-system</code></td></tr>
-        <tr><td>"mockup", "wireframe", "ui design"</td><td><span class="agent-dot" style="background:var(--pink)"></span>Designer</td><td><code>designer-ui-ux</code></td></tr>
-        <tr><td>"publish", "build the page", "update blog index"</td><td><span class="agent-dot" style="background:var(--orange)"></span>Publisher</td><td><code>web-publisher-publish</code></td></tr>
-        <tr><td>"email campaign", "newsletter", "nurture"</td><td><span class="agent-dot" style="background:var(--blue)"></span>Email</td><td><code>email-marketer-nurture</code></td></tr>
-        <tr><td>"import contacts", "brevo list"</td><td><span class="agent-dot" style="background:var(--blue)"></span>Email</td><td>—</td></tr>
+        <tr><td>"mockup", "wireframe"</td><td><span class="agent-dot" style="background:var(--pink)"></span>Designer</td><td><code>designer-ui-ux</code></td></tr>
+        <tr><td>"publish", "build the page"</td><td><span class="agent-dot" style="background:var(--orange)"></span>Publisher</td><td><code>web-publisher-publish</code></td></tr>
+        <tr><td>"email campaign", "newsletter"</td><td><span class="agent-dot" style="background:var(--accent-2)"></span>Email</td><td><code>email-marketer-nurture</code></td></tr>
+        <tr><td>"import contacts", "brevo list"</td><td><span class="agent-dot" style="background:var(--accent-2)"></span>Email</td><td>—</td></tr>
       </table>
-      <div style="margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;">
-        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Legend</div>
-        <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:12px;">
+      <div style="margin-top:16px;background:var(--ink-2);border:1px solid var(--rule-2);border-radius:8px;padding:14px">
+        <div class="eyebrow" style="margin-bottom:10px">Legend</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:12px">
           <span><span class="chip ctx">context</span> Auto from CLAUDE.md + routing rules</span>
           <span><span class="chip od">on-demand</span> Explicit @agent tag</span>
         </div>
-        <div style="margin-top:10px;font-size:12px;color:var(--muted);">
-          All trigger phrases above are <span class="chip ctx">context</span> — no @agent needed.<br>
-          Use <span class="chip od">@agent-name</span> only to override or clarify.
-        </div>
       </div>
     </div>
   </div>
-
-</div><!-- /flow-wrap -->
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
      TAB 2: DEV LOOP
 ════════════════════════════════════════════════════════════════════ -->
 <div id="tab-dev-schedule" class="tab">
-  <div class="section-title">Dev Team — Daily Loop</div>
-  <p class="schedule-intro">
-    The dev team runs a daily cycle, not a weekly one. PM kicks off every morning, waits for human input,
-    auto-approves P0 items after 2 hours if no human responds, then hands to the developer who implements
-    and knows when to call QA based on its own skills. The cycle ends with a clean merged PR.
-  </p>
+  <div class="eyebrow" style="margin-bottom:12px">Dev Team</div>
+  <h2 class="h-section" style="margin-bottom:6px">Daily <em>development</em> loop</h2>
+  <p class="intro-text">The dev team runs daily. PM kicks off every morning, waits 2 hours for human input, auto-approves P0 items if no one responds, then the developer implements. Developer decides when to call QA using its own skills. Every cycle ends with a clean merged PR.</p>
 
-  <!-- Main loop track -->
   <div class="loop-section">
-    <h3>Daily Sequence <span class="lbadge">Mon–Fri · automated via RemoteTrigger</span></h3>
+    <div class="loop-section-title">Daily Sequence <span class="lbadge">Mon–Fri · automated via RemoteTrigger</span></div>
     <div class="loop-track">
-
-      <div class="loop-node">
-        <div class="loop-box" style="border-color:var(--blue)">
-          <div class="time-badge">08:00</div>
-          <div class="agent-label" style="color:var(--blue)">PM</div>
-          <div class="loop-task">Run daily standup<br>Update project-status.html<br>Flag P0 items needing approval</div>
-          <div class="loop-note">Reads git log + epic-status.md</div>
-        </div>
-      </div>
-
+      <div class="loop-node"><div class="loop-box" style="border-color:var(--accent-2)"><div class="time-badge">08:00</div><div class="loop-agent c-pm">PM</div><div class="loop-task">Standup · update project-status.html · flag P0 items</div><div class="loop-note">Reads git log + epic-status.md</div></div></div>
       <div class="loop-arrow">→</div>
-
-      <div class="loop-node">
-        <div class="loop-box" style="border-color:var(--amber);border-style:dashed">
-          <div class="time-badge">08:10 – 10:10</div>
-          <div class="agent-label" style="color:var(--amber)">⏳ 2hr Window</div>
-          <div class="loop-task">Human reviews PM output<br>Approves / modifies / blocks P0 items</div>
-          <div class="loop-note">Lark notification sent at 08:10</div>
-        </div>
-      </div>
-
+      <div class="loop-node"><div class="loop-box dashed" style="border-color:var(--amber)"><div class="time-badge">08:10 – 10:10</div><div class="loop-agent c-qa">⏳ 2hr Window</div><div class="loop-task">Human reviews PM output · approves / modifies / blocks P0</div><div class="loop-note">Lark notification sent at 08:10 (if configured)</div></div></div>
       <div class="loop-arrow">→</div>
-
-      <div class="loop-node">
-        <div class="loop-box" style="border-color:var(--blue)">
-          <div class="time-badge">10:10 (if no input)</div>
-          <div class="agent-label" style="color:var(--blue)">PM</div>
-          <div class="loop-task">Mark P0 items as <strong>approved</strong><br>Issue GitHub Issues<br>Assign to developer</div>
-          <div class="loop-note">Human approval takes priority if given</div>
-        </div>
-      </div>
-
+      <div class="loop-node"><div class="loop-box" style="border-color:var(--accent-2)"><div class="time-badge">10:10 if no input</div><div class="loop-agent c-pm">PM</div><div class="loop-task">Mark P0 approved · create GitHub Issues · assign to developer</div><div class="loop-note">Human approval takes priority</div></div></div>
       <div class="loop-arrow">→</div>
-
-      <div class="loop-node" style="flex:2">
-        <div class="loop-box" style="border-color:var(--green)">
-          <div class="time-badge">10:15+</div>
-          <div class="agent-label" style="color:var(--green)">Developer</div>
-          <div class="loop-task">Picks up approved issue<br>Reads plan → <code>dev-zoom-out</code> if unfamiliar<br>Implements with TDD if required</div>
-          <div class="loop-note">Uses dev-grill to stress-test plan before coding</div>
-        </div>
-      </div>
-
+      <div class="loop-node" style="flex:2"><div class="loop-box" style="border-color:var(--accent)"><div class="time-badge">10:15+</div><div class="loop-agent c-dev">Developer</div><div class="loop-task">Picks up issue · zoom-out if unfamiliar · grills plan · implements</div><div class="loop-note">dev-zoom-out → dev-grill → dev-tdd / implement</div></div></div>
       <div class="loop-arrow">→</div>
-
-      <div class="loop-node" style="flex:2">
-        <div class="loop-box" style="border-color:var(--amber)">
-          <div class="time-badge">When feature complete</div>
-          <div class="agent-label" style="color:var(--amber)">Dev ↔ QA Cycle</div>
-          <div class="loop-task">Dev decides when to call QA<br>based on <code>dev-qa-delegation</code> skill</div>
-          <div class="sub-loop">
-            <div class="sub-loop-row"><div class="sl-dot" style="background:var(--green)"></div><strong>Dev</strong> — opens PR, writes handoff doc</div>
-            <div class="sub-loop-row"><div class="sl-dot" style="background:var(--green)"></div><strong>Dev</strong> — emails human + triggers QA PR review</div>
-            <div class="sub-loop-row"><div class="sl-dot" style="background:var(--amber)"></div><strong>QA</strong> — reviews PR, runs acceptance criteria</div>
-            <div class="sub-loop-row"><div class="sl-dot" style="background:var(--red)"></div>If bugs → <code>qa-triage</code> → back to Dev <span class="cycle-badge">↻ repeat</span></div>
-            <div class="sub-loop-row"><div class="sl-dot" style="background:var(--green)"></div>If clean → QA approves PR</div>
-          </div>
-        </div>
-      </div>
-
+      <div class="loop-node" style="flex:2"><div class="loop-box" style="border-color:var(--amber)"><div class="time-badge">Feature complete</div><div class="loop-agent c-qa">Dev ↔ QA Cycle</div><div class="loop-task">Dev decides when to call QA via dev-qa-delegation</div><div class="sub-loop"><div class="sub-loop-row"><div class="sl-dot" style="background:var(--accent)"></div><strong>Dev</strong> — opens PR, writes HANDOFF.md</div><div class="sub-loop-row"><div class="sl-dot" style="background:var(--accent)"></div><strong>Dev</strong> — emails human + triggers QA review</div><div class="sub-loop-row"><div class="sl-dot" style="background:var(--amber)"></div><strong>QA</strong> — reviews PR vs acceptance criteria</div><div class="sub-loop-row"><div class="sl-dot" style="background:var(--pink)"></div>Bugs → qa-triage → back to Dev <span class="cycle-badge">↻</span></div><div class="sub-loop-row"><div class="sl-dot" style="background:var(--accent)"></div>Clean → QA approves PR</div></div></div></div>
       <div class="loop-arrow">→</div>
-
-      <div class="loop-node">
-        <div class="loop-box" style="border-color:var(--purple)">
-          <div class="time-badge">PR clean</div>
-          <div class="agent-label" style="color:var(--purple)">Operator</div>
-          <div class="loop-task">Merges PR<br>Vercel CI/CD deploys<br>PM updates project-status.html</div>
-          <div class="loop-note">DevOps monitors deploy health</div>
-        </div>
-      </div>
-
-    </div><!-- /loop-track -->
-  </div>
-
-  <!-- Hard gates for dev loop -->
-  <div class="loop-section">
-    <h3>Loop Hard Gates</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div class="rule-pill">🔴 Developer never starts without an approved issue from PM</div>
-      <div class="rule-pill">🔴 QA is called by Developer — never self-assigned without dev-qa-delegation</div>
-      <div class="rule-pill">🔴 PR is never merged by the agent that opened it</div>
-      <div class="rule-pill">🔴 DevOps never deploys directly — only via git push → CI/CD</div>
-      <div class="rule-pill">🔴 PM auto-approval only triggers if 2hr window passes with zero human response</div>
-      <div class="rule-pill">🔴 Email notification sent before any QA PR review is triggered</div>
+      <div class="loop-node"><div class="loop-box" style="border-color:var(--pink)"><div class="time-badge">PR clean</div><div class="loop-agent c-devops">Operator</div><div class="loop-task">Merges PR · Vercel CI/CD deploys · PM updates status</div></div></div>
     </div>
   </div>
 
-  <!-- RemoteTrigger schedule -->
   <div class="loop-section">
-    <h3>RemoteTrigger Schedule <span class="lbadge">registered during infiniteleverage-init</span></h3>
-    <table class="route-table" style="max-width:600px">
+    <div class="loop-section-title">Loop Hard Gates</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <span class="rule-pill">Developer never starts without an approved PM issue</span>
+      <span class="rule-pill">QA called by Developer — never self-assigned without dev-qa-delegation</span>
+      <span class="rule-pill">PR never merged by the agent that opened it</span>
+      <span class="rule-pill">DevOps never deploys directly — only git push → CI/CD</span>
+      <span class="rule-pill">PM auto-approval only triggers after 2hr window with zero human response</span>
+      <span class="rule-pill">Email notification sent before any QA PR review is triggered</span>
+    </div>
+  </div>
+
+  <div class="loop-section">
+    <div class="loop-section-title">RemoteTrigger Schedule <span class="lbadge">registered during infiniteleverage-init</span></div>
+    <table class="data-table" style="max-width:560px">
       <tr><th>Time</th><th>Agent</th><th>Task</th></tr>
-      <tr><td>Mon–Fri 08:00</td><td>PM</td><td>Standup + project-status.html update + P0 flagging</td></tr>
-      <tr><td>Mon–Fri 10:10</td><td>PM</td><td>Auto-approve P0 if no human input (conditional)</td></tr>
-      <tr><td>On PR open</td><td>Dev (webhook)</td><td>Email human + trigger QA PR review agent</td></tr>
-      <tr><td>Thu 09:00</td><td>DevOps</td><td>Deploy health check + CI/CD pipeline review</td></tr>
-      <tr><td>Fri 16:00</td><td>PM</td><td>Weekly retro + epic status update</td></tr>
+      <tr><td>Mon–Fri 08:00</td><td>PM</td><td>Standup + project-status.html + P0 flagging</td></tr>
+      <tr><td>Mon–Fri 10:10</td><td>PM</td><td>Auto-approve P0 (conditional — no human response)</td></tr>
+      <tr><td>On PR open</td><td>Dev → QA</td><td>Email human + trigger QA review</td></tr>
+      <tr><td>Thu 09:00</td><td>DevOps</td><td>Deploy health check</td></tr>
+      <tr><td>Fri 16:00</td><td>PM</td><td>Weekly retro + epic status + next week plan</td></tr>
     </table>
   </div>
 </div>
@@ -506,246 +460,97 @@ footer { padding: 16px 32px; border-top: 1px solid var(--border); color: var(--m
      TAB 3: MARKETING SCHEDULE
 ════════════════════════════════════════════════════════════════════ -->
 <div id="tab-mkt-schedule" class="tab">
-  <div class="section-title">Marketing Team — Weekly Content Pipeline</div>
-  <p class="schedule-intro">
-    One post per week by default. The pipeline runs Mon–Wed, with Wed reserved for the subscriber email.
-    The operator's single manual action is <code>git push origin main</code> after the Web Publisher commits.
-    Email Marketer always drafts first — operator approves before send.
-  </p>
+  <div class="eyebrow" style="margin-bottom:12px">Marketing Team</div>
+  <h2 class="h-section" style="margin-bottom:6px">Weekly <em>content</em> pipeline</h2>
+  <p class="intro-text">One post per week by default. The pipeline runs Mon–Tue, with Wed reserved for the subscriber email. The operator's only manual action is <code>git push origin main</code>. Email Marketer always drafts first — operator approves before send.</p>
 
   <div class="week-grid">
-    <div class="day-col">
-      <div class="day-label">Monday</div>
-      <div class="day-event" style="border-color:var(--teal)">
-        <div class="ev-time">09:00</div>
-        <div class="ev-agent" style="color:var(--teal)">Writer</div>
-        <div class="ev-task">Draft this week's blog post — blog.md + seo.md + social-*.md</div>
-        <div class="ev-note">Reads content calendar first. One post per week default.</div>
-      </div>
-      <div class="day-event" style="border-color:var(--blue)">
-        <div class="ev-time">08:00</div>
-        <div class="ev-agent" style="color:var(--blue)">PM</div>
-        <div class="ev-task">Weekly standup + assign this week's content topic</div>
-      </div>
+    <div class="day-col"><div class="day-label">Monday</div>
+      <div class="day-event" style="border-color:var(--accent-2)"><div class="ev-time">08:00</div><div class="ev-agent c-pm">PM</div><div class="ev-task">Weekly standup + assign this week's content topic</div></div>
+      <div class="day-event" style="border-color:var(--accent)"><div class="ev-time">09:00</div><div class="ev-agent c-writer">Writer</div><div class="ev-task">Draft blog.md + seo.md + social-*.md</div><div class="ev-note">One post per week default</div></div>
     </div>
-    <div class="day-col">
-      <div class="day-label">Tuesday</div>
-      <div class="day-event" style="border-color:var(--pink)">
-        <div class="ev-time">09:00</div>
-        <div class="ev-agent" style="color:var(--pink)">Designer</div>
-        <div class="ev-task">Generate hero image + social graphics from approved Writer draft</div>
-        <div class="ev-note">Only after Writer content is approved by operator</div>
-      </div>
-      <div class="day-event" style="border-color:var(--orange)">
-        <div class="ev-time">14:00</div>
-        <div class="ev-agent" style="color:var(--orange)">Web Publisher</div>
-        <div class="ev-task">Build React component, update blog index, git commit</div>
-        <div class="ev-note">Tells operator: run "git push origin main"</div>
-      </div>
+    <div class="day-col"><div class="day-label">Tuesday</div>
+      <div class="day-event" style="border-color:var(--pink)"><div class="ev-time">09:00</div><div class="ev-agent c-designer">Designer</div><div class="ev-task">Generate hero image + social graphics</div><div class="ev-note">Only after Writer approved</div></div>
+      <div class="day-event" style="border-color:var(--orange)"><div class="ev-time">14:00</div><div class="ev-agent c-publisher">Web Publisher</div><div class="ev-task">Build React component, update blog index, git commit</div><div class="ev-note">Tells operator: git push origin main</div></div>
     </div>
-    <div class="day-col">
-      <div class="day-label">Wednesday</div>
-      <div class="day-event" style="border-color:var(--blue)">
-        <div class="ev-time">09:00</div>
-        <div class="ev-agent" style="color:var(--blue)">Email Marketer</div>
-        <div class="ev-task">Draft subscriber announcement for new post</div>
-        <div class="ev-note">Drafts only — operator approves before send</div>
-      </div>
-      <div class="day-event" style="border-color:var(--amber)">
-        <div class="ev-time">14:00</div>
-        <div class="ev-agent" style="color:var(--amber)">QA</div>
-        <div class="ev-task">Regression check on website after publish</div>
-      </div>
+    <div class="day-col"><div class="day-label">Wednesday</div>
+      <div class="day-event" style="border-color:var(--accent-2)"><div class="ev-time">09:00</div><div class="ev-agent c-email">Email Marketer</div><div class="ev-task">Draft subscriber announcement — awaits operator approval</div></div>
+      <div class="day-event" style="border-color:var(--amber)"><div class="ev-time">14:00</div><div class="ev-agent c-qa">QA</div><div class="ev-task">Regression check on site after publish</div></div>
     </div>
-    <div class="day-col">
-      <div class="day-label">Thursday</div>
-      <div class="day-empty">No scheduled marketing tasks</div>
-      <div class="day-event" style="border-color:var(--purple);margin-top:6px">
-        <div class="ev-time">09:00</div>
-        <div class="ev-agent" style="color:var(--purple)">DevOps</div>
-        <div class="ev-task">Deploy health check</div>
-      </div>
+    <div class="day-col"><div class="day-label">Thursday</div>
+      <div class="day-empty">No marketing tasks</div>
+      <div class="day-event" style="border-color:var(--pink);margin-top:6px"><div class="ev-time">09:00</div><div class="ev-agent c-devops">DevOps</div><div class="ev-task">Deploy health check</div></div>
     </div>
-    <div class="day-col">
-      <div class="day-label">Friday</div>
-      <div class="day-event" style="border-color:var(--blue)">
-        <div class="ev-time">16:00</div>
-        <div class="ev-agent" style="color:var(--blue)">PM</div>
-        <div class="ev-task">Weekly retro, epic status, plan next week's content topic</div>
-      </div>
+    <div class="day-col"><div class="day-label">Friday</div>
+      <div class="day-event" style="border-color:var(--accent-2)"><div class="ev-time">16:00</div><div class="ev-agent c-pm">PM</div><div class="ev-task">Weekly retro, epic status, plan next week's content topic</div></div>
     </div>
   </div>
 
-  <!-- Pipeline flow -->
   <div class="loop-section">
-    <h3>Content Pipeline <span class="lbadge">Mon–Wed · one post per week default</span></h3>
+    <div class="loop-section-title">Pipeline Flow <span class="lbadge">Mon–Wed · one post per week default</span></div>
     <div class="loop-track">
-      <div class="loop-node">
-        <div class="loop-box" style="border-color:var(--teal)">
-          <div class="time-badge">Mon 09:00</div>
-          <div class="agent-label" style="color:var(--teal)">Writer</div>
-          <div class="loop-task">blog.md<br>seo.md<br>social-*.md</div>
-        </div>
-      </div>
+      <div class="loop-node"><div class="loop-box" style="border-color:var(--accent)"><div class="time-badge">Mon 09:00</div><div class="loop-agent c-writer">Writer</div><div class="loop-task">blog.md · seo.md · social-*.md</div></div></div>
       <div class="loop-arrow">→</div>
-      <div class="loop-node">
-        <div class="loop-box" style="border-color:var(--amber);border-style:dashed">
-          <div class="time-badge">Mon (anytime)</div>
-          <div class="agent-label" style="color:var(--amber)">Operator</div>
-          <div class="loop-task">Reviews + approves Writer draft</div>
-          <div class="loop-note">Required before Designer runs</div>
-        </div>
-      </div>
+      <div class="loop-node"><div class="loop-box dashed" style="border-color:var(--amber)"><div class="time-badge">Mon (any time)</div><div class="loop-agent c-qa">Operator</div><div class="loop-task">Reviews + approves Writer draft</div><div class="loop-note">Required before Designer runs</div></div></div>
       <div class="loop-arrow">→</div>
-      <div class="loop-node">
-        <div class="loop-box" style="border-color:var(--pink)">
-          <div class="time-badge">Tue 09:00</div>
-          <div class="agent-label" style="color:var(--pink)">Designer</div>
-          <div class="loop-task">Hero image<br>Social graphics<br>→ content/topics/</div>
-        </div>
-      </div>
+      <div class="loop-node"><div class="loop-box" style="border-color:var(--pink)"><div class="time-badge">Tue 09:00</div><div class="loop-agent c-designer">Designer</div><div class="loop-task">Hero image · social graphics → content/topics/</div></div></div>
       <div class="loop-arrow">→</div>
-      <div class="loop-node">
-        <div class="loop-box" style="border-color:var(--orange)">
-          <div class="time-badge">Tue 14:00</div>
-          <div class="agent-label" style="color:var(--orange)">Web Publisher</div>
-          <div class="loop-task">React .jsx<br>Blog index update<br>git commit</div>
-        </div>
-      </div>
+      <div class="loop-node"><div class="loop-box" style="border-color:var(--orange)"><div class="time-badge">Tue 14:00</div><div class="loop-agent c-publisher">Web Publisher</div><div class="loop-task">React .jsx · blog index · git commit</div></div></div>
       <div class="loop-arrow">→</div>
-      <div class="loop-node">
-        <div class="loop-box" style="border-color:var(--amber);border-style:dashed">
-          <div class="time-badge">Tue (anytime)</div>
-          <div class="agent-label" style="color:var(--amber)">Operator</div>
-          <div class="loop-task"><code>git push origin main</code></div>
-          <div class="loop-note">Only manual step — site goes live</div>
-        </div>
-      </div>
+      <div class="loop-node"><div class="loop-box dashed" style="border-color:var(--amber)"><div class="time-badge">Tue (any time)</div><div class="loop-agent c-qa">Operator</div><div class="loop-task"><code>git push origin main</code></div><div class="loop-note">Only manual step — site goes live</div></div></div>
       <div class="loop-arrow">→</div>
-      <div class="loop-node">
-        <div class="loop-box" style="border-color:var(--blue)">
-          <div class="time-badge">Wed 09:00</div>
-          <div class="agent-label" style="color:var(--blue)">Email Marketer</div>
-          <div class="loop-task">Draft announcement<br>→ Operator approves<br>→ Send to subscribers</div>
-        </div>
-      </div>
+      <div class="loop-node"><div class="loop-box" style="border-color:var(--accent-2)"><div class="time-badge">Wed 09:00</div><div class="loop-agent c-email">Email Marketer</div><div class="loop-task">Draft → operator approves → send to subscribers</div></div></div>
     </div>
   </div>
 
   <div class="loop-section">
-    <h3>Pipeline Hard Rules</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div class="rule-pill">🔴 One post per week by default — no parallel content unless operator explicitly requests</div>
-      <div class="rule-pill">🔴 Designer never runs without operator-approved Writer draft</div>
-      <div class="rule-pill">🔴 Web Publisher never pushes to GitHub — operator runs git push</div>
-      <div class="rule-pill">🔴 Email Marketer never sends without explicit operator approval</div>
-      <div class="rule-pill">🔴 Check content calendar before starting — do not publish if queue has unpublished approved content</div>
-      <div class="rule-pill">🔴 Check email-index.md — do not email if last post has already been announced</div>
+    <div class="loop-section-title">Pipeline Hard Rules</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <span class="rule-pill">One post per week default — no parallel content unless operator requests</span>
+      <span class="rule-pill">Designer never runs without operator-approved Writer draft</span>
+      <span class="rule-pill">Web Publisher never pushes to GitHub — operator runs git push</span>
+      <span class="rule-pill">Email Marketer never sends without explicit operator approval</span>
+      <span class="rule-pill">Check content calendar — no new post if approved content is queued unpublished</span>
+      <span class="rule-pill">Check email-index.md — do not email if last post already announced</span>
     </div>
   </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     TAB 4: AGENT OVERVIEW
+     TAB 4: OVERVIEW
 ════════════════════════════════════════════════════════════════════ -->
 <div id="tab-overview" class="tab">
-  <div class="section-title">All 8 Agents — Quick View</div>
-  <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">Click <em>View Detail</em> to see each agent's full routines and skill-by-skill breakdown.</div>
+  <div class="eyebrow" style="margin-bottom:12px">Team</div>
+  <h2 class="h-section" style="margin-bottom:6px">All <em>8 agents</em> at a glance</h2>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:24px">Click <em>View Detail</em> on any card to see full routines, skills, and hard rules.</p>
   <div class="agents-grid">
+    <div class="card"><div class="ac-top"><div><div class="ac-name c-pm">Product Manager</div><div class="ac-role">Plans, specs, epics, project-status.html</div></div><span class="sched-pill">Daily 08:00 + 10:10</span></div><div class="ac-triggers"><span class="chip ctx">plan</span><span class="chip ctx">spec</span><span class="chip ctx">epic</span><span class="chip od">@product-manager</span></div><div class="ac-skills"><span class="skill-tag">pm-grill-with-docs</span><span class="skill-tag">pm-to-issues</span><span class="skill-tag">pm-standup</span><span class="skill-tag">pm-epic-writing</span><span class="skill-tag">pm-project-status</span></div><button class="detail-btn" onclick="showDetail('pm')">View Detail →</button></div>
 
-    <div class="agent-card">
-      <div class="ac-top">
-        <div><div class="ac-name" style="color:var(--blue)">Product Manager</div><div class="ac-role">Plans, specs, epics, project-status.html</div></div>
-        <span class="sched-pill">Daily 08:00 + 10:10</span>
-      </div>
-      <div class="ac-triggers"><span class="chip ctx">plan</span><span class="chip ctx">spec</span><span class="chip ctx">epic</span><span class="chip od">@product-manager</span></div>
-      <div class="ac-skills"><span class="skill-tag">pm-grill-with-docs</span><span class="skill-tag">pm-to-issues</span><span class="skill-tag">pm-standup</span><span class="skill-tag">pm-epic-writing</span><span class="skill-tag">pm-project-status</span></div>
-      <button class="detail-btn" onclick="showDetail('pm')">View Detail →</button>
-    </div>
+    <div class="card"><div class="ac-top"><div><div class="ac-name c-dev">Developer</div><div class="ac-role">Implementation, debugging, architecture</div></div><span class="sched-pill">On-demand + daily loop</span></div><div class="ac-triggers"><span class="chip ctx">build</span><span class="chip ctx">implement</span><span class="chip ctx">fix</span><span class="chip od">@developer</span></div><div class="ac-skills"><span class="skill-tag">dev-diagnose</span><span class="skill-tag">dev-zoom-out</span><span class="skill-tag">dev-grill</span><span class="skill-tag">dev-tdd</span><span class="skill-tag">dev-prototype</span><span class="skill-tag">dev-handoff</span><span class="skill-tag">dev-improve-arch</span></div><button class="detail-btn" onclick="showDetail('dev')">View Detail →</button></div>
 
-    <div class="agent-card">
-      <div class="ac-top">
-        <div><div class="ac-name" style="color:var(--green)">Developer</div><div class="ac-role">Implementation, debugging, architecture</div></div>
-        <span class="sched-pill">On-demand + daily loop</span>
-      </div>
-      <div class="ac-triggers"><span class="chip ctx">build</span><span class="chip ctx">implement</span><span class="chip ctx">fix</span><span class="chip od">@developer</span></div>
-      <div class="ac-skills"><span class="skill-tag">dev-diagnose</span><span class="skill-tag">dev-zoom-out</span><span class="skill-tag">dev-grill</span><span class="skill-tag">dev-tdd</span><span class="skill-tag">dev-prototype</span><span class="skill-tag">dev-handoff</span><span class="skill-tag">dev-improve-arch</span></div>
-      <button class="detail-btn" onclick="showDetail('dev')">View Detail →</button>
-    </div>
+    <div class="card"><div class="ac-top"><div><div class="ac-name c-qa">QA</div><div class="ac-role">Test strategy, bug triage, regression reports</div></div><span class="sched-pill">Wed 14:00 + on-demand</span></div><div class="ac-triggers"><span class="chip ctx">triage</span><span class="chip ctx">bug</span><span class="chip ctx">test</span><span class="chip od">@qa</span></div><div class="ac-skills"><span class="skill-tag">qa-triage</span><span class="skill-tag">qa-best-practices</span><span class="skill-tag">qa-documentation</span><span class="skill-tag">qa-planning</span></div><button class="detail-btn" onclick="showDetail('qa')">View Detail →</button></div>
 
-    <div class="agent-card">
-      <div class="ac-top">
-        <div><div class="ac-name" style="color:var(--amber)">QA</div><div class="ac-role">Test strategy, bug triage, regression reports</div></div>
-        <span class="sched-pill">Wed 14:00 + on-demand</span>
-      </div>
-      <div class="ac-triggers"><span class="chip ctx">triage</span><span class="chip ctx">bug</span><span class="chip ctx">test</span><span class="chip od">@qa</span></div>
-      <div class="ac-skills"><span class="skill-tag">qa-triage</span><span class="skill-tag">qa-best-practices</span><span class="skill-tag">qa-documentation</span><span class="skill-tag">qa-planning</span></div>
-      <button class="detail-btn" onclick="showDetail('qa')">View Detail →</button>
-    </div>
+    <div class="card"><div class="ac-top"><div><div class="ac-name c-devops">DevOps</div><div class="ac-role">CI/CD, infra, pre-commit, deploy pipeline</div></div><span class="sched-pill">Thu 09:00 + on-demand</span></div><div class="ac-triggers"><span class="chip ctx">ci/cd</span><span class="chip ctx">pipeline</span><span class="chip ctx">deploy</span><span class="chip od">@devops</span></div><div class="ac-skills"><span class="skill-tag">devops-setup-pre-commit</span><span class="skill-tag">devops-git-guardrails</span><span class="skill-tag">devops-ops</span></div><button class="detail-btn" onclick="showDetail('devops')">View Detail →</button></div>
 
-    <div class="agent-card">
-      <div class="ac-top">
-        <div><div class="ac-name" style="color:var(--purple)">DevOps</div><div class="ac-role">CI/CD, infra, pre-commit, deploy pipeline</div></div>
-        <span class="sched-pill">Thu 09:00 + on-demand</span>
-      </div>
-      <div class="ac-triggers"><span class="chip ctx">ci/cd</span><span class="chip ctx">pipeline</span><span class="chip ctx">deploy</span><span class="chip od">@devops</span></div>
-      <div class="ac-skills"><span class="skill-tag">devops-setup-pre-commit</span><span class="skill-tag">devops-git-guardrails</span><span class="skill-tag">devops-ops</span></div>
-      <button class="detail-btn" onclick="showDetail('devops')">View Detail →</button>
-    </div>
+    <div class="card"><div class="ac-top"><div><div class="ac-name c-writer">Writer</div><div class="ac-role">Blog posts, SEO, social copy, translations</div></div><span class="sched-pill">Mon 09:00</span></div><div class="ac-triggers"><span class="chip ctx">write a post</span><span class="chip ctx">blog post</span><span class="chip ctx">seo</span><span class="chip od">@writer</span></div><div class="ac-skills"><span class="skill-tag">writer-seo-content</span></div><button class="detail-btn" onclick="showDetail('writer')">View Detail →</button></div>
 
-    <div class="agent-card">
-      <div class="ac-top">
-        <div><div class="ac-name" style="color:var(--teal)">Writer</div><div class="ac-role">Blog posts, SEO, social copy, translations</div></div>
-        <span class="sched-pill">Mon 09:00</span>
-      </div>
-      <div class="ac-triggers"><span class="chip ctx">write a post</span><span class="chip ctx">blog post</span><span class="chip ctx">seo</span><span class="chip od">@writer</span></div>
-      <div class="ac-skills"><span class="skill-tag">writer-seo-content</span></div>
-      <button class="detail-btn" onclick="showDetail('writer')">View Detail →</button>
-    </div>
+    <div class="card"><div class="ac-top"><div><div class="ac-name c-designer">Designer</div><div class="ac-role">Hero images, social graphics, design system</div></div><span class="sched-pill">Tue 09:00</span></div><div class="ac-triggers"><span class="chip ctx">generate image</span><span class="chip ctx">hero image</span><span class="chip ctx">mockup</span><span class="chip od">@designer</span></div><div class="ac-skills"><span class="skill-tag">designer-image-generation</span><span class="skill-tag">designer-design-system</span><span class="skill-tag">designer-ui-ux</span><span class="skill-tag">designer-style-to-photo</span></div><button class="detail-btn" onclick="showDetail('designer')">View Detail →</button></div>
 
-    <div class="agent-card">
-      <div class="ac-top">
-        <div><div class="ac-name" style="color:var(--pink)">Designer</div><div class="ac-role">Hero images, social graphics, design system</div></div>
-        <span class="sched-pill">Tue 09:00</span>
-      </div>
-      <div class="ac-triggers"><span class="chip ctx">generate image</span><span class="chip ctx">hero image</span><span class="chip ctx">mockup</span><span class="chip od">@designer</span></div>
-      <div class="ac-skills"><span class="skill-tag">designer-image-generation</span><span class="skill-tag">designer-design-system</span><span class="skill-tag">designer-ui-ux</span><span class="skill-tag">designer-style-to-photo</span></div>
-      <button class="detail-btn" onclick="showDetail('designer')">View Detail →</button>
-    </div>
+    <div class="card"><div class="ac-top"><div><div class="ac-name c-publisher">Web Publisher</div><div class="ac-role">React components, blog index, git commit</div></div><span class="sched-pill">Tue 14:00</span></div><div class="ac-triggers"><span class="chip ctx">publish</span><span class="chip ctx">build the page</span><span class="chip ctx">push to site</span><span class="chip od">@web-publisher</span></div><div class="ac-skills"><span class="skill-tag">web-publisher-publish</span></div><button class="detail-btn" onclick="showDetail('publisher')">View Detail →</button></div>
 
-    <div class="agent-card">
-      <div class="ac-top">
-        <div><div class="ac-name" style="color:var(--orange)">Web Publisher</div><div class="ac-role">React components, blog index, git commit</div></div>
-        <span class="sched-pill">Tue 14:00</span>
-      </div>
-      <div class="ac-triggers"><span class="chip ctx">publish</span><span class="chip ctx">build the page</span><span class="chip ctx">push to site</span><span class="chip od">@web-publisher</span></div>
-      <div class="ac-skills"><span class="skill-tag">web-publisher-publish</span></div>
-      <button class="detail-btn" onclick="showDetail('publisher')">View Detail →</button>
-    </div>
-
-    <div class="agent-card">
-      <div class="ac-top">
-        <div><div class="ac-name" style="color:var(--blue)">Email Marketer</div><div class="ac-role">Email sequences, Brevo campaigns, lead nurture</div></div>
-        <span class="sched-pill">Wed 09:00</span>
-      </div>
-      <div class="ac-triggers"><span class="chip ctx">email campaign</span><span class="chip ctx">newsletter</span><span class="chip ctx">nurture</span><span class="chip od">@email-marketer</span></div>
-      <div class="ac-skills"><span class="skill-tag">email-marketer-nurture</span></div>
-      <button class="detail-btn" onclick="showDetail('email')">View Detail →</button>
-    </div>
-
+    <div class="card"><div class="ac-top"><div><div class="ac-name c-email">Email Marketer</div><div class="ac-role">Email sequences, Brevo campaigns, lead nurture</div></div><span class="sched-pill">Wed 09:00</span></div><div class="ac-triggers"><span class="chip ctx">email campaign</span><span class="chip ctx">newsletter</span><span class="chip ctx">nurture</span><span class="chip od">@email-marketer</span></div><div class="ac-skills"><span class="skill-tag">email-marketer-nurture</span></div><button class="detail-btn" onclick="showDetail('email')">View Detail →</button></div>
   </div>
 
-  <div style="margin-top:28px">
-    <div class="section-title" style="margin-bottom:14px">Global Hard Rules</div>
+  <div style="margin-top:32px"><div class="eyebrow" style="margin-bottom:14px">Global Hard Rules</div>
     <div class="hr-grid">
       <div class="hr-card"><strong>No dev without approved plan</strong><span>Developer never starts without a PM-approved issue. Route to PM first.</span></div>
       <div class="hr-card"><strong>No publish without approved content + image</strong><span>Web Publisher requires Writer approval AND Designer image.</span></div>
       <div class="hr-card"><strong>No email send without operator approval</strong><span>Email Marketer always drafts first — operator approves before any send.</span></div>
       <div class="hr-card"><strong>No direct deploy — git push only</strong><span>DevOps never uses vercel deploy or direct CLI. CI/CD via git push.</span></div>
-      <div class="hr-card"><strong>QA always triages before routing</strong><span>Every bug is classified, scored, and assigned before work starts.</span></div>
+      <div class="hr-card"><strong>QA always triages before routing</strong><span>Every bug classified, scored (severity × frequency × blast), assigned.</span></div>
       <div class="hr-card"><strong>No agent merges its own PR</strong><span>Developer opens → QA verifies → Operator merges. No exceptions.</span></div>
-      <div class="hr-card"><strong>DevOps escalates to human engineer</strong><span>When infra issues exceed defined scope, DevOps stops and notifies. [P12]</span></div>
-      <div class="hr-card"><strong>One post per week default</strong><span>Marketing pipeline publishes one post per week unless operator explicitly requests more.</span></div>
+      <div class="hr-card"><strong>DevOps escalates to human engineer</strong><span>When infra exceeds defined scope, DevOps stops and notifies. [P12]</span></div>
+      <div class="hr-card"><strong>One post per week default</strong><span>Marketing pipeline publishes one post per week unless operator requests more.</span></div>
     </div>
   </div>
 </div>
@@ -765,346 +570,227 @@ footer { padding: 16px 32px; border-top: 1px solid var(--border); color: var(--m
     <button class="ad-btn" onclick="showDetail('email')">Email Marketer</button>
   </div>
 
-  <!-- ── PM ── -->
+  <!-- PM -->
   <div id="detail-pm" class="agent-detail active">
-    <div class="detail-header">
-      <div class="detail-avatar" style="background:#1e2d4a">📋</div>
-      <div class="detail-title">
-        <h2 style="color:var(--blue)">Product Manager</h2>
-        <p>Plans work, owns epics, runs standups, and keeps the team unblocked — without writing code.</p>
-        <div class="file-ref">~/.claude/agents/product-manager.md · agents/product-manager/context/</div>
-      </div>
-    </div>
+    <div class="detail-header"><div class="detail-avatar" style="background:var(--ink-3)">📋</div><div class="detail-title"><h2 class="c-pm">Product Manager</h2><p>Plans work, owns epics, runs standups, keeps the team unblocked — without writing code.</p><div class="file-ref">~/.claude/agents/product-manager.md · agents/product-manager/context/</div></div></div>
     <div class="detail-grid">
-      <div class="detail-section">
-        <div class="ds-label">Daily Routine</div>
-        <div class="routine-timeline">
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--blue)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">08:00 — Run standup</div><div class="rt-desc">Reads <code>git log --oneline -10</code> + <code>epic-status.md</code>. Compiles status into daily briefing.</div><div class="rt-skill-ref">→ pm-standup</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--blue)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Update project-status.html</div><div class="rt-desc">Reflects current sprint state: in-progress, blocked, done. Single-file dashboard opened in browser.</div><div class="rt-skill-ref">→ pm-project-status</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--amber)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Flag P0 items + notify via Lark</div><div class="rt-desc">Sends Lark message with today's P0s needing human decision. Waits 2hrs.</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--blue)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">10:10 — Auto-approve P0 (if no human input)</div><div class="rt-desc">Creates GitHub Issues for approved P0 items and assigns to developer.</div><div class="rt-skill-ref">→ pm-to-issues</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--blue)"></div></div><div class="rt-right"><div class="rt-action">Fri 16:00 — Weekly retro</div><div class="rt-desc">Reads this week's git history. Updates epic-status.md. Plans next week's content topic for marketing.</div></div></div>
-        </div>
-      </div>
-      <div class="detail-section">
-        <div class="ds-label">Hard Rules</div>
-        <div class="hard-rules-section">
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never approves implementation without a written reviewed plan.</strong></span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never creates issues without grilling the plan first.</strong> <code>pm-grill-with-docs</code> runs before <code>pm-to-issues</code>.</span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Always reads git log before every task.</strong> Never assumes state from memory.</span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never skips the 2hr human window.</strong> Auto-approve only fires at 10:10 with zero human response.</span></div>
-        </div>
-        <div class="ds-label" style="margin-top:16px">Output Paths</div>
-        <div class="output-paths">
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/product/epics.md</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/product/epic-status.md</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/project-status.html</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">GitHub Issues (gh issue create)</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">Lark notifications</span></div>
-        </div>
+      <div><div class="eyebrow" style="margin-bottom:10px">Daily Routine</div><div class="routine-timeline">
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent-2)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">08:00 — Run standup</div><div class="rt-desc">Reads git log -10 + epic-status.md. Compiles status into daily briefing.</div><div class="rt-skill-ref">→ pm-standup</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent-2)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Update project-status.html</div><div class="rt-desc">Reflects current sprint: in-progress, blocked, done. Single-file dashboard.</div><div class="rt-skill-ref">→ pm-project-status</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--amber)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Flag P0 items + notify</div><div class="rt-desc">Sends Lark message (if configured) with today's P0s needing decision. Waits 2hrs.</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent-2)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">10:10 — Auto-approve P0 (if no human input)</div><div class="rt-desc">Creates GitHub Issues for approved P0s and assigns to developer.</div><div class="rt-skill-ref">→ pm-to-issues</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent-2)"></div></div><div class="rt-right"><div class="rt-action">Fri 16:00 — Weekly retro</div><div class="rt-desc">Reads this week's git history. Updates epic-status.md. Plans next week's content topic.</div></div></div>
+      </div></div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:10px">Hard Rules</div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never approves implementation without a written reviewed plan.</strong></span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never creates issues without grilling the plan first.</strong> pm-grill-with-docs runs before pm-to-issues.</span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Always reads git log before every task.</strong></span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never skips the 2hr human window.</strong> Auto-approve only at 10:10 with zero response.</span></div>
+        <div class="eyebrow" style="margin-top:16px;margin-bottom:10px">Output Paths</div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/product/epics.md</span></div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/product/epic-status.md</span></div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/project-status.html</span></div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">GitHub Issues · Lark (if configured)</span></div>
       </div>
     </div>
-    <div class="ds-label">Skills</div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">pm-standup</span></div><div class="skill-purpose">Compiles daily standup from git log + epic-status.md into a human-readable briefing.</div><div class="skill-how">Reads git log → identifies completed/blocked items → writes standup/{date}.md → sends Lark summary.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">pm-grill-with-docs</span></div><div class="skill-purpose">Validates a draft plan against live project docs before approval. Blocks plans that conflict with epics or in-progress work.</div><div class="skill-how">Reads project-status.html + epics.md + epic-status.md → cross-references plan → generates 5–10 specific questions → issues APPROVED / REVISE / BLOCKED verdict.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">pm-to-issues</span></div><div class="skill-purpose">Breaks an approved spec into vertical-slice GitHub Issues that a developer can pick up independently.</div><div class="skill-how">Identifies user-visible slices (not horizontal layers) → writes each as a gh issue with acceptance criteria → runs gh issue create → updates epic-status.md with issue numbers.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">pm-epic-writing</span></div><div class="skill-purpose">Writes a full epic document with scope, acceptance criteria, out-of-scope list, and effort estimate.</div><div class="skill-how">Prompts for business goal → writes epic in docs/product/epics.md format → appends to epic-status.md as "planned".</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">pm-project-status</span></div><div class="skill-purpose">Updates the project-status.html single-file dashboard with current sprint state.</div><div class="skill-how">Reads git log + epic-status.md → updates in-progress table, blocked items, done items → rewrites the HTML dashboard file.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">pm-client-interview</span></div><div class="skill-purpose">Structured discovery interview to extract business context, goals, constraints, and success metrics from a new client.</div><div class="skill-how">Runs through 5 question categories → records answers → writes context/client-brief.md → seeds initial epics.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">pm-documentation</span></div><div class="skill-purpose">Updates project documentation — architecture docs, decision records, and engineering change logs.</div><div class="skill-how">Identifies which docs need updating → reads current version → writes delta → commits to docs/ with clear commit message.</div></div>
+    <div class="eyebrow" style="margin-bottom:12px">Skills</div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">pm-standup</span></div><div class="skill-purpose">Compiles daily standup from git log + epic-status.md into a human-readable briefing.</div><div class="skill-how">Reads git log → identifies completed/blocked → writes standup/{date}.md → sends Lark summary (if configured).</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">pm-grill-with-docs</span></div><div class="skill-purpose">Validates a draft plan against live project docs before approval — blocks conflicting plans.</div><div class="skill-how">Reads project-status.html + epics.md + epic-status.md → cross-references plan → generates 5–10 specific questions → issues APPROVED / REVISE / BLOCKED verdict.</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">pm-to-issues</span></div><div class="skill-purpose">Breaks an approved spec into vertical-slice GitHub Issues a developer can pick up independently.</div><div class="skill-how">Identifies user-visible slices → writes each as a gh issue with acceptance criteria → gh issue create → updates epic-status.md with issue numbers.</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">pm-epic-writing</span></div><div class="skill-purpose">Writes a full epic with scope, acceptance criteria, out-of-scope, and effort estimate.</div><div class="skill-how">Prompts for business goal → writes epic in epics.md format → appends to epic-status.md as "planned".</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">pm-project-status</span></div><div class="skill-purpose">Updates the project-status.html single-file dashboard with current sprint state.</div><div class="skill-how">Reads git log + epic-status.md → updates in-progress table, blocked items, done items → rewrites HTML dashboard.</div></div>
   </div>
 
-  <!-- ── DEVELOPER ── -->
+  <!-- DEVELOPER -->
   <div id="detail-dev" class="agent-detail">
-    <div class="detail-header">
-      <div class="detail-avatar" style="background:#1c2d1e">💻</div>
-      <div class="detail-title">
-        <h2 style="color:var(--green)">Developer</h2>
-        <p>Implements approved plans, debugs bugs, and hands off to QA — never starts without a PM issue.</p>
-        <div class="file-ref">~/.claude/agents/developer.md · agents/developer/context/</div>
-      </div>
-    </div>
+    <div class="detail-header"><div class="detail-avatar" style="background:var(--ink-3)">💻</div><div class="detail-title"><h2 class="c-dev">Developer</h2><p>Implements approved plans, debugs bugs, hands off to QA — never starts without a PM issue.</p><div class="file-ref">~/.claude/agents/developer.md · agents/developer/context/</div></div></div>
     <div class="detail-grid">
-      <div class="detail-section">
-        <div class="ds-label">Daily Routine (in the dev loop)</div>
-        <div class="routine-timeline">
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--green)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Pick up approved PM issue</div><div class="rt-desc">Reads git log first. Identifies what's already done and what's next.</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--green)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Zoom out (if unfamiliar module)</div><div class="rt-desc">Maps exports, callers, data flow, invariants before touching code.</div><div class="rt-skill-ref">→ dev-zoom-out</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--green)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Stress-test the plan</div><div class="rt-desc">10+ adversarial questions before writing code. Blocks on unanswered questions.</div><div class="rt-skill-ref">→ dev-grill</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--green)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Implement (with TDD if required)</div><div class="rt-desc">Vertical slices only. Red → green → refactor. No horizontal layers.</div><div class="rt-skill-ref">→ dev-tdd</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--green)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Know when to call QA</div><div class="rt-desc">Uses dev-qa-delegation skill to decide: too early wastes QA time, too late risks regressions.</div><div class="rt-skill-ref">→ dev-qa-delegation</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--green)"></div></div><div class="rt-right"><div class="rt-action">Open PR + notify + trigger QA</div><div class="rt-desc">Writes HANDOFF.md, opens GitHub PR, emails human, triggers QA review agent.</div><div class="rt-skill-ref">→ dev-handoff</div></div></div>
-        </div>
-      </div>
-      <div class="detail-section">
-        <div class="ds-label">Hard Rules</div>
-        <div class="hard-rules-section">
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never starts without an approved PM issue.</strong></span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never force-pushes or skips CI.</strong></span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never merges its own PR.</strong></span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Runs dev-zoom-out before touching unfamiliar modules.</strong></span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Always reads git log -10 before starting.</strong></span></div>
-        </div>
-        <div class="ds-label" style="margin-top:16px">Output Paths</div>
-        <div class="output-paths">
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">Feature branches → PRs</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/engineering/changes/{date}-{slug}/HANDOFF.md</span></div>
-        </div>
+      <div><div class="eyebrow" style="margin-bottom:10px">Daily Routine</div><div class="routine-timeline">
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Pick up approved PM issue</div><div class="rt-desc">Reads git log first. Identifies what's done and what's next.</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Zoom out (if unfamiliar module)</div><div class="rt-desc">Maps exports, callers, data flow, invariants before touching code.</div><div class="rt-skill-ref">→ dev-zoom-out</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Stress-test the plan</div><div class="rt-desc">10+ adversarial questions before writing code. Blocks on unanswered questions.</div><div class="rt-skill-ref">→ dev-grill</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Implement (TDD if required)</div><div class="rt-desc">Vertical slices only. Red → green → refactor. No horizontal layers.</div><div class="rt-skill-ref">→ dev-tdd</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Decide when to call QA</div><div class="rt-desc">Uses dev-qa-delegation: too early wastes QA time, too late risks regressions.</div><div class="rt-skill-ref">→ dev-qa-delegation</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent)"></div></div><div class="rt-right"><div class="rt-action">Open PR + notify + trigger QA</div><div class="rt-desc">Writes HANDOFF.md, opens PR, emails human, triggers QA review agent.</div><div class="rt-skill-ref">→ dev-handoff</div></div></div>
+      </div></div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:10px">Hard Rules</div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never starts without an approved PM issue.</strong></span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never force-pushes or skips CI.</strong></span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never merges its own PR.</strong></span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Runs dev-zoom-out before touching unfamiliar modules.</strong></span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Always reads git log -10 before starting.</strong></span></div>
+        <div class="eyebrow" style="margin-top:16px;margin-bottom:10px">Output Paths</div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">Feature branches → PRs</span></div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/engineering/changes/{date}-{slug}/HANDOFF.md</span></div>
       </div>
     </div>
-    <div class="ds-label">Skills</div>
+    <div class="eyebrow" style="margin-bottom:12px">Skills</div>
     <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-diagnose</span></div><div class="skill-purpose">Structured debug loop for bugs with non-obvious causes.</div><div class="skill-how">Reproduce → minimise → hypothesise (3–5 theories) → instrument one at a time → fix minimal root cause → gate (all tests pass, logs removed).</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-zoom-out</span></div><div class="skill-purpose">Produces a 1-page module summary before making changes in unfamiliar territory.</div><div class="skill-how">Maps public surface → finds callers (grep) → traces data flow → identifies invariants → writes MODULE / ENTRY POINTS / DANGER ZONES summary.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-grill</span></div><div class="skill-purpose">Adversarial plan interrogation — 10+ questions across scope, data, errors, testing, deployment, and assumptions.</div><div class="skill-how">Generates questions → requires answers → marks unanswered as blockers → issues APPROVED / BLOCKED verdict. No code before APPROVED.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-tdd</span></div><div class="skill-purpose">Enforces strict red-green-refactor discipline with vertical slices only.</div><div class="skill-how">Failing test first → minimum code to pass → refactor with tests green → commit test then impl → next slice. Horizontal slicing is banned.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-prototype</span></div><div class="skill-purpose">Throwaway spike to answer one specific technical question — then delete the code.</div><div class="skill-how">Define the exact question → set timebox (max 2h) → build minimum to answer → record QUESTION / ANSWER / EVIDENCE / IMPLICATIONS → delete all prototype code.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-handoff</span></div><div class="skill-purpose">Session/agent handoff documentation so the next session or QA agent can continue without context loss.</div><div class="skill-how">Writes HANDOFF.md to docs/engineering/changes/{date}-{slug}/ with: what's done, in progress, blocked, files changed, how to test, open questions. Commits + sends Lark.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-improve-arch</span></div><div class="skill-purpose">Strategic module improvement — friction inventory → ranked improvements → one approved change at a time.</div><div class="skill-how">Domain scan (no judgment) → list friction items (type + impact + effort) → compute Priority = (Impact×2) + (1/Effort) → propose highest-priority one → implement only after approval.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-planning</span></div><div class="skill-purpose">Implementation plan before coding — breaks down a PM issue into ordered steps with file-level detail.</div><div class="skill-how">Reads the GitHub Issue → breaks into ordered steps → estimates effort → confirms with PM before starting → creates TodoWrite checklist.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-qa-delegation</span></div><div class="skill-purpose">Decides when and how to hand off to QA — avoids premature or delayed QA calls.</div><div class="skill-how">Checks acceptance criteria coverage → runs local tests → if passing and ACs met → writes handoff doc → triggers QA review via RemoteTrigger or @qa tag.</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-zoom-out</span></div><div class="skill-purpose">1-page module summary before making changes in unfamiliar territory.</div><div class="skill-how">Maps public surface → finds callers (grep) → traces data flow → identifies invariants → writes MODULE / ENTRY POINTS / DANGER ZONES summary.</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-grill</span></div><div class="skill-purpose">Adversarial plan interrogation — 10+ questions across scope, data, errors, testing, deployment.</div><div class="skill-how">Generates questions → requires answers → marks unanswered as blockers → issues APPROVED / BLOCKED. No code before APPROVED.</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-tdd</span></div><div class="skill-purpose">Strict red-green-refactor with vertical slices only.</div><div class="skill-how">Failing test first → minimum code to pass → refactor with tests green → commit test then impl → next slice. Horizontal slicing banned.</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-prototype</span></div><div class="skill-purpose">Throwaway spike to answer one specific technical question — then delete the code.</div><div class="skill-how">Define question → set timebox (max 2h) → build minimum to answer → record QUESTION / ANSWER / EVIDENCE / IMPLICATIONS → delete all prototype code.</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-handoff</span></div><div class="skill-purpose">Session/agent handoff documentation so the next session or QA can continue without context loss.</div><div class="skill-how">Writes HANDOFF.md to docs/engineering/changes/{date}-{slug}/ with: done, in-progress, blocked, files, how to test, open questions. Commits + notifies (Lark if configured).</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">dev-improve-arch</span></div><div class="skill-purpose">Strategic module improvement — friction inventory → ranked improvements → one approved change at a time.</div><div class="skill-how">Domain scan → list friction (type + impact + effort) → Priority = (Impact×2)+(1/Effort) → propose highest-priority one → implement only after approval.</div></div>
   </div>
 
-  <!-- ── QA ── -->
+  <!-- QA -->
   <div id="detail-qa" class="agent-detail">
-    <div class="detail-header">
-      <div class="detail-avatar" style="background:#2a2010">🧪</div>
-      <div class="detail-title">
-        <h2 style="color:var(--amber)">QA</h2>
-        <p>Classifies every bug, verifies acceptance criteria, and signs off PRs — never skips triage.</p>
-        <div class="file-ref">~/.claude/agents/qa.md · agents/qa/context/</div>
-      </div>
-    </div>
+    <div class="detail-header"><div class="detail-avatar" style="background:var(--ink-3)">🧪</div><div class="detail-title"><h2 class="c-qa">QA</h2><p>Classifies every bug, verifies acceptance criteria, signs off PRs — never skips triage.</p><div class="file-ref">~/.claude/agents/qa.md · agents/qa/context/</div></div></div>
     <div class="detail-grid">
-      <div class="detail-section">
-        <div class="ds-label">Routines</div>
-        <div class="routine-timeline">
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--amber)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Wed 14:00 — Regression check</div><div class="rt-desc">After Web Publisher commits a new post, QA verifies the site renders correctly.</div><div class="rt-skill-ref">→ qa-best-practices</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--amber)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">On PR open — PR review</div><div class="rt-desc">Triggered by Developer via RemoteTrigger. Reviews PR against acceptance criteria.</div><div class="rt-skill-ref">→ qa-documentation</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--amber)"></div></div><div class="rt-right"><div class="rt-action">On bug report — Triage</div><div class="rt-desc">Classify → score (severity × frequency × blast) → route. Always before fixing.</div><div class="rt-skill-ref">→ qa-triage</div></div></div>
-        </div>
-      </div>
-      <div class="detail-section">
-        <div class="ds-label">Hard Rules</div>
-        <div class="hard-rules-section">
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never skips triage.</strong> Every bug is classified and scored.</span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never signs off without testing acceptance criteria</strong> from the PM plan.</span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never marks a regression as P3</strong> without PM review.</span></div>
-        </div>
-        <div class="ds-label" style="margin-top:16px">Output Paths</div>
-        <div class="output-paths">
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/qa/{date}-{slug}-triage.md</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/qa/{date}-{slug}-qa-report.md</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/product/epic-status.md (known issues)</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/project-status.html (bugs table)</span></div>
-        </div>
+      <div><div class="eyebrow" style="margin-bottom:10px">Routines</div><div class="routine-timeline">
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--amber)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Wed 14:00 — Regression check</div><div class="rt-desc">After Web Publisher commits, verifies site renders correctly.</div><div class="rt-skill-ref">→ qa-best-practices</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--amber)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">On PR open — PR review</div><div class="rt-desc">Triggered by Developer. Reviews PR against acceptance criteria in PM plan.</div><div class="rt-skill-ref">→ qa-documentation</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--amber)"></div></div><div class="rt-right"><div class="rt-action">On bug report — Triage</div><div class="rt-desc">Classify → score → route. Always before fixing.</div><div class="rt-skill-ref">→ qa-triage</div></div></div>
+      </div></div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:10px">Hard Rules</div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never skips triage.</strong> Every bug classified and scored.</span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never signs off without testing acceptance criteria</strong> from the PM plan.</span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never marks a regression P3</strong> without PM review.</span></div>
+        <div class="eyebrow" style="margin-top:16px;margin-bottom:10px">Output Paths</div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/qa/{date}-{slug}-triage.md</span></div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/qa/{date}-{slug}-qa-report.md</span></div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/product/epic-status.md (known issues)</span></div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">docs/project-status.html (bugs table)</span></div>
       </div>
     </div>
-    <div class="ds-label">Skills</div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">qa-triage</span></div><div class="skill-purpose">Bug triage state machine — classify, score priority, and route every bug before it's touched.</div><div class="skill-how">Classify as regression/new-defect/performance/ux-degradation/data-integrity/security → score Severity × Frequency × Blast (1–5 each) → map score to P0–P3 → route to correct agent → write triage report → update epic-status.md + project-status.html.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">qa-best-practices</span></div><div class="skill-purpose">Defines the test strategy for a feature: what to test, how to test it, and what AI cannot test.</div><div class="skill-how">Maps feature scope → identifies test pyramid layers (unit/integration/e2e) → lists manual-only scenarios → writes test plan with specific commands.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">qa-documentation</span></div><div class="skill-purpose">Writes a formal QA report for a completed feature or regression cycle.</div><div class="skill-how">Reads acceptance criteria → documents pass/fail per criterion → lists open bugs with triage scores → issues QA verdict (PASS / PASS WITH NOTES / FAIL).</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">qa-planning</span></div><div class="skill-purpose">Creates a full test plan for an epic or sprint before development begins.</div><div class="skill-how">Reads epic spec → maps all acceptance criteria → designs test cases per criterion → estimates QA effort → flags automation gaps.</div></div>
+    <div class="eyebrow" style="margin-bottom:12px">Skills</div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">qa-triage</span></div><div class="skill-purpose">Bug triage state machine — classify, score priority, route every bug before it's touched.</div><div class="skill-how">Classify (regression/new-defect/performance/ux/data-integrity/security) → score Severity × Frequency × Blast (1–5) → map to P0–P3 → route → write triage report → update epic-status.md + project-status.html.</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">qa-best-practices</span></div><div class="skill-purpose">Defines test strategy: what to test, how, and what AI cannot test.</div><div class="skill-how">Maps feature scope → identifies test pyramid layers → lists manual-only scenarios → writes test plan with specific commands.</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">qa-documentation</span></div><div class="skill-purpose">Writes a formal QA report for a completed feature or regression cycle.</div><div class="skill-how">Reads acceptance criteria → documents pass/fail per criterion → lists open bugs → issues QA verdict (PASS / PASS WITH NOTES / FAIL).</div></div>
   </div>
 
-  <!-- ── DEVOPS ── -->
+  <!-- DEVOPS -->
   <div id="detail-devops" class="agent-detail">
-    <div class="detail-header">
-      <div class="detail-avatar" style="background:#1e1a2d">⚙️</div>
-      <div class="detail-title">
-        <h2 style="color:var(--purple)">DevOps</h2>
-        <p>Owns CI/CD, pre-commit quality gates, and git safety — escalates infra issues to a human engineer.</p>
-        <div class="file-ref">~/.claude/agents/devops.md · agents/devops/context/</div>
-      </div>
-    </div>
+    <div class="detail-header"><div class="detail-avatar" style="background:var(--ink-3)">⚙️</div><div class="detail-title"><h2 class="c-devops">DevOps</h2><p>Owns CI/CD, pre-commit quality gates, git safety — escalates infra issues to a human engineer.</p><div class="file-ref">~/.claude/agents/devops.md · agents/devops/context/</div></div></div>
     <div class="detail-grid">
-      <div class="detail-section">
-        <div class="ds-label">Routines</div>
-        <div class="routine-timeline">
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--purple)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Thu 09:00 — Deploy health check</div><div class="rt-desc">Checks Vercel deployment status, CI pass rates, and recent error logs.</div><div class="rt-skill-ref">→ devops-ops</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--purple)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">On project init — Setup quality gates</div><div class="rt-desc">Installs pre-commit hooks and Claude Code git guardrails during first project setup.</div><div class="rt-skill-ref">→ devops-setup-pre-commit + devops-git-guardrails</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--purple)"></div></div><div class="rt-right"><div class="rt-action">On pipeline failure — Escalate</div><div class="rt-desc">Diagnoses root cause. If beyond defined scope, stops and notifies a human engineer via Lark. [P12]</div></div></div>
-        </div>
-      </div>
-      <div class="detail-section">
-        <div class="ds-label">Hard Rules</div>
-        <div class="hard-rules-section">
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never deploys directly.</strong> All via git push → CI/CD pipeline.</span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never modifies env vars</strong> without recording in repo env docs.</span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Escalates to human engineer</strong> when infra issues exceed scope. [P12]</span></div>
-        </div>
+      <div><div class="eyebrow" style="margin-bottom:10px">Routines</div><div class="routine-timeline">
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--pink)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Thu 09:00 — Deploy health check</div><div class="rt-desc">Checks Vercel deployment status, CI pass rates, recent error logs.</div><div class="rt-skill-ref">→ devops-ops</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--pink)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">On project init — Setup quality gates</div><div class="rt-desc">Installs pre-commit hooks and Claude Code git guardrails.</div><div class="rt-skill-ref">→ devops-setup-pre-commit + devops-git-guardrails</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--pink)"></div></div><div class="rt-right"><div class="rt-action">On pipeline failure — Escalate</div><div class="rt-desc">Diagnoses root cause. If beyond scope, stops and notifies a human engineer. [P12]</div></div></div>
+      </div></div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:10px">Hard Rules</div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never deploys directly.</strong> All via git push → CI/CD.</span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never modifies env vars</strong> without recording in repo env docs.</span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Escalates to human engineer</strong> when infra exceeds scope. [P12]</span></div>
       </div>
     </div>
-    <div class="ds-label">Skills</div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">devops-setup-pre-commit</span></div><div class="skill-purpose">Installs Husky + lint-staged + Prettier + type-check as pre-commit quality gates on every commit.</div><div class="skill-how">npm install husky lint-staged prettier → npx husky init → configure lint-staged in package.json → write .prettierrc → verify with test commit.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">devops-git-guardrails</span></div><div class="skill-purpose">Claude Code PreToolUse hooks that intercept and block dangerous git commands before they execute.</div><div class="skill-how">Writes .claude/hooks/git-guardrails.sh → registers in .claude/settings.json as PreToolUse hook → blocks force push, reset --hard, branch -D main, git add ., and --amend on published commits.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">devops-ops</span></div><div class="skill-purpose">Operational runbook: deploy health check, rollback procedures, and incident response steps.</div><div class="skill-how">Checks Vercel deployment list → reads recent build logs → checks for anomalies → escalates P0 infra issues to human with full context via Lark.</div></div>
+    <div class="eyebrow" style="margin-bottom:12px">Skills</div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">devops-setup-pre-commit</span></div><div class="skill-purpose">Installs Husky + lint-staged + Prettier + type-check as pre-commit gates.</div><div class="skill-how">npm install husky lint-staged prettier → npx husky init → configure lint-staged → write .prettierrc → verify with test commit.</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">devops-git-guardrails</span></div><div class="skill-purpose">Claude Code PreToolUse hooks blocking dangerous git commands before they execute.</div><div class="skill-how">Writes .claude/hooks/git-guardrails.sh → registers in .claude/settings.json → blocks force push, reset --hard, branch -D main, git add ., --amend on published commits.</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">devops-ops</span></div><div class="skill-purpose">Deploy health check, rollback procedures, and incident response.</div><div class="skill-how">Checks Vercel deployment list → reads recent build logs → checks anomalies → escalates P0 infra issues via Lark (if configured).</div></div>
   </div>
 
-  <!-- ── WRITER ── -->
+  <!-- WRITER -->
   <div id="detail-writer" class="agent-detail">
-    <div class="detail-header">
-      <div class="detail-avatar" style="background:#0f2626">✍️</div>
-      <div class="detail-title">
-        <h2 style="color:var(--teal)">Writer</h2>
-        <p>Drafts all content — blog posts, SEO, social copy, translations. Does not publish or generate images.</p>
-        <div class="file-ref">~/.claude/agents/writer.md · agents/writer/context/</div>
-      </div>
-    </div>
+    <div class="detail-header"><div class="detail-avatar" style="background:var(--ink-3)">✍️</div><div class="detail-title"><h2 class="c-writer">Writer</h2><p>Drafts all content — blog posts, SEO, social copy, translations. Does not publish or generate images.</p><div class="file-ref">~/.claude/agents/writer.md · agents/writer/context/</div></div></div>
     <div class="detail-grid">
-      <div class="detail-section">
-        <div class="ds-label">Weekly Routine</div>
-        <div class="routine-timeline">
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--teal)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Mon 09:00 — Check content calendar</div><div class="rt-desc">Reads PM-assigned topic for this week. One post per week default.</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--teal)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Research + draft blog.md</div><div class="rt-desc">Reads brand voice guide. Writes longform post following content structure rules.</div><div class="rt-skill-ref">→ writer-seo-content</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--teal)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Write seo.md + social-*.md</div><div class="rt-desc">Meta title, description, OG copy, social captions for each platform.</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--teal)"></div></div><div class="rt-right"><div class="rt-action">Wait for operator approval</div><div class="rt-desc">Does not trigger Designer. Operator reviews and approves content first.</div></div></div>
-        </div>
-      </div>
-      <div class="detail-section">
-        <div class="ds-label">Hard Rules</div>
-        <div class="hard-rules-section">
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Does not publish.</strong> Approved content goes to Web Publisher.</span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Does not generate images.</strong> That is Designer's role.</span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Reads content calendar before starting.</strong> No duplicate topics.</span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>One post per week</strong> unless operator explicitly requests more.</span></div>
-        </div>
-        <div class="ds-label" style="margin-top:16px">Output Paths</div>
-        <div class="output-paths">
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">content/topics/{slug}/blog.md</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">content/topics/{slug}/seo.md</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">content/topics/{slug}/social-*.md</span></div>
-        </div>
+      <div><div class="eyebrow" style="margin-bottom:10px">Weekly Routine</div><div class="routine-timeline">
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Mon 09:00 — Check content calendar</div><div class="rt-desc">Reads PM-assigned topic. One post per week default.</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Research + draft blog.md</div><div class="rt-desc">Reads brand voice guide. Writes longform post following content structure rules.</div><div class="rt-skill-ref">→ writer-seo-content</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Write seo.md + social-*.md</div><div class="rt-desc">Meta title, description, OG copy, social captions per platform.</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent)"></div></div><div class="rt-right"><div class="rt-action">Wait for operator approval</div><div class="rt-desc">Does not trigger Designer. Operator reviews and approves content first.</div></div></div>
+      </div></div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:10px">Hard Rules</div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Does not publish.</strong> Approved content goes to Web Publisher.</span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Does not generate images.</strong> That is Designer's role.</span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>One post per week</strong> unless operator explicitly requests more.</span></div>
+        <div class="eyebrow" style="margin-top:16px;margin-bottom:10px">Output Paths</div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">content/topics/{slug}/blog.md</span></div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">content/topics/{slug}/seo.md</span></div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">content/topics/{slug}/social-*.md</span></div>
       </div>
     </div>
-    <div class="ds-label">Skills</div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">writer-seo-content</span></div><div class="skill-purpose">Produces SEO-optimised blog posts with keyword strategy, metadata, and proper heading structure.</div><div class="skill-how">Research primary + secondary keywords → write blog.md with proper H2/H3 hierarchy → write seo.md (title tag ≤60 chars, meta description ≤155 chars, OG tags) → write social-*.md per platform with character limits.</div></div>
+    <div class="eyebrow" style="margin-bottom:12px">Skills</div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">writer-seo-content</span></div><div class="skill-purpose">SEO-optimised blog posts with keyword strategy, metadata, and heading structure.</div><div class="skill-how">Research primary + secondary keywords → write blog.md with H2/H3 hierarchy → write seo.md (title ≤60 chars, meta ≤155 chars, OG tags) → write social-*.md per platform with character limits.</div></div>
   </div>
 
-  <!-- ── DESIGNER ── -->
+  <!-- DESIGNER -->
   <div id="detail-designer" class="agent-detail">
-    <div class="detail-header">
-      <div class="detail-avatar" style="background:#2a1020">🎨</div>
-      <div class="detail-title">
-        <h2 style="color:var(--pink)">Designer</h2>
-        <p>Generates hero images, social graphics, and maintains the design system — only after copy is approved.</p>
-        <div class="file-ref">~/.claude/agents/designer.md · agents/designer/context/</div>
-      </div>
-    </div>
+    <div class="detail-header"><div class="detail-avatar" style="background:var(--ink-3)">🎨</div><div class="detail-title"><h2 class="c-designer">Designer</h2><p>Generates hero images, social graphics, maintains design system — only after copy is approved.</p><div class="file-ref">~/.claude/agents/designer.md · agents/designer/context/</div></div></div>
     <div class="detail-grid">
-      <div class="detail-section">
-        <div class="ds-label">Weekly Routine</div>
-        <div class="routine-timeline">
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--pink)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Tue 09:00 — Check for approved Writer drafts</div><div class="rt-desc">Reads content/topics/{slug}/blog.md. Only proceeds if operator approved.</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--pink)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Generate hero image via Gemini</div><div class="rt-desc">Reads brand style guide → crafts image prompt → generates via Gemini API → optimises to .webp.</div><div class="rt-skill-ref">→ designer-image-generation</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--pink)"></div></div><div class="rt-right"><div class="rt-action">Generate social graphics</div><div class="rt-desc">Platform-specific crops and aspect ratios for Instagram, LinkedIn, Twitter/X.</div></div></div>
-        </div>
-      </div>
-      <div class="detail-section">
-        <div class="ds-label">Hard Rules</div>
-        <div class="hard-rules-section">
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never generates images before Writer copy is approved.</strong></span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never deploys images directly.</strong> Goes to content/, Web Publisher promotes to website/.</span></div>
-        </div>
-        <div class="ds-label" style="margin-top:16px">Output Paths</div>
-        <div class="output-paths">
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">content/topics/{slug}/{image}.webp</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">content/topics/{slug}/social-*.webp</span></div>
-        </div>
+      <div><div class="eyebrow" style="margin-bottom:10px">Weekly Routine</div><div class="routine-timeline">
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--pink)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Tue 09:00 — Check for approved drafts</div><div class="rt-desc">Reads content/topics/{slug}/blog.md. Only proceeds if operator approved.</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--pink)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Generate hero image via Gemini</div><div class="rt-desc">Reads brand style guide → crafts prompt → generates via Gemini API → optimises to .webp.</div><div class="rt-skill-ref">→ designer-image-generation</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--pink)"></div></div><div class="rt-right"><div class="rt-action">Generate social graphics</div><div class="rt-desc">Platform-specific crops for Instagram, LinkedIn, Twitter/X.</div></div></div>
+      </div></div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:10px">Hard Rules</div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never generates images before Writer copy is approved.</strong></span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never deploys images directly.</strong> Web Publisher promotes to website/.</span></div>
+        <div class="eyebrow" style="margin-top:16px;margin-bottom:10px">Output Paths</div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">content/topics/{slug}/{image}.webp</span></div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">content/topics/{slug}/social-*.webp</span></div>
       </div>
     </div>
-    <div class="ds-label">Skills</div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">designer-image-generation</span></div><div class="skill-purpose">Generates hero and social images via Gemini API, following brand style guidelines.</div><div class="skill-how">Reads brand style guide + blog.md → crafts detailed image prompt (style, mood, colours, composition) → calls Gemini Python SDK → saves .webp to content/topics/{slug}/ → generates platform-specific crops.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">designer-design-system</span></div><div class="skill-purpose">Maintains brand tokens, colour palette, typography, and component design system documentation.</div><div class="skill-how">Reads existing brand guide → identifies gaps or drift → updates design tokens → writes documentation in markdown with visual examples where possible.</div></div>
+    <div class="eyebrow" style="margin-bottom:12px">Skills</div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">designer-image-generation</span></div><div class="skill-purpose">Generates hero and social images via Gemini API following brand style guidelines.</div><div class="skill-how">Reads brand style guide + blog.md → crafts detailed prompt (style, mood, colours, composition) → Gemini Python SDK → saves .webp → generates platform-specific crops.</div></div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">designer-design-system</span></div><div class="skill-purpose">Maintains brand tokens, colour palette, typography, and component design system.</div><div class="skill-how">Reads existing brand guide → identifies gaps → updates design tokens → writes documentation in markdown with visual examples.</div></div>
     <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">designer-ui-ux</span></div><div class="skill-purpose">Creates UI mockups and screen design specifications for new features.</div><div class="skill-how">Reads feature spec → maps user flows → produces wireframe descriptions or HTML/CSS prototypes → documents component interactions and states.</div></div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">designer-style-to-photo</span></div><div class="skill-purpose">Translates style references into generated photographic images matching brand aesthetic.</div><div class="skill-how">Analyses style reference → extracts: lighting, colour temperature, composition rules, subject treatment → generates via Gemini with detailed style-transfer prompt.</div></div>
   </div>
 
-  <!-- ── WEB PUBLISHER ── -->
+  <!-- WEB PUBLISHER -->
   <div id="detail-publisher" class="agent-detail">
-    <div class="detail-header">
-      <div class="detail-avatar" style="background:#2a1800">🌐</div>
-      <div class="detail-title">
-        <h2 style="color:var(--orange)">Web Publisher</h2>
-        <p>Turns approved content into React components, updates the blog index, and commits — operator runs git push.</p>
-        <div class="file-ref">~/.claude/agents/web-publisher.md · agents/web-publisher/context/</div>
-      </div>
-    </div>
+    <div class="detail-header"><div class="detail-avatar" style="background:var(--ink-3)">🌐</div><div class="detail-title"><h2 class="c-publisher">Web Publisher</h2><p>Turns approved content into React components, updates blog index, commits — operator runs git push.</p><div class="file-ref">~/.claude/agents/web-publisher.md · agents/web-publisher/context/</div></div></div>
     <div class="detail-grid">
-      <div class="detail-section">
-        <div class="ds-label">Weekly Routine</div>
-        <div class="routine-timeline">
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--orange)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Tue 14:00 — Read approved content + images</div><div class="rt-desc">Reads content/topics/{slug}/blog.md and confirms Designer image exists in .webp.</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--orange)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Read style guides</div><div class="rt-desc">Reads web-style-guide.md and style-guide.md before building any component.</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--orange)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Build React .jsx component</div><div class="rt-desc">Generates blog post component with &lt;Head&gt;, next/image, OG tags, and CSS modules.</div><div class="rt-skill-ref">→ web-publisher-publish</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--orange)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Update blog index</div><div class="rt-desc">Adds new post card at top of website/pages/blog/index.jsx. Follows existing card pattern exactly.</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--orange)"></div></div><div class="rt-right"><div class="rt-action">git commit + tell operator</div><div class="rt-desc">Stages and commits. Outputs the exact command: "git push origin main".</div></div></div>
-        </div>
-      </div>
-      <div class="detail-section">
-        <div class="ds-label">Hard Rules</div>
-        <div class="hard-rules-section">
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never pushes to GitHub.</strong> Commits locally — operator runs git push.</span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never publishes without approved content AND image.</strong></span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Always updates the blog index</strong> after publishing a post.</span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never uses inline styles</strong> — CSS modules or global styles only.</span></div>
-        </div>
-        <div class="ds-label" style="margin-top:16px">Output Paths</div>
-        <div class="output-paths">
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">website/pages/blog/posts/{slug}.jsx</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">website/pages/blog/index.jsx</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">website/public/images/blog/{slug}.webp</span></div>
-        </div>
+      <div><div class="eyebrow" style="margin-bottom:10px">Weekly Routine</div><div class="routine-timeline">
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--orange)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Tue 14:00 — Read approved content + images</div><div class="rt-desc">Reads blog.md, confirms Designer .webp exists.</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--orange)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Read style guides</div><div class="rt-desc">Reads web-style-guide.md + style-guide.md before building any component.</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--orange)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Build React .jsx component</div><div class="rt-desc">Generates post component with Head, next/image, OG tags, and CSS modules.</div><div class="rt-skill-ref">→ web-publisher-publish</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--orange)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Update blog index</div><div class="rt-desc">Adds new post card at top of website/pages/blog/index.jsx.</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--orange)"></div></div><div class="rt-right"><div class="rt-action">git commit + tell operator</div><div class="rt-desc">Stages named files, commits, outputs: "git push origin main".</div></div></div>
+      </div></div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:10px">Hard Rules</div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never pushes to GitHub.</strong> Commits locally — operator runs git push.</span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never publishes without approved content AND image.</strong></span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Always updates blog index</strong> after publishing a post.</span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never uses inline styles</strong> — CSS modules or global styles only.</span></div>
+        <div class="eyebrow" style="margin-top:16px;margin-bottom:10px">Output Paths</div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">website/pages/blog/posts/{slug}.jsx</span></div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">website/pages/blog/index.jsx</span></div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">website/public/images/blog/{slug}.webp</span></div>
       </div>
     </div>
-    <div class="ds-label">Skills</div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">web-publisher-publish</span></div><div class="skill-purpose">Full publishing workflow: content → React component → blog index → git commit.</div><div class="skill-how">Read blog.md + style guides → optimise image to .webp → generate .jsx with Head + next/image + OG tags → add post card to blog index → git add (named files only) → git commit → output "git push origin main" command → append to publish-log.md.</div></div>
+    <div class="eyebrow" style="margin-bottom:12px">Skills</div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">web-publisher-publish</span></div><div class="skill-purpose">Full publishing workflow: content → React component → blog index → git commit.</div><div class="skill-how">Read blog.md + style guides → optimise image to .webp → generate .jsx with Head + next/image + OG tags → add post card to blog index → git add (named files) → git commit → output push command → append to publish-log.md.</div></div>
   </div>
 
-  <!-- ── EMAIL MARKETER ── -->
+  <!-- EMAIL MARKETER -->
   <div id="detail-email" class="agent-detail">
-    <div class="detail-header">
-      <div class="detail-avatar" style="background:#0f1e3a">📧</div>
-      <div class="detail-title">
-        <h2 style="color:var(--blue)">Email Marketer</h2>
-        <p>Drafts subscriber announcements and nurture sequences via Brevo — never sends without operator approval.</p>
-        <div class="file-ref">~/.claude/agents/email-marketer.md · agents/email-marketer/context/</div>
-      </div>
-    </div>
+    <div class="detail-header"><div class="detail-avatar" style="background:var(--ink-3)">📧</div><div class="detail-title"><h2 class="c-email">Email Marketer</h2><p>Drafts subscriber announcements and nurture sequences via Brevo — never sends without operator approval.</p><div class="file-ref">~/.claude/agents/email-marketer.md · agents/email-marketer/context/</div></div></div>
     <div class="detail-grid">
-      <div class="detail-section">
-        <div class="ds-label">Weekly Routine</div>
-        <div class="routine-timeline">
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--blue)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Wed 09:00 — Check email-index.md</div><div class="rt-desc">Confirms new post is live and hasn't been announced yet. Prevents duplicate sends.</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--blue)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Read Supabase subscriber list</div><div class="rt-desc">Checks current subscriber count and segments before drafting.</div><div class="rt-skill-ref">→ email-marketer-nurture</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--blue)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Draft announcement campaign</div><div class="rt-desc">Creates Brevo campaign draft — subject line, preview text, HTML body. Does NOT send.</div></div></div>
-          <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--blue)"></div></div><div class="rt-right"><div class="rt-action">Notify operator via Lark</div><div class="rt-desc">Sends Lark message: "Campaign drafted — please approve to send." Waits for explicit approval.</div></div></div>
-        </div>
-      </div>
-      <div class="detail-section">
-        <div class="ds-label">Hard Rules</div>
-        <div class="hard-rules-section">
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never sends without explicit operator approval.</strong> Always drafts first.</span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Reads subscriber list before every campaign.</strong> No duplicate sends.</span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never imports contacts</strong> without confirming opt-in status.</span></div>
-          <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Checks email-index.md</strong> — never announces a post already sent.</span></div>
-        </div>
-        <div class="ds-label" style="margin-top:16px">Output Paths</div>
-        <div class="output-paths">
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">Brevo campaign draft (via API)</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">email-index.md (send log + Stage tracking)</span></div>
-          <div class="op-item"><span class="op-arrow">→</span><span class="op-path">Lark notification to operator</span></div>
-        </div>
+      <div><div class="eyebrow" style="margin-bottom:10px">Weekly Routine</div><div class="routine-timeline">
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent-2)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Wed 09:00 — Check email-index.md</div><div class="rt-desc">Confirms new post is live and hasn't been announced. Prevents duplicate sends.</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent-2)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Read Supabase subscriber list</div><div class="rt-desc">Checks current subscriber count and segments before drafting.</div><div class="rt-skill-ref">→ email-marketer-nurture</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent-2)"></div><div class="rt-line"></div></div><div class="rt-right"><div class="rt-action">Draft announcement campaign</div><div class="rt-desc">Creates Brevo campaign draft — subject, preview text, HTML body. Does NOT send.</div></div></div>
+        <div class="rt-step"><div class="rt-left"><div class="rt-dot" style="background:var(--accent-2)"></div></div><div class="rt-right"><div class="rt-action">Notify operator</div><div class="rt-desc">Lark message (if configured): "Campaign drafted — please approve to send." Waits for explicit approval.</div></div></div>
+      </div></div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:10px">Hard Rules</div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Never sends without explicit operator approval.</strong></span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Reads subscriber list before every campaign.</strong></span></div>
+        <div class="hr-item"><span class="hr-icon">✗</span><span class="hr-text"><strong>Checks email-index.md</strong> — never announces a post already sent.</span></div>
+        <div class="eyebrow" style="margin-top:16px;margin-bottom:10px">Output Paths</div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">Brevo campaign draft (via API)</span></div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">email-index.md (send log + Stage tracking)</span></div>
+        <div class="op-item"><span class="op-arrow">→</span><span class="op-path">Lark notification (if configured)</span></div>
       </div>
     </div>
-    <div class="ds-label">Skills</div>
-    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">email-marketer-nurture</span></div><div class="skill-purpose">Manages lead nurture email sequences — reads lead stage from Supabase, sends the right email, updates stage.</div><div class="skill-how">Read lead stage from Supabase → match stage to email sequence step → render HTML template with personalisation → send via Brevo transactional API → update lead status in Supabase → notify team on Lark.</div></div>
+    <div class="eyebrow" style="margin-bottom:12px">Skills</div>
+    <div class="skill-row"><div class="skill-row-top"><span class="skill-name-big">email-marketer-nurture</span></div><div class="skill-purpose">Manages lead nurture sequences — reads stage from Supabase, sends the right email, updates stage.</div><div class="skill-how">Read lead stage from Supabase → match stage to email sequence step → render HTML template with personalisation → send via Brevo transactional API → update lead status in Supabase → notify team (Lark if configured).</div></div>
   </div>
 
 </div><!-- /tab-details -->
 
 <footer>
   <span>Infinite Leverage 8-Agent Template · talentedgeai/infiniteleverage-8-agents-template</span>
-  <span>Self-contained HTML · No dependencies · Open in any browser</span>
+  <span>Open in any browser · No dependencies · Self-contained HTML</span>
 </footer>
 
 <script>
@@ -1115,20 +801,13 @@ function showTab(name) {
   const tabs = ['flow','dev-schedule','mkt-schedule','overview','details'];
   document.querySelectorAll('nav button')[tabs.indexOf(name)].classList.add('active');
 }
-
 function showDetail(name) {
-  // Switch to details tab if not already there
-  const detailsTab = document.getElementById('tab-details');
-  if (!detailsTab.classList.contains('active')) {
-    showTab('details');
-  }
+  if (!document.getElementById('tab-details').classList.contains('active')) showTab('details');
   document.querySelectorAll('.agent-detail').forEach(d => d.classList.remove('active'));
   document.querySelectorAll('.ad-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('detail-' + name).classList.add('active');
   const names = ['pm','dev','qa','devops','writer','designer','publisher','email'];
   document.querySelectorAll('.ad-btn')[names.indexOf(name)].classList.add('active');
-  // Scroll to top of details section
-  detailsTab.scrollTop = 0;
 }
 </script>
 </body>
