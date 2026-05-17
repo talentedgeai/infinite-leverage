@@ -1,9 +1,5 @@
 # Epic Status — {Project Name}
 
-> **Fixed filename.** Updated nightly by PM agent. Each epic shows 5-point pipeline.
+> **Fixed filename.** Created and maintained by `pm-epic-writing`. Updated each time a new epic is written or a status changes.
 
-## Epic 1 — PH name
-Pipeline: [ ] Discovery → [ ] Spec → [ ] Build → [ ] QA → [ ] Shipped
-- Current: discovery
-- Owner: PH
-- Notes:
+<!-- This file is empty until pm-epic-writing creates the first epic. Do not fill in manually. -->

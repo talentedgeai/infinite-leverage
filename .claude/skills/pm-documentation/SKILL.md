@@ -1,13 +1,19 @@
 ---
 name: pm-documentation
-description: Create and maintain exactly 4 product documentation files with strict formats. Scaffolded once from client interview, updated continuously.
+description: Scaffold and maintain docs/product/product.md with a strict 14-section format. Run once after pm-client-interview to create the file; re-run whenever product strategy changes. Does NOT write epics, epic-status, or timeline — those are owned by pm-epic-writing.
 ---
 
 # PM: Product Documentation
 
-Manage exactly 4 files. Each has a strict format — never deviate.
+Manages exactly **one file**: `docs/product/product.md`.
 
-## File 1: `docs/product/product.md`
+Epics, epic-status, and timeline are owned by other skills:
+- `docs/product/epics.md` → **pm-epic-writing**
+- `docs/product/epic-status.md` → **pm-epic-writing**
+
+---
+
+## File: `docs/product/product.md`
 
 Header: `{product name} · Written by {Owner} · Draft v0.1 · {date}`
 
@@ -29,60 +35,13 @@ Sections in this exact order:
 12. `## 12. How we know it's working` — 2 metrics only: Leading metric + Trailing metric
 13. `## 13. Next 90 days` — 3 bets in "end-state, not roadmap" format
 14. `## 14. Open decisions` — bulleted: what's undecided + who decides + deadline
-15. Close: `---` then *"What this doc deliberately does not do: feature backlog, integration list, P&L."*
 
-## File 2: `docs/product/epics.md`
+Close: `---` then *"What this doc deliberately does not do: feature backlog, integration list, P&L."*
 
-Opening paragraph (verbatim): *"These are thematic bundles of work. Each epic makes a bet on user behavior — a specific problem that, if solved, unlocks a meaningful outcome. Epics are not a sprint backlog."*
+---
 
-Blockquoted user-problem statements from interview, then each epic:
-
-```
-## E{N} · {Name}
-
-**The problem:** {One sentence}
-**The mechanism:** {One sentence: causal chain}
-**What it bundles:**
-- {Feature 1}
-- {Feature 2}
-**What success looks like:** {Measurable — number + date}
-**Why it goes first:** {Dependency, risk reduction, or fastest learning}
-```
-
-Then: `## What we are not bundling` + `## How epics map to phases` + `## The sequence argument`
-
-## File 3: `docs/product/epic-status.md`
-
-Header: `{product name} · Epic Status · Last updated: {date} · Phase in flight: {phase}`
-
-Pipeline stages block (verbatim):
-```
-| Stage | Gate question |
-|-------|---------------|
-| 1 · Specified | Is there a written spec with acceptance criteria? |
-| 2 · In flight | Is active development underway? |
-| 3 · Feature-complete | Does it meet every acceptance criterion? |
-| 4 · Tested | Have all tests passed? |
-| 5 · Shipped | Is it deployed and measurably impacting users? |
-```
-
-Status glyphs: 🔄 in flight · ✅ done · ⏳ partially done · ☐ planned · 🛑 paused
-
-`## At a glance` — table: Epic | Status | % done (est) | Pipeline (5 dots ●/○) | Open bugs | Closed bugs | Notes
-
-`## Drilldown` — one H3 per epic with shipped/outstanding/done/closed bugs
-
-`## Obsolete / won't fix` — table of dropped items
-
-## File 4: `docs/product/01-product-timeline.md`
-
-One section per phase: `## Phase {N} — {Name}` with Goal, Primary epics, Done-when exit criterion.
-
-## Output Paths
+## Output Path
 
 | File | Path |
 |------|------|
 | Product strategy | `docs/product/product.md` |
-| Epics | `docs/product/epics.md` |
-| Epic status | `docs/product/epic-status.md` |
-| Timeline | `docs/product/01-product-timeline.md` |

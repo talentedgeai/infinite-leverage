@@ -207,6 +207,41 @@ fi
 rm -rf "$TMP"
 ```
 
+### Step 8.5 — Initialize spec-kit
+
+spec-kit is the Spec-Driven Development layer used by the PM and developer agents. Initialize it at the project root:
+
+```bash
+cd "$TARGET"
+# Try spec-kit CLI first; fall back to manual folder creation if not available
+npx -y specify-cli init . --here 2>/dev/null || \
+  mkdir -p .specify/features .specify/memory .specify/templates \
+           .specify/extensions/git/scripts/bash
+```
+
+Then write the git extension config (all auto-commits disabled by default per global-engineering.md):
+
+```bash
+mkdir -p "$TARGET/.specify/extensions/git"
+cat > "$TARGET/.specify/extensions/git/git-config.yml" <<'EOF'
+# spec-kit git extension config
+# All auto-commits are DISABLED by default.
+# This respects global-engineering.md: never commit without explicit instruction.
+# To enable auto-commit for a specific command, set enabled: true for that event.
+auto_commit:
+  default: false
+  after_specify:
+    enabled: false
+    message: "[spec-kit] Add specification"
+  after_plan:
+    enabled: false
+    message: "[spec-kit] Add implementation plan"
+  after_tasks:
+    enabled: false
+    message: "[spec-kit] Add task list"
+EOF
+```
+
 ### Step 9 — Scaffold Next.js into `website/` (mandatory)
 
 This always runs — every Infinite Leverage project ships a Next.js app at `website/`.
@@ -246,9 +281,10 @@ Next steps locally:
 2. cp .env.example .env.local and fill in real keys
 3. cd website && npm run dev   # verify the app starts
 4. Open the repo in Claude Code
-5. Invoke @product-manager — runs pm-client-interview, fills docs/product/{product,epics,epic-status,01-product-timeline}.md
-6. Rename PH- placeholders deliberately as you start real work
-7. Read FOLDER-STRUCTURE.md once — canonical layout spec
+5. Invoke @product-manager — runs pm-client-interview, fills docs/product/product.md
+6. Invoke pm-epic-writing for each feature idea — creates epics.md, epic-status.md, .specify/ specs
+7. Rename PH- placeholders deliberately as you start real work
+8. Read FOLDER-STRUCTURE.md once — canonical layout spec
 ```
 
 ### Step 12 — Tail-end question: push to GitHub now? (interactive, optional)
