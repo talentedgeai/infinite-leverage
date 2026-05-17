@@ -119,7 +119,7 @@ PHASE 2 — Claude Code (automated)
   ├── [P4][P8][P9] Project scaffold: context folders + Next.js 16 in website/ subdir
   ├── Credentials: .env.local written from credentials file
   ├── [P5][P6] Deploy: git push → GitHub → Vercel CI/CD
-  ├── [P13][P1] Agents: fetch all 8 from GitHub canonical repo (fallback: bundled `agents/`)
+  ├── [P13][P1] Agents: fetch all 8 from `.claude/agents/` in GitHub canonical repo
   ├── [P16] QA agent with test pyramid + anti-patterns
   ├── [P12] DevOps agent with escalation rules
   ├── [P15] PM agent that reads git log + standup files
@@ -213,7 +213,7 @@ Stopped partway through? Here's where to pick up — no restarting needed.
 - [ ] GitHub repo created, pushed, Vercel project imported (Root Directory=website set in dashboard) **[P5][P6]**
 - [ ] `vercel link` run, env vars added via `vercel env`, deployment verified (`vercel ls`)
 - [ ] Site live on Vercel (HTTP 200)
-- [ ] All 8 agents fetched from GitHub canonical repo (or bundled fallback) to `~/.claude/agents/` **[P13]**
+- [ ] All 8 agents fetched from GitHub canonical repo to `~/.claude/agents/` **[P13]**
 - [ ] `email-index.md` Stage 0 populated
 - [ ] 8 CronCreate schedules registered (durable=true, re-register after 7 days) **[P10]**
 - [ ] HANDOFF.md written **[P17]**
