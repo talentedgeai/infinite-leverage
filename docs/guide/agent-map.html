@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Map — Infinite Leverage 8-Agent Team</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3248;
+    --text: #e2e8f0;
+    --muted: #8892a4;
+    --accent-blue: #4f8ef7;
+    --accent-green: #34d399;
+    --accent-amber: #fbbf24;
+    --accent-purple: #a78bfa;
+    --accent-pink: #f472b6;
+    --accent-teal: #2dd4bf;
+    --accent-orange: #fb923c;
+    --chip-context: #14532d;
+    --chip-context-text: #4ade80;
+    --chip-ondemand: #78350f;
+    --chip-ondemand-text: #fbbf24;
+    --chain-color: #4f8ef7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.5; }
+
+  header { padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; }
+  header h1 { font-size: 20px; font-weight: 700; color: var(--text); }
+  header p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .badge { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 2px 8px; border-radius: 9999px; font-size: 11px; white-space: nowrap; }
+
+  .legend { display: flex; gap: 16px; padding: 12px 32px; border-bottom: 1px solid var(--border); }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .chip { display: inline-block; padding: 2px 7px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+  .chip.context { background: var(--chip-context); color: var(--chip-context-text); }
+  .chip.ondemand { background: var(--chip-ondemand); color: var(--chip-ondemand-text); }
+
+  main { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .team-col { padding: 24px 32px; }
+  .team-col:first-child { border-right: 1px solid var(--border); }
+  .team-heading { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 20px; }
+
+  .agent-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+  .agent-card:hover { border-color: #3e4264; }
+  .agent-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+  .agent-name { font-weight: 700; font-size: 15px; }
+  .agent-role { color: var(--muted); font-size: 12px; margin-top: 1px; }
+  .schedule-badge { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 2px 7px; border-radius: 6px; font-size: 11px; white-space: nowrap; }
+
+  .agent-section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 10px 0 5px; }
+  .trigger-list { display: flex; flex-wrap: wrap; gap: 4px; }
+  .skills-list { display: flex; flex-wrap: wrap; gap: 4px; }
+  .skill-chip { background: var(--surface2); border: 1px solid var(--border); color: var(--accent-blue); padding: 2px 7px; border-radius: 5px; font-size: 11px; font-family: 'Courier New', monospace; }
+  .output-list { color: var(--muted); font-size: 12px; }
+  .output-list li { list-style: none; padding: 1px 0; }
+  .output-list li::before { content: "→ "; color: var(--accent-blue); }
+
+  .hard-rules { margin-top: 10px; }
+  .hard-rule { background: #1c1020; border-left: 3px solid var(--accent-purple); padding: 5px 10px; border-radius: 0 5px 5px 0; margin-bottom: 4px; font-size: 12px; color: var(--muted); }
+
+  .chain-section { grid-column: 1 / -1; padding: 24px 32px; border-top: 1px solid var(--border); }
+  .chain-heading { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 16px; }
+  .chains { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .chain { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .chain h3 { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+  .chain-flow { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+  .chain-node { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; padding: 6px 12px; font-size: 12px; font-weight: 600; }
+  .chain-arrow { color: var(--chain-color); font-size: 14px; }
+  .chain-label { color: var(--muted); font-size: 10px; display: block; text-align: center; }
+
+  .context-section { grid-column: 1 / -1; padding: 24px 32px; border-top: 1px solid var(--border); }
+  .context-files { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+  .context-file { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+  .context-file h4 { font-size: 12px; font-weight: 700; color: var(--accent-teal); font-family: monospace; margin-bottom: 6px; }
+  .context-file p { font-size: 12px; color: var(--muted); }
+
+  .hard-rules-grid { grid-column: 1 / -1; padding: 0 32px 24px; }
+  .rules-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+  .rule-card { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent-purple); border-radius: 0 8px 8px 0; padding: 10px 12px; }
+  .rule-card strong { color: var(--text); font-size: 12px; display: block; margin-bottom: 2px; }
+  .rule-card span { color: var(--muted); font-size: 11px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Infinite Leverage — Agent Map</h1>
+    <p>8-agent team · context-driven routing · skills-based playbooks</p>
+  </div>
+  <span class="badge">talentedgeai/infiniteleverage-8-agents-template</span>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><span class="chip context">context</span> Auto-triggered from CLAUDE.md + agent-routing.md</div>
+  <div class="legend-item"><span class="chip ondemand">on-demand</span> Explicit @agent tag or /skill invocation</div>
+</div>
+
+<main>
+
+<!-- DEV TEAM -->
+<div class="team-col">
+  <div class="team-heading">Dev Team</div>
+
+  <!-- Product Manager -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div>
+        <div class="agent-name" style="color: var(--accent-blue);">Product Manager</div>
+        <div class="agent-role">Plans, specs, epics, issue creation, project-status.html</div>
+      </div>
+      <span class="schedule-badge">Mon 08:00</span>
+    </div>
+    <div class="agent-section-label">Triggers</div>
+    <div class="trigger-list">
+      <span class="chip context">plan</span>
+      <span class="chip context">spec this</span>
+      <span class="chip context">write an epic</span>
+      <span class="chip context">acceptance criteria</span>
+      <span class="chip ondemand">@product-manager</span>
+    </div>
+    <div class="agent-section-label">Skills</div>
+    <div class="skills-list">
+      <span class="skill-chip">pm-grill-with-docs</span>
+      <span class="skill-chip">pm-to-issues</span>
+      <span class="skill-chip">pm-standup</span>
+      <span class="skill-chip">pm-epic-writing</span>
+      <span class="skill-chip">pm-project-status</span>
+      <span class="skill-chip">pm-documentation</span>
+      <span class="skill-chip">pm-client-interview</span>
+    </div>
+    <div class="agent-section-label">Outputs</div>
+    <ul class="output-list">
+      <li>docs/product/epics.md</li>
+      <li>docs/product/epic-status.md</li>
+      <li>docs/project-status.html</li>
+      <li>GitHub Issues (gh issue create)</li>
+    </ul>
+  </div>
+
+  <!-- Developer -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div>
+        <div class="agent-name" style="color: var(--accent-green);">Developer</div>
+        <div class="agent-role">Implementation, debugging, architecture, code review</div>
+      </div>
+      <span class="schedule-badge">on-demand</span>
+    </div>
+    <div class="agent-section-label">Triggers</div>
+    <div class="trigger-list">
+      <span class="chip context">build</span>
+      <span class="chip context">implement</span>
+      <span class="chip context">fix</span>
+      <span class="chip context">debug</span>
+      <span class="chip ondemand">@developer</span>
+    </div>
+    <div class="agent-section-label">Skills</div>
+    <div class="skills-list">
+      <span class="skill-chip">dev-diagnose</span>
+      <span class="skill-chip">dev-zoom-out</span>
+      <span class="skill-chip">dev-grill</span>
+      <span class="skill-chip">dev-handoff</span>
+      <span class="skill-chip">dev-tdd</span>
+      <span class="skill-chip">dev-prototype</span>
+      <span class="skill-chip">dev-improve-arch</span>
+      <span class="skill-chip">dev-planning</span>
+      <span class="skill-chip">dev-github-hygiene</span>
+      <span class="skill-chip">dev-karpathy</span>
+      <span class="skill-chip">dev-multi-agent</span>
+      <span class="skill-chip">dev-qa-delegation</span>
+    </div>
+    <div class="agent-section-label">Outputs</div>
+    <ul class="output-list">
+      <li>Feature branches → PRs</li>
+      <li>docs/engineering/changes/{date}-{slug}/</li>
+    </ul>
+  </div>
+
+  <!-- QA -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div>
+        <div class="agent-name" style="color: var(--accent-amber);">QA</div>
+        <div class="agent-role">Test strategy, bug triage, regression reports</div>
+      </div>
+      <span class="schedule-badge">Wed 14:00</span>
+    </div>
+    <div class="agent-section-label">Triggers</div>
+    <div class="trigger-list">
+      <span class="chip context">test</span>
+      <span class="chip context">triage</span>
+      <span class="chip context">bug</span>
+      <span class="chip context">regression</span>
+      <span class="chip ondemand">@qa</span>
+    </div>
+    <div class="agent-section-label">Skills</div>
+    <div class="skills-list">
+      <span class="skill-chip">qa-triage</span>
+      <span class="skill-chip">qa-best-practices</span>
+      <span class="skill-chip">qa-documentation</span>
+      <span class="skill-chip">qa-planning</span>
+    </div>
+    <div class="agent-section-label">Outputs</div>
+    <ul class="output-list">
+      <li>docs/qa/{date}-{slug}-triage.md</li>
+      <li>docs/qa/{date}-{slug}-qa-report.md</li>
+      <li>docs/product/epic-status.md (known issues)</li>
+      <li>docs/project-status.html (bugs table)</li>
+    </ul>
+  </div>
+
+  <!-- DevOps -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div>
+        <div class="agent-name" style="color: var(--accent-purple);">DevOps</div>
+        <div class="agent-role">CI/CD, infra, pre-commit hooks, deploy pipeline</div>
+      </div>
+      <span class="schedule-badge">Thu 09:00</span>
+    </div>
+    <div class="agent-section-label">Triggers</div>
+    <div class="trigger-list">
+      <span class="chip context">ci/cd</span>
+      <span class="chip context">pipeline</span>
+      <span class="chip context">pre-commit</span>
+      <span class="chip context">deploy</span>
+      <span class="chip ondemand">@devops</span>
+    </div>
+    <div class="agent-section-label">Skills</div>
+    <div class="skills-list">
+      <span class="skill-chip">devops-setup-pre-commit</span>
+      <span class="skill-chip">devops-git-guardrails</span>
+      <span class="skill-chip">devops-ops</span>
+    </div>
+    <div class="agent-section-label">Outputs</div>
+    <ul class="output-list">
+      <li>.husky/ — pre-commit hooks</li>
+      <li>.claude/hooks/ — Claude Code hooks</li>
+      <li>.github/workflows/ — CI/CD pipeline</li>
+    </ul>
+  </div>
+</div>
+
+<!-- MARKETING TEAM -->
+<div class="team-col">
+  <div class="team-heading">Marketing Team</div>
+
+  <!-- Writer -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div>
+        <div class="agent-name" style="color: var(--accent-teal);">Writer</div>
+        <div class="agent-role">Blog posts, SEO, social copy, translations</div>
+      </div>
+      <span class="schedule-badge">Mon 09:00</span>
+    </div>
+    <div class="agent-section-label">Triggers</div>
+    <div class="trigger-list">
+      <span class="chip context">write a post</span>
+      <span class="chip context">blog post</span>
+      <span class="chip context">seo</span>
+      <span class="chip context">social copy</span>
+      <span class="chip ondemand">@writer</span>
+    </div>
+    <div class="agent-section-label">Skills</div>
+    <div class="skills-list">
+      <span class="skill-chip">writer-seo-content</span>
+    </div>
+    <div class="agent-section-label">Outputs</div>
+    <ul class="output-list">
+      <li>content/topics/{slug}/blog.md</li>
+      <li>content/topics/{slug}/seo.md</li>
+      <li>content/topics/{slug}/social-*.md</li>
+    </ul>
+  </div>
+
+  <!-- Designer -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div>
+        <div class="agent-name" style="color: var(--accent-pink);">Designer</div>
+        <div class="agent-role">Hero images, social graphics, design system, UI mockups</div>
+      </div>
+      <span class="schedule-badge">Tue 09:00</span>
+    </div>
+    <div class="agent-section-label">Triggers</div>
+    <div class="trigger-list">
+      <span class="chip context">generate image</span>
+      <span class="chip context">hero image</span>
+      <span class="chip context">design system</span>
+      <span class="chip context">mockup</span>
+      <span class="chip ondemand">@designer</span>
+    </div>
+    <div class="agent-section-label">Skills</div>
+    <div class="skills-list">
+      <span class="skill-chip">designer-image-generation</span>
+      <span class="skill-chip">designer-design-system</span>
+      <span class="skill-chip">designer-ui-ux</span>
+      <span class="skill-chip">designer-style-to-photo</span>
+    </div>
+    <div class="agent-section-label">Outputs</div>
+    <ul class="output-list">
+      <li>content/topics/{slug}/*.webp</li>
+      <li>content/topics/{slug}/social-*.webp</li>
+    </ul>
+  </div>
+
+  <!-- Web Publisher -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div>
+        <div class="agent-name" style="color: var(--accent-orange);">Web Publisher</div>
+        <div class="agent-role">React components from approved content, blog index, git commit</div>
+      </div>
+      <span class="schedule-badge">Tue 14:00</span>
+    </div>
+    <div class="agent-section-label">Triggers</div>
+    <div class="trigger-list">
+      <span class="chip context">publish</span>
+      <span class="chip context">build the page</span>
+      <span class="chip context">push to site</span>
+      <span class="chip context">update blog index</span>
+      <span class="chip ondemand">@web-publisher</span>
+    </div>
+    <div class="agent-section-label">Skills</div>
+    <div class="skills-list">
+      <span class="skill-chip">web-publisher-publish</span>
+    </div>
+    <div class="agent-section-label">Outputs</div>
+    <ul class="output-list">
+      <li>website/pages/blog/posts/{slug}.jsx</li>
+      <li>website/pages/blog/index.jsx</li>
+      <li>website/public/images/blog/{slug}.webp</li>
+    </ul>
+  </div>
+
+  <!-- Email Marketer -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div>
+        <div class="agent-name" style="color: var(--accent-blue);">Email Marketer</div>
+        <div class="agent-role">Email sequences, Brevo campaigns, lead nurture</div>
+      </div>
+      <span class="schedule-badge">Wed 09:00</span>
+    </div>
+    <div class="agent-section-label">Triggers</div>
+    <div class="trigger-list">
+      <span class="chip context">email campaign</span>
+      <span class="chip context">newsletter</span>
+      <span class="chip context">nurture</span>
+      <span class="chip context">subscribers</span>
+      <span class="chip ondemand">@email-marketer</span>
+    </div>
+    <div class="agent-section-label">Skills</div>
+    <div class="skills-list">
+      <span class="skill-chip">email-marketer-nurture</span>
+    </div>
+    <div class="agent-section-label">Outputs</div>
+    <ul class="output-list">
+      <li>Brevo campaign drafts (via API)</li>
+      <li>email-index.md — send log</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- HANDOFF CHAINS -->
+<div class="chain-section">
+  <div class="chain-heading">Handoff Chains</div>
+  <div class="chains">
+    <div class="chain">
+      <h3 style="color: var(--accent-blue);">Dev Team Chain</h3>
+      <div class="chain-flow">
+        <div>
+          <div class="chain-node" style="border-color: var(--accent-blue);">PM</div>
+          <span class="chain-label">approved plan</span>
+        </div>
+        <span class="chain-arrow">→</span>
+        <div>
+          <div class="chain-node" style="border-color: var(--accent-green);">Developer</div>
+          <span class="chain-label">implement</span>
+        </div>
+        <span class="chain-arrow">→</span>
+        <div>
+          <div class="chain-node" style="border-color: var(--accent-amber);">QA</div>
+          <span class="chain-label">verify</span>
+        </div>
+        <span class="chain-arrow">→</span>
+        <div>
+          <div class="chain-node" style="border-color: var(--accent-green);">Developer</div>
+          <span class="chain-label">fix bugs</span>
+        </div>
+        <span class="chain-arrow">→</span>
+        <div>
+          <div class="chain-node" style="border-color: var(--accent-purple);">DevOps</div>
+          <span class="chain-label">merge→CI/CD</span>
+        </div>
+      </div>
+    </div>
+    <div class="chain">
+      <h3 style="color: var(--accent-teal);">Marketing Team Chain</h3>
+      <div class="chain-flow">
+        <div>
+          <div class="chain-node" style="border-color: var(--accent-teal);">Writer</div>
+          <span class="chain-label">approved copy</span>
+        </div>
+        <span class="chain-arrow">→</span>
+        <div>
+          <div class="chain-node" style="border-color: var(--accent-pink);">Designer</div>
+          <span class="chain-label">images</span>
+        </div>
+        <span class="chain-arrow">→</span>
+        <div>
+          <div class="chain-node" style="border-color: var(--accent-orange);">Web Publisher</div>
+          <span class="chain-label">git commit</span>
+        </div>
+        <span class="chain-arrow">→</span>
+        <div>
+          <div class="chain-node" style="border-color: #6b7280;">Operator</div>
+          <span class="chain-label">git push</span>
+        </div>
+        <span class="chain-arrow">→</span>
+        <div>
+          <div class="chain-node" style="border-color: var(--accent-blue);">Email Marketer</div>
+          <span class="chain-label">draft→approve→send</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTEXT FILES -->
+<div class="context-section" style="border-top: 1px solid var(--border);">
+  <div class="chain-heading">Context Files (Always-On Routing)</div>
+  <div class="context-files">
+    <div class="context-file">
+      <h4>CLAUDE.md</h4>
+      <p>Project instructions. Defines the agent team, routing table, active skills, and work loop. Read by Claude Code at every session start. Each client project gets its own copy from <code>templates/project-scaffold/CLAUDE.md</code>.</p>
+    </div>
+    <div class="context-file">
+      <h4>~/.claude/rules/agent-routing.md</h4>
+      <p>Global routing rules. Maps trigger phrases → agents + skills. Hard rules (no dev without plan, no publisher push, no email without approval). Deployed to all client machines via infiniteleverage-patch.</p>
+    </div>
+    <div class="context-file">
+      <h4>~/.claude/rules/global-engineering.md</h4>
+      <p>Engineering guardrails. Git discipline, deployment constraints (git push only), secrets handling, Supabase rules. Always active — cannot be overridden by operator instructions.</p>
+    </div>
+  </div>
+</div>
+
+<!-- HARD RULES -->
+<div class="hard-rules-grid">
+  <div class="chain-heading" style="margin-bottom: 12px;">Hard Rules</div>
+  <div class="rules-grid">
+    <div class="rule-card">
+      <strong>No dev without an approved plan</strong>
+      <span>Developer never starts implementation without a PM-approved plan. Route to PM first.</span>
+    </div>
+    <div class="rule-card">
+      <strong>No publish without approved content + image</strong>
+      <span>Web Publisher requires Writer approval AND Designer image before building any page.</span>
+    </div>
+    <div class="rule-card">
+      <strong>No email send without operator approval</strong>
+      <span>Email Marketer always drafts first. Operator explicitly approves before any send.</span>
+    </div>
+    <div class="rule-card">
+      <strong>No direct deploy — git push only</strong>
+      <span>DevOps never uses <code>vercel deploy</code> or direct CLI. All deployments via git push → CI/CD.</span>
+    </div>
+    <div class="rule-card">
+      <strong>QA always triages before routing</strong>
+      <span>Every bug is classified, scored (severity × frequency × blast radius), and assigned before work starts.</span>
+    </div>
+    <div class="rule-card">
+      <strong>No agent merges its own PR</strong>
+      <span>Developer opens PR → QA verifies → Operator or PM merges. No exceptions.</span>
+    </div>
+    <div class="rule-card">
+      <strong>DevOps escalates to human engineer</strong>
+      <span>When infra issues exceed defined scope, DevOps stops and notifies a human engineer. [P12]</span>
+    </div>
+    <div class="rule-card">
+      <strong>Designer waits for approved copy</strong>
+      <span>No images generated until the Writer's content is signed off by the operator.</span>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer style="padding: 16px 32px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; display: flex; justify-content: space-between;">
+  <span>Infinite Leverage 8-Agent Template · talentedgeai/infiniteleverage-8-agents-template</span>
+  <span>Open in browser · No dependencies · Self-contained HTML</span>
+</footer>
+
+</body>
+</html>
