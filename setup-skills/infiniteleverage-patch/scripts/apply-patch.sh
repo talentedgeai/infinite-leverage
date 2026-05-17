@@ -1,39 +1,50 @@
 #!/usr/bin/env bash
-# Applies agent updates from the source templates to ~/.claude/agents/.
-# Usage: apply-patch.sh <source-dir> [mode: full|no-remove]
-#   source-dir: path to templates (defaults to bundled agents/ in skill dir)
+# Applies agent, skill, and rule updates from the canonical template source.
+#
+# Phase 1: copies agent .md files from .claude/agents/ → ~/.claude/agents/
+# Phase 2: copies skill directories from .claude/skills/ → ~/.claude/skills/
+# Phase 3: copies rule .md files from .claude/rules/ → ~/.claude/rules/
+#
+# Usage: apply-patch.sh [mode: full|no-remove]
+#   full      — adds + updates agents; removes deprecated agents (default)
+#   no-remove — adds + updates only; never removes agents
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-TEMPLATE_DIR="${1:-$SCRIPT_DIR/../agents}"
-INSTALLED_DIR="$HOME/.claude/agents"
-MODE="${2:-full}"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+MODE="${1:-full}"
 
-if [ ! -d "$TEMPLATE_DIR" ]; then
-  echo "ERROR: template source not found at $TEMPLATE_DIR" >&2
+# ── Phase 1: Agents ───────────────────────────────────────────────────────────
+
+AGENTS_SRC="$REPO_ROOT/.claude/agents"
+AGENTS_DEST="$HOME/.claude/agents"
+
+if [ ! -d "$AGENTS_SRC" ]; then
+  echo "ERROR: agent source not found at $AGENTS_SRC" >&2
   exit 1
 fi
+
+mkdir -p "$AGENTS_DEST"
 
 added=0
 updated=0
 removed=0
 errors=0
 
-# Add new and update modified
-for tmpl_file in "$TEMPLATE_DIR"/*.md; do
+for tmpl_file in "$AGENTS_SRC"/*.md; do
   [ -f "$tmpl_file" ] || continue
   name=$(basename "$tmpl_file")
-  installed_file="$INSTALLED_DIR/$name"
+  dest_file="$AGENTS_DEST/$name"
 
-  if [ ! -f "$installed_file" ]; then
-    if cp "$tmpl_file" "$installed_file"; then
+  if [ ! -f "$dest_file" ]; then
+    if cp "$tmpl_file" "$dest_file"; then
       echo "  + added:   $name"
       added=$((added + 1))
     else
       echo "  ERROR: failed to copy $name" >&2
       errors=$((errors + 1))
     fi
-  elif ! diff -q "$tmpl_file" "$installed_file" > /dev/null 2>&1; then
-    if cp "$tmpl_file" "$installed_file"; then
+  elif ! diff -q "$tmpl_file" "$dest_file" > /dev/null 2>&1; then
+    if cp "$tmpl_file" "$dest_file"; then
       echo "  ~ updated: $name"
       updated=$((updated + 1))
     else
@@ -43,12 +54,11 @@ for tmpl_file in "$TEMPLATE_DIR"/*.md; do
   fi
 done
 
-# Remove deprecated agents (full mode only)
 if [ "$MODE" = "full" ]; then
-  for inst_file in "$INSTALLED_DIR"/*.md; do
+  for inst_file in "$AGENTS_DEST"/*.md; do
     [ -f "$inst_file" ] || continue
     name=$(basename "$inst_file")
-    if [ ! -f "$TEMPLATE_DIR/$name" ]; then
+    if [ ! -f "$AGENTS_SRC/$name" ]; then
       if rm "$inst_file"; then
         echo "  - removed: $name"
         removed=$((removed + 1))
@@ -61,35 +71,119 @@ if [ "$MODE" = "full" ]; then
 fi
 
 echo ""
+echo "=== AGENTS: $added added · $updated updated · $removed removed ==="
 
-# ── Inject/refresh AGENT-DELEGATION block in all CLAUDE.md files ─────────────
+# ── Phase 2: Skills ───────────────────────────────────────────────────────────
+
+SKILLS_SRC="$REPO_ROOT/.claude/skills"
+SKILLS_DEST="$HOME/.claude/skills"
+
+skills_added=0
+skills_updated=0
+skills_errors=0
+
+if [ -d "$SKILLS_SRC" ]; then
+  mkdir -p "$SKILLS_DEST"
+
+  for skill_dir in "$SKILLS_SRC"/*/; do
+    [ -d "$skill_dir" ] || continue
+    skill_name=$(basename "$skill_dir")
+    dest_skill="$SKILLS_DEST/$skill_name"
+
+    if [ ! -d "$dest_skill" ]; then
+      if cp -r "$skill_dir" "$dest_skill"; then
+        echo "  + added skill:   $skill_name"
+        skills_added=$((skills_added + 1))
+      else
+        echo "  ERROR: failed to copy skill $skill_name" >&2
+        skills_errors=$((skills_errors + 1))
+      fi
+    elif ! diff -rq "$skill_dir" "$dest_skill" > /dev/null 2>&1; then
+      if cp -r "$skill_dir" "$SKILLS_DEST/"; then
+        echo "  ~ updated skill: $skill_name"
+        skills_updated=$((skills_updated + 1))
+      else
+        echo "  ERROR: failed to update skill $skill_name" >&2
+        skills_errors=$((skills_errors + 1))
+      fi
+    fi
+  done
+
+  echo ""
+  echo "=== SKILLS: $skills_added added · $skills_updated updated ==="
+fi
+
+# ── Phase 3: Rules ────────────────────────────────────────────────────────────
+
+RULES_SRC="$REPO_ROOT/.claude/rules"
+RULES_DEST="$HOME/.claude/rules"
+
+rules_added=0
+rules_updated=0
+rules_errors=0
+
+if [ -d "$RULES_SRC" ]; then
+  mkdir -p "$RULES_DEST"
+
+  for rule_file in "$RULES_SRC"/*.md; do
+    [ -f "$rule_file" ] || continue
+    rule_name=$(basename "$rule_file")
+    dest_rule="$RULES_DEST/$rule_name"
+
+    if [ ! -f "$dest_rule" ]; then
+      if cp "$rule_file" "$dest_rule"; then
+        echo "  + added rule:   $rule_name"
+        rules_added=$((rules_added + 1))
+      else
+        echo "  ERROR: failed to copy rule $rule_name" >&2
+        rules_errors=$((rules_errors + 1))
+      fi
+    elif ! diff -q "$rule_file" "$dest_rule" > /dev/null 2>&1; then
+      if cp "$rule_file" "$dest_rule"; then
+        echo "  ~ updated rule: $rule_name"
+        rules_updated=$((rules_updated + 1))
+      else
+        echo "  ERROR: failed to update rule $rule_name" >&2
+        rules_errors=$((rules_errors + 1))
+      fi
+    fi
+  done
+
+  echo ""
+  echo "=== RULES: $rules_added added · $rules_updated updated ==="
+fi
+
+# ── Phase 4: Refresh AGENT-DELEGATION block in CLAUDE.md files ───────────────
+
 INJECTOR="$HOME/.claude/skills/infiniteleverage-patch/scripts/inject-agent-delegation.sh"
 if [ -x "$INJECTOR" ]; then
+  echo ""
   echo "→ Refreshing AGENT-DELEGATION block in CLAUDE.md files…"
   delegation_touched=0
   if [ -f "$HOME/.claude/CLAUDE.md" ]; then
-    bash "$INJECTOR" "$HOME/.claude/CLAUDE.md" && delegation_touched=$((delegation_touched+1))
+    bash "$INJECTOR" "$HOME/.claude/CLAUDE.md" && delegation_touched=$((delegation_touched + 1))
   fi
   if [ -d "$HOME/code-projects" ]; then
     shopt -s nullglob
     for proj in "$HOME/code-projects"/*/; do
       proj_claude="${proj}CLAUDE.md"
       if [ -f "$proj_claude" ]; then
-        bash "$INJECTOR" "$proj_claude" && delegation_touched=$((delegation_touched+1))
+        bash "$INJECTOR" "$proj_claude" && delegation_touched=$((delegation_touched + 1))
       fi
     done
     shopt -u nullglob
   fi
   echo "   AGENT-DELEGATION refreshed in $delegation_touched CLAUDE.md file(s)"
-else
-  echo "⚠️  inject-agent-delegation.sh not found — skipped CLAUDE.md refresh"
 fi
 
-echo ""
-echo "=== PATCH COMPLETE: $added added · $updated updated · $removed removed ==="
+# ── Summary ───────────────────────────────────────────────────────────────────
 
-if [ "$errors" -gt 0 ]; then
-  echo "WARNING: $errors error(s) occurred — check output above"
+echo ""
+echo "=== PATCH COMPLETE ==="
+
+total_errors=$((errors + skills_errors + rules_errors))
+if [ "$total_errors" -gt 0 ]; then
+  echo "WARNING: $total_errors error(s) occurred — check output above"
   exit 1
 fi
 
