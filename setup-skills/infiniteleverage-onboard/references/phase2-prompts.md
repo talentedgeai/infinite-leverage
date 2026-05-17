@@ -247,7 +247,7 @@ All 8 must respond before proceeding. If any don't respond, run "sync agents" an
 
 2. Confirm scheduled work is running on the Mac Mini:
    @product-manager list all registered schedules
-   Expected: 8 schedules (4 PM + 3 content pipeline + 1 email marketer)
+   Expected: 10 schedules (1 devops-daily + 1 pm-daily-plan + 1 developer-daily + 1 pm-standup-compile + 1 pm-eod-summary + 1 pm-weekly-rag + 1 writer-weekly + 1 designer-weekly + 1 web-publisher-weekly + 1 email-marketer-weekly)
 ```
 
 ---
