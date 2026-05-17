@@ -8,7 +8,7 @@ description: Nurture subscribers via Resend transactional email — welcome sequ
 ## Stack
 - **Transactional**: Resend — welcome emails, sequences, one-off sends
 - **Campaigns**: Brevo — for audience segmentation, campaign analytics, bulk sends (>500 subscribers or when stakeholder asks)
-- **Internal notifications**: Lark (team alerts, not customer-facing)
+- **Internal notifications**: Lark (team alerts, not customer-facing) — optional; only used if `LARK_WEBHOOK_URL` is set
 - **Subscriber data**: Supabase (`subscribers` table)
 
 ## Core Workflows

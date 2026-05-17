@@ -310,9 +310,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY={from-credentials-file}
 SUPABASE_SERVICE_ROLE_KEY={from-credentials-file}
 GEMINI_API_KEY={from-credentials-file}
 RESEND_API_KEY={from-credentials-file}
-LARK_APP_ID={from-credentials-file}
-LARK_APP_SECRET={from-credentials-file}
-LARK_WEBHOOK_URL={from-credentials-file}
+# Lark is optional — only add these if the client collected Lark credentials in Phase 1
+# If LARK_WEBHOOK_URL is blank, leave these lines out entirely
+LARK_APP_ID={from-credentials-file-or-leave-out}
+LARK_APP_SECRET={from-credentials-file-or-leave-out}
+LARK_WEBHOOK_URL={from-credentials-file-or-leave-out}
 
 Confirm .env.local is in .gitignore before writing. Do not commit this file.
 ```
@@ -380,9 +382,10 @@ Deploy the project:
       vercel env add SUPABASE_SERVICE_ROLE_KEY production
       vercel env add GEMINI_API_KEY production
       vercel env add RESEND_API_KEY production
-      vercel env add LARK_APP_ID production
-      vercel env add LARK_APP_SECRET production
-      vercel env add LARK_WEBHOOK_URL production
+      # Lark is optional — only run these if LARK credentials were provided in Phase 1
+      # vercel env add LARK_APP_ID production
+      # vercel env add LARK_APP_SECRET production
+      # vercel env add LARK_WEBHOOK_URL production
 
    c. Verify deployment and show status:
       vercel ls
@@ -666,15 +669,15 @@ Tell me: "Dashboard ready — open ~/{clientslug}-agents/team-dashboard.html"
 
    PM standup compile (weekdays 6pm):
    "@product-manager Compile today's standups from standup/individual/*.md. Write a team briefing to
-   standup/briefings/$(date +%Y-%m)/$(date +%Y-%m-%d).md. Notify the team on Lark."
+   standup/briefings/$(date +%Y-%m)/$(date +%Y-%m-%d).md. If Lark is configured (LARK_WEBHOOK_URL set), notify the team on Lark."
 
    PM EOD summary (weekdays 6:30pm):
    "@product-manager Write EOD summary: what shipped today, what's blocked, what's queued for tomorrow.
-   Update docs/project-status.html. Notify the team on Lark."
+   Update docs/project-status.html. If Lark is configured (LARK_WEBHOOK_URL set), notify the team on Lark."
 
    PM weekly RAG (Fridays 5pm):
    "@product-manager Write a weekly RAG status report: Red/Amber/Green per workstream, key decisions this week,
-   risks to flag, next week priorities. Write to docs/product/rag-$(date +%Y-%m-%d).md. Notify the team on Lark."
+   risks to flag, next week priorities. Write to docs/product/rag-$(date +%Y-%m-%d).md. If Lark is configured (LARK_WEBHOOK_URL set), notify the team on Lark."
 
    Writer (Mondays 9am):
    "@writer Pick the oldest brief.md from content/topics/ that has no blog.md yet.

@@ -50,9 +50,10 @@ All steps are performed by the operator in a browser or terminal. Claude narrate
    - TXT on `@` — SPF: add `include:amazonses.com` to existing, or create new
 5. Back in Resend → **Verify DNS Records** → wait for green (< 5 min, up to 30 if slow propagation)
 
-**Lark**:
+**Lark** *(optional — skip if not using Lark for team notifications)*:
 1. `open.larksuite.com` → create Bot App for internal notifications
 2. Copy: `LARK_APP_ID`, `LARK_APP_SECRET`, webhook URL → `LARK_WEBHOOK_URL`
+3. If skipping: leave `LARK_APP_ID`, `LARK_APP_SECRET`, `LARK_WEBHOOK_URL` blank in the credentials file — agents will skip notifications silently
 
 **Supabase credentials** (from project dashboard → **Project Settings** → **API**):
 - `SUPABASE_URL` — Project URL
@@ -74,6 +75,7 @@ GitHub username: {clientslug}
 GEMINI_API_KEY=
 RESEND_API_KEY=
 RESEND_DOMAIN=
+# Lark (optional — leave blank to disable)
 LARK_APP_ID=
 LARK_APP_SECRET=
 LARK_WEBHOOK_URL=

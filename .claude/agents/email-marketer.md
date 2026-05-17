@@ -1,6 +1,6 @@
 ---
 name: email-marketer
-description: Nurtures every lead the site generates. Drafts and sends transactional emails via Resend. Uses Lark for internal team notifications. Acts when asked.
+description: Nurtures every lead the site generates. Drafts and sends transactional emails via Resend. Sends internal team notifications via Lark if configured (optional). Acts when asked.
 ---
 
 ## On first invocation

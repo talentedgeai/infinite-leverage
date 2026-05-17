@@ -104,7 +104,7 @@ PHASE 1 — Claude Chat (manual)
   Accounts & prerequisites — human does all of this
   ├── [P3] Google Workspace: add domain, verify DNS, create operator email
   ├── [P5][P6][P7] Service accounts: GitHub, Claude Pro, Vercel, Supabase
-  ├── [P10] API keys: Gemini, Resend + DNS, Lark, Supabase
+  ├── [P10] API keys: Gemini, Resend + DNS, Supabase (+ Lark if using — optional)
   ├── Credentials file: saved locally, never committed
   ├── Claude Code Desktop: installed, signed in
   └── Mac Mini tools: Homebrew + git only (rest installed by Claude Code in Phase 2)
@@ -155,7 +155,7 @@ Open Claude Code Desktop on the Mac Mini. Run prompts from `references/phase2-pr
 **Decision points:**
 - Supabase OAuth: the only manual step in Phase 2. Claude outputs a URL → open in browser → Authorize → tell Claude "done". **[P7]**
 - Vercel import: one browser action (import repo at vercel.com/new, set Root Directory = website/). Claude handles everything else. **[P6]**
-- No approved plan when Developer runs: stop, notify via Lark, do not proceed. **[P1]**
+- No approved plan when Developer runs: stop, notify via Lark (if configured) or log to HANDOFF.md, do not proceed. **[P1]**
 
 **Phase 2 is complete when:**
 - `curl -I https://{project-slug}.vercel.app` returns HTTP 200
@@ -195,7 +195,7 @@ Stopped partway through? Here's where to pick up — no restarting needed.
 - [ ] Supabase project created, database password saved
 - [ ] Gemini API key generated
 - [ ] Resend API key + domain DNS verified (green in Resend dashboard)
-- [ ] Lark bot credentials collected
+- [ ] Lark bot credentials collected *(optional — skip if not using Lark)*
 - [ ] Credentials file complete locally (never committed)
 - [ ] Claude Code Desktop installed and signed in
 - [ ] Homebrew installed and in PATH

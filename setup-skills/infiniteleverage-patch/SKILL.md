@@ -29,7 +29,7 @@ The script checks and reports ✅ / ⚠️ / ❌ for each item:
 | `~/.claude/CLAUDE.md` | File exists + references `product.md` (not `00-product-overview.md`) + has `## Environment variables` section + has `AGENT-DELEGATION` block |
 | Project `CLAUDE.md` | (For every repo under `~/code-projects/`) has `AGENT-DELEGATION` block — auto-injected by `scripts/inject-agent-delegation.sh` when missing |
 | `~/.claude/rules/global-engineering.md` | File exists + has `## Environment variables` section |
-| `~/.claude/.env` | All 8 required keys present and non-empty: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`, `RESEND_API_KEY`, `LARK_APP_ID`, `LARK_APP_SECRET`, `LARK_WEBHOOK_URL` |
+| `~/.claude/.env` | Required keys present and non-empty: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`, `RESEND_API_KEY`. Optional: `LARK_APP_ID`, `LARK_APP_SECRET`, `LARK_WEBHOOK_URL` (all three or none — partial config warns). |
 | CLI tools | `gh`, `vercel`, `supabase`, `resend` all in PATH and reporting versions |
 | Supabase MCP | MCP entry in `settings.local.json` + auth credentials (`SUPABASE_URL` + `SERVICE_ROLE_KEY`) in `~/.claude/.env` |
 | Global skills | `daily-checkin`, `create-routines`, `infiniteleverage-patch` installed |
