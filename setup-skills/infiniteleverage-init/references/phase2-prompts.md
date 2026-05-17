@@ -641,10 +641,13 @@ Tell me: "Dashboard ready — open ~/{clientslug}-agents/team-dashboard.html"
 ## Prompt 10 — Install agents globally + register schedules
 
 ```
-1. Install all 8 agents globally:
+1. Install all 8 agents and skills globally:
    cp -r ~/{clientslug}-agents/.claude/agents/* ~/.claude/agents/
-   cp -r ~/{clientslug}-agents/skills/sync-agents ~/.claude/skills/sync-agents
-   ls ~/.claude/agents/  # confirm all 8 present
+   cp -R ~/{clientslug}-agents/.claude/skills/. ~/.claude/skills/
+   mkdir -p ~/.claude/scheduled-tasks
+   cp -R ~/{clientslug}-agents/.claude/scheduled-tasks/. ~/.claude/scheduled-tasks/
+   ls ~/.claude/agents/           # confirm all 8 present
+   ls ~/.claude/scheduled-tasks/  # confirm all 8 task folders present
 
 2. Update ~/.claude/CLAUDE.md with agents repo pointer:
    ## Agents repo
@@ -652,54 +655,31 @@ Tell me: "Dashboard ready — open ~/{clientslug}-agents/team-dashboard.html"
    Local: ~/{clientslug}-agents/
    Update: say "sync agents" in Claude Code
 
-3. Register 8 RemoteTrigger schedules:
-   # [Protocol 10] Communications go out automatically — these run in the cloud, Mac Mini doesn't need to be awake
+3. Register 8 local CronCreate schedules:
+   # [Protocol 10] These run locally in Claude Code — Mac Mini must be awake and Claude Code session open
    # [Protocol 2] Web Publisher is the CMS — no manual page editing after this
-   PM: daily plan (weekdays 7am), standup compile (6pm), EOD summary (6:30pm), weekly RAG (Fri 5pm)
-   Content: Writer (Mon 9am), Designer (Tue 9am), Web Publisher (Wed 9am)
-   Email Marketer: weekly outreach (Thu 10am)
-   Register each schedule using RemoteTrigger with these exact prompts:
+   #
+   # IMPORTANT: Use CronCreate with durable=true for all schedules.
+   # Read the prompt body from ~/.claude/scheduled-tasks/{name}/SKILL.md for each task.
+   # Use off-minute cron expressions to avoid fleet load spikes.
 
-   PM daily plan (weekdays 7am):
-   "@product-manager Good morning. Check git log (last 48h), review standup/individual/*.md for any new check-ins,
-   review content/content-calendar/ for this week's queue. Then: list today's 3 priorities in order of value;
-   flag any blockers. Auto-approve tasks that are: (a) high priority AND (b) low risk (no new code, no external API,
-   content or config only) — log 'Auto-approved [task] at [time]' and mark approved.
-   Everything else → log to backlog for tomorrow. Write decisions to docs/project-status.html."
+   For each task below, call CronCreate(cron="{expression}", prompt="{contents of SKILL.md}", recurring=true, durable=true):
 
-   PM standup compile (weekdays 6pm):
-   "@product-manager Compile today's standups from standup/individual/*.md. Write a team briefing to
-   standup/briefings/$(date +%Y-%m)/$(date +%Y-%m-%d).md. If Lark is configured (LARK_WEBHOOK_URL set), notify the team on Lark."
+   pm-daily-plan        → cron: "3 7 * * 1-5"    (weekdays 7:03 AM local)
+   pm-standup-compile   → cron: "7 18 * * 1-5"   (weekdays 6:07 PM local)
+   pm-eod-summary       → cron: "37 18 * * 1-5"  (weekdays 6:37 PM local)
+   pm-weekly-rag        → cron: "7 17 * * 5"     (Fridays 5:07 PM local)
+   writer-weekly        → cron: "3 9 * * 1"      (Mondays 9:03 AM local)
+   designer-weekly      → cron: "3 9 * * 2"      (Tuesdays 9:03 AM local)
+   web-publisher-weekly → cron: "3 9 * * 3"      (Wednesdays 9:03 AM local)
+   email-marketer-weekly → cron: "3 10 * * 4"    (Thursdays 10:03 AM local)
 
-   PM EOD summary (weekdays 6:30pm):
-   "@product-manager Write EOD summary: what shipped today, what's blocked, what's queued for tomorrow.
-   Update docs/project-status.html. If Lark is configured (LARK_WEBHOOK_URL set), notify the team on Lark."
-
-   PM weekly RAG (Fridays 5pm):
-   "@product-manager Write a weekly RAG status report: Red/Amber/Green per workstream, key decisions this week,
-   risks to flag, next week priorities. Write to docs/product/rag-$(date +%Y-%m-%d).md. If Lark is configured (LARK_WEBHOOK_URL set), notify the team on Lark."
-
-   Writer (Mondays 9am):
-   "@writer Pick the oldest brief.md from content/topics/ that has no blog.md yet.
-   Write the full blog post following the Neil Patel self-critique checklist. Save to content/topics/{slug}/blog.md."
-
-   Designer (Tuesdays 9am):
-   "@designer Find the most recently written blog.md in content/topics/ that has no hero image yet.
-   Generate the hero image using the Gemini image generation skill. Save to content/topics/{slug}/hero.png."
-
-   Web Publisher (Wednesdays 9am):
-   "@web-publisher Find content/topics/ folders that have blog.md and hero.png but no committed .jsx page.
-   Build the Next.js page, optimise the image to WebP, update the blog index, git add and commit.
-   Do not push — that's the operator's job."
-
-   Email Marketer (Thursdays 10am):
-   "@email-marketer Check the email index at emails/email-index.md. Draft this week's newsletter
-   based on the most recently published post. Save to emails/drafts/newsletter-$(date +%Y-%m-%d).md.
-   Do not send — draft only until approved."
+   Save all 8 job IDs returned by CronCreate — record them in HANDOFF.md under "Scheduled task IDs".
+   Recurring tasks auto-expire after 7 days and must be re-registered. Tell the client.
 
 4. Run verification:
-   ls ~/.claude/agents/       # all 8 present
-   ls ~/.claude/skills/sync-agents/
+   ls ~/.claude/agents/           # all 8 present
+   ls ~/.claude/scheduled-tasks/  # all 8 task folders present
    gh repo view {clientslug}-agents
    curl -I https://{project-slug}.vercel.app  # HTTP 200
 
@@ -712,5 +692,6 @@ Tell me: "Dashboard ready — open ~/{clientslug}-agents/team-dashboard.html"
    # [Protocol 17] Context handoff — this document is how the client picks up without Dave present
    # [Protocol 18] Work outlives the operator — agents repo + sync-agents means any machine can be set up from GitHub
    Include: all 8 agents with trigger phrases, content pipeline schedule, sync instructions,
-   live URL, repo URL, and first-actions guide for the client.
+   live URL, repo URL, first-actions guide for the client, and all 8 CronCreate job IDs with
+   the instruction to re-register after 7 days using: /create-local-task
 ```

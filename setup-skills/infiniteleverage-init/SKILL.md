@@ -32,7 +32,7 @@ Claude will give you a personalised status report — no redoing steps you've al
 |-------|---------------|
 | 🧠 Mindset | Humans orchestrate; agents act when asked **[P1]** · AI is the new CMS **[P2]** · Stack = Claude + GitHub + Vercel + Supabase **[P3]** · Agents are folders, not magic **[P4]** |
 | 🏗 Infrastructure | GitHub for all code and context **[P5]** · Vercel deploys only via `git push` — never `vercel deploy` directly **[P6]** · Supabase for data and subscribers **[P7]** |
-| 🔨 Building | Design system written before any component **[P8]** · Concrete step-by-step workflows **[P9]** · PM schedules auto-run via RemoteTrigger **[P10]** · Skills for admin so humans never escalate for small things **[P11]** |
+| 🔨 Building | Design system written before any component **[P8]** · Concrete step-by-step workflows **[P9]** · PM schedules auto-run via CronCreate (local, durable) **[P10]** · Skills for admin so humans never escalate for small things **[P11]** |
 | 👥 Team & Ops | DevOps escalates to a human engineer when needed **[P12]** · 8 fixed agent roles — no improvising **[P13]** · PM plans epics with acceptance criteria **[P14]** · PM reads git history before every task **[P15]** |
 | ♻️ Continuity | QA knows exactly what AI can and cannot test **[P16]** · Context handed off via BRIDGE.md and memory system **[P17]** · Work outlives the operator — universal agent templates on GitHub **[P18]** |
 
@@ -215,7 +215,7 @@ Stopped partway through? Here's where to pick up — no restarting needed.
 - [ ] Site live on Vercel (HTTP 200)
 - [ ] All 8 agents fetched from GitHub canonical repo (or bundled fallback) to `~/.claude/agents/` **[P13]**
 - [ ] `email-index.md` Stage 0 populated
-- [ ] 8 RemoteTrigger schedules registered **[P10]**
+- [ ] 8 CronCreate schedules registered (durable=true, re-register after 7 days) **[P10]**
 - [ ] HANDOFF.md written **[P17]**
 
 **Next**: Hand off HANDOFF.md to client → run `infiniteleverage-onboard` skill on client's machine.
