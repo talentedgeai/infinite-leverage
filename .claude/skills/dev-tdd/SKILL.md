@@ -59,6 +59,7 @@ Before calling a feature done:
 - [ ] No implementation code exists without a corresponding test.
 - [ ] All tests pass.
 - [ ] No test is skipped, commented out, or marked `.only` without reason.
+- [ ] Each test targets a specific acceptance criterion from `.specify/features/{slug}/spec.md` (cite it in the test name or a comment — e.g. `// AC-3: user receives confirmation email`).
 
 ---
 

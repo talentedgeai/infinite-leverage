@@ -1,10 +1,5 @@
 # Epics — {Project Name}
 
-> **Fixed filename.** Dan Shipper format: problem / mechanism / bundles / success / why-first. PM agent owns this file.
+> **Fixed filename.** Created and maintained by `pm-epic-writing`. Dan Shipper format: problem / mechanism / bundles / success / why-first. Each epic is written only after a feature spec exists in `.specify/features/{slug}/spec.md`.
 
-## Epic 1 — PH name
-- **Problem**:
-- **Mechanism**:
-- **Bundles**: [ ] Bundle A · [ ] Bundle B
-- **Success**:
-- **Why first**:
+<!-- This file is empty until pm-epic-writing writes the first epic. Do not fill in manually. -->

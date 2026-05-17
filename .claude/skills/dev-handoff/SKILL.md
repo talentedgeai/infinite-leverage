@@ -63,6 +63,12 @@ If the folder doesn't exist, create it.
 ## Open Questions
 
 {anything unresolved that the next person needs to decide or investigate}
+
+## Spec Deviations _(optional — omit section if none)_
+
+{List any deliberate deviations from `.specify/features/{slug}/spec.md`:
+- AC-N: {what the spec required} → {what was actually built} — Reason: {why}
+These deviations must be flagged to the PM for spec amendment or acceptance.}
 ```
 
 ## Step 3 — Commit the Handoff
