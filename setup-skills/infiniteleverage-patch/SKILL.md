@@ -168,7 +168,7 @@ Report any errors explicitly — never silently skip a failed copy.
 
 ---
 
-## Phase 3 — Stamp installed version
+## Phase 3 — Stamp installed version and ensure plugin is registered
 
 After confirming the update is complete, run:
 
@@ -180,6 +180,16 @@ echo "Version stamped: $(cat ~/.claude/.infiniteleverage-version)"
 ```
 
 This allows the Infinite Leverage plugin's SessionStart hook to detect when a newer template version is available in future sessions.
+
+Then ensure the plugin is registered (idempotent — safe to run even if already installed):
+
+```bash
+claude plugin marketplace add talentedgeai/infiniteleverage-plugin
+```
+
+If the plugin is already registered, this is a no-op. If not (e.g. the machine was set up before the plugin existed), this registers and enables it so future sessions load the hooks automatically.
+
+If `claude plugin` is not available, the user is on an older Claude Code version — run `npm i -g @anthropic-ai/claude-code@latest` to upgrade first.
 
 ---
 

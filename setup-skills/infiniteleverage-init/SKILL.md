@@ -222,7 +222,7 @@ Stopped partway through? Here's where to pick up — no restarting needed.
 
 ---
 
-## Phase 3 — Stamp installed version
+## Phase 3 — Stamp installed version and register plugin
 
 After confirming setup is complete, run:
 
@@ -234,6 +234,19 @@ echo "Version stamped: $(cat ~/.claude/.infiniteleverage-version)"
 ```
 
 This allows the Infinite Leverage plugin's SessionStart hook to detect when a newer template version is available in future sessions.
+
+Then register the plugin so Claude Code can discover and load it:
+
+```bash
+claude plugin marketplace add talentedgeai/infiniteleverage-plugin
+```
+
+This adds `talentedgeai/infiniteleverage-plugin` to `~/.claude/settings.json` as a known marketplace and enables it. After this, every new Claude Code session will automatically receive:
+- Agent routing hints via the `UserPromptSubmit` hook
+- Version update advisories via the `SessionStart` hook
+- Token usage awareness at session start
+
+If `claude plugin` is not yet available, the user is on an older Claude Code version — run `npm i -g @anthropic-ai/claude-code@latest` to upgrade first.
 
 ---
 
