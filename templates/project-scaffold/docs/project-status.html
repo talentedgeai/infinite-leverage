@@ -14,6 +14,37 @@
     <div class="tile">In build: 0</div>
     <div class="tile">Open bugs: 0</div>
   </section>
+  <section><h2>Claude usage — all time (team)</h2>
+    <!--
+      Run after each session to accumulate stats across all contributors:
+        python3 ~/.claude/hooks/update-project-status-usage.py docs/project-status.html
+      Human tokens = team total active hours (1h = 1 human token). Measures investment.
+      Claude tokens = team total API tokens across all sessions. Measures AI output.
+      Leverage ratio = Claude tokens ÷ Human tokens — visible at a glance.
+    -->
+    <div class="tile">Human tokens (team): <!-- human-tokens -->3.8h<!-- /human-tokens --></div>
+    <div class="tile">Claude tokens (team): <!-- claude-tokens -->336,023<!-- /claude-tokens --></div>
+    <div class="tile">Active hours (team): <!-- active-hours -->3h 50m<!-- /active-hours --></div>
+    <div class="tile">Last updated: <!-- usage-updated -->2026-05-19 11:13 UTC<!-- /usage-updated --></div>
+    <h3>By contributor</h3>
+    <ul><!-- contributor-breakdown -->
+      <li><strong>tracng99</strong>: 3.8h active &middot; 336,023 tokens (last updated 2026-05-19)</li>
+    <!-- /contributor-breakdown --></ul>
+    <!--
+      Machine-readable store — do not edit manually. Updated by update-project-status-usage.py.
+      contributor-data
+    -->
+    <!-- contributor-data -->
+{
+  "tracng99": {
+    "hours": 3.8,
+    "tokens": 336023,
+    "active_mins": 230,
+    "updated": "2026-05-19"
+  }
+}
+<!-- /contributor-data -->
+  </section>
   <section><h2>Epic pipeline</h2><p>(5-point pipeline per epic — generated)</p></section>
   <section><h2>Build log</h2><ul><li>YYYY-MM-DD — PH entry</li></ul></section>
   <section><h2>Companion docs</h2>

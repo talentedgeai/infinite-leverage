@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Infinite Leverage — SessionStart hook (plugin repo edition)
+# Four stages, all silent on pass. Never blocks the session.
+#
+# Stage 1  — initialization check (agents present?)
+# Stage 2  — version check (template update available?)
+# Stage 3  — context injection (routing rules)
+# Stage 4  — usage awareness (token briefing into Claude's context)
+
+# ── Stage 1: Initialization check ────────────────────────────────────────────
+AGENTS_DIR="$HOME/.claude/agents"
+if [ ! -d "$AGENTS_DIR" ] || [ -z "$(ls -A "$AGENTS_DIR" 2>/dev/null)" ]; then
+    echo "[Infinite Leverage] Agents not found. Run /infiniteleverage-init to set up your 8-agent team."
+fi
+
+# ── Stage 2: Version check ───────────────────────────────────────────────────
+# IL_TEMPLATE_REPO_URL is the raw VERSION file URL for the canonical template repo.
+# Update this constant when the org/repo slug changes.
+IL_TEMPLATE_REPO_URL="https://raw.githubusercontent.com/talentedgeai/infiniteleverage-8-agents-template/main/VERSION"
+LOCAL_VERSION_FILE="$HOME/.claude/.infiniteleverage-version"
+
+if [ -f "$LOCAL_VERSION_FILE" ]; then
+    LOCAL_VERSION=$(cat "$LOCAL_VERSION_FILE" 2>/dev/null | tr -d '[:space:]')
+    REMOTE_VERSION=$(curl -sf --max-time 3 "$IL_TEMPLATE_REPO_URL" 2>/dev/null | tr -d '[:space:]')
+    if [ -n "$REMOTE_VERSION" ] && [ "$REMOTE_VERSION" != "$LOCAL_VERSION" ]; then
+        echo "[Infinite Leverage] Template v${REMOTE_VERSION} available (you have v${LOCAL_VERSION}). Run /infiniteleverage-patch to update."
+    fi
+fi
+# Network failure or missing local version → silent pass. Never degrade the session.
+
+# ── Stage 3: Context injection ───────────────────────────────────────────────
+# Agent routing rules are injected via CLAUDE.md (written during init).
+# This stage is a no-op when the project CLAUDE.md contains the AGENT-DELEGATION block.
+# If CLAUDE.md is absent, emit a brief routing summary so agents still route correctly.
+if [ ! -f "CLAUDE.md" ] && [ ! -f "$HOME/.claude/CLAUDE.md" ]; then
+    echo "[Infinite Leverage] No CLAUDE.md found. Agent routing is inactive. Run /infiniteleverage-init or add CLAUDE.md."
+fi
+
+# ── Stage 4: Usage awareness ─────────────────────────────────────────────────
+python3 "$HOME/.claude/hooks/usage-context.py" 2>/dev/null || true

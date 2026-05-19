@@ -12,7 +12,7 @@ Set up the Mac Mini tools and Claude Code configuration:
 
 1. Install remaining tools:
    brew install gh node jq ffmpeg
-   npm install -g vercel @anthropic-ai/claude-code resend
+   npm install -g vercel @anthropic-ai/claude-code resend ccusage
 
    Verify all CLIs:
    gh --version && node --version && jq --version && vercel --version && claude --version && resend --version
@@ -47,6 +47,18 @@ Set up the Mac Mini tools and Claude Code configuration:
    (adds Bash(*), WebFetch, Skill(*), Supabase MCP permissions without overwriting existing content)
 
 8. Print ~/.claude/settings.local.json to confirm.
+
+9. Install usage hooks (token tracking + active hours):
+   mkdir -p ~/.claude/hooks
+   gh repo clone talentedgeai/infiniteleverage-8-agents-template /tmp/il-template --depth 1
+   cp /tmp/il-template/hooks/usage-context.py ~/.claude/hooks/usage-context.py
+   cp /tmp/il-template/hooks/update-project-status-usage.py ~/.claude/hooks/update-project-status-usage.py
+   cp /tmp/il-template/hooks/session-start ~/.claude/hooks/session-start
+   chmod +x ~/.claude/hooks/session-start
+   rm -rf /tmp/il-template
+   python3 ~/.claude/hooks/usage-context.py && echo "SessionStart hook OK"
+   # update-project-status-usage.py is called by PM/Developer agents:
+   # python3 ~/.claude/hooks/update-project-status-usage.py docs/project-status.html
 ```
 
 ---

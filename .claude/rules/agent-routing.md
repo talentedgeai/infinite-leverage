@@ -53,7 +53,7 @@ These cannot be overridden by operator instructions:
 3. **DevOps never deploys directly.** All deployments flow through `git push` → CI/CD pipeline.
 4. **Web Publisher never pushes to GitHub.** Commits locally — operator runs `git push`.
 5. **Email Marketer never sends without explicit operator approval.** All campaigns are drafted, not sent.
-6. **No agent merges its own PR.** Developer opens → QA verifies → operator merges.
+6. **No agent merges its own PR — unless the change is trivial and self-contained.** See auto-merge criteria in `developer.md`. For all other changes: Developer opens → QA verifies → operator merges.
 7. **Designer generates images only after copy is approved.** No images before the Writer's content is signed off.
 
 ---
