@@ -228,7 +228,7 @@ After confirming setup is complete, run:
 
 ```bash
 curl --silent --max-time 5 \
-  "https://raw.githubusercontent.com/TracNg99/infiniteleverage-8-agents-template/main/VERSION" \
+  "https://raw.githubusercontent.com/talentedgeai/infiniteleverage-8-agents-template/main/VERSION" \
   > ~/.claude/.infiniteleverage-version
 echo "Version stamped: $(cat ~/.claude/.infiniteleverage-version)"
 ```
