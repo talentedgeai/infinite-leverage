@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# UserPromptSubmit hook: inject agent routing hint when routing keywords detected.
+# Receives {"prompt":"..."} via stdin.
+# Output JSON with additionalContext to inject context. No output = silent pass.
+
+set -euo pipefail
+
+input="$(cat)"
+prompt="$(echo "$input" | python3 -c "import sys,json; print(json.load(sys.stdin).get('prompt',''))" 2>/dev/null || echo "")"
+prompt_lower="$(echo "$prompt" | tr '[:upper:]' '[:lower:]')"
+
+inject() {
+  local hint="$1"
+  local escaped="${hint//\"/\\\"}"
+  escaped="${escaped//$'\n'/\\n}"
+  printf '{"additionalContext":"%s"}\n' "$escaped"
+  exit 0
+}
+
+# Dev team routing hints
+echo "$prompt_lower" | grep -qE '\b(plan|spec|epic|acceptance criteria|create issues|break into tickets)\b' && \
+  inject "[Agent routing] This looks like a PM task → @product-manager"
+
+echo "$prompt_lower" | grep -qE '\b(build|implement|code this|write the function|debug|diagnose|prototype|spike|refactor|tech debt)\b' && \
+  inject "[Agent routing] This looks like a developer task → @developer"
+
+echo "$prompt_lower" | grep -qE '\b(triage|test strategy|test plan|what to test|classify this bug)\b' && \
+  inject "[Agent routing] This looks like a QA task → @qa"
+
+echo "$prompt_lower" | grep -qE '\b(ci/cd|pipeline|github actions|deployment setup|pre-commit|husky|git hooks|guardrails)\b' && \
+  inject "[Agent routing] This looks like a devops task → @devops"
+
+# Marketing team routing hints
+echo "$prompt_lower" | grep -qE '\b(write a post|draft content|blog post|seo|social post|instagram|linkedin|translate)\b' && \
+  inject "[Agent routing] This looks like a writer task → @writer"
+
+echo "$prompt_lower" | grep -qE '\b(generate image|hero image|create a visual|design system|mockup|wireframe|ui design)\b' && \
+  inject "[Agent routing] This looks like a designer task → @designer"
+
+echo "$prompt_lower" | grep -qE '\b(publish|push to site|build the page|update blog index)\b' && \
+  inject "[Agent routing] This looks like a web-publisher task → @web-publisher"
+
+echo "$prompt_lower" | grep -qE '\b(email campaign|newsletter|send to subscribers|nurture|import contacts)\b' && \
+  inject "[Agent routing] This looks like an email-marketer task → @email-marketer"
+
+exit 0
