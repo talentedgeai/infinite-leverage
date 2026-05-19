@@ -222,6 +222,21 @@ Stopped partway through? Here's where to pick up — no restarting needed.
 
 ---
 
+## Phase 3 — Stamp installed version
+
+After confirming setup is complete, run:
+
+```bash
+curl --silent --max-time 5 \
+  "https://raw.githubusercontent.com/TracNg99/infiniteleverage-8-agents-template/main/VERSION" \
+  > ~/.claude/.infiniteleverage-version
+echo "Version stamped: $(cat ~/.claude/.infiniteleverage-version)"
+```
+
+This allows the Infinite Leverage plugin's SessionStart hook to detect when a newer template version is available in future sessions.
+
+---
+
 ## Additional Resources
 
 - **`references/phase1-manual.md`** — Complete step-by-step for all account creation, DNS setup, API keys, and Mac Mini tool installation

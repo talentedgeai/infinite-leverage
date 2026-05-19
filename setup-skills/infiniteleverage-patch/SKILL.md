@@ -168,6 +168,21 @@ Report any errors explicitly — never silently skip a failed copy.
 
 ---
 
+## Phase 3 — Stamp installed version
+
+After confirming the update is complete, run:
+
+```bash
+curl --silent --max-time 5 \
+  "https://raw.githubusercontent.com/TracNg99/infiniteleverage-8-agents-template/main/VERSION" \
+  > ~/.claude/.infiniteleverage-version
+echo "Version stamped: $(cat ~/.claude/.infiniteleverage-version)"
+```
+
+This allows the Infinite Leverage plugin's SessionStart hook to detect when a newer template version is available in future sessions.
+
+---
+
 ## Edge cases
 
 - **Permission denied**: report and stop — do not use sudo
