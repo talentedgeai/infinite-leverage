@@ -46,6 +46,24 @@ for skill in "${STANDALONE_SKILLS[@]}"; do
   echo "   Done: $(ls -lh "$skill.zip" | awk '{print $5}')"
 done
 
+# Sync setup skills to plugin repo (if it exists as a sibling directory)
+PLUGIN_REPO="$(cd "$SCRIPT_DIR/.." && pwd)/../infiniteleverage-plugin"
+if [ -d "$PLUGIN_REPO" ]; then
+  echo "→ Syncing setup skills to infiniteleverage-plugin/skills/..."
+  for skill in "${AGENT_BUNDLED_SKILLS[@]}" "${STANDALONE_SKILLS[@]}"; do
+    SRC="$SKILLS_DIR/$skill"
+    DEST="$PLUGIN_REPO/skills/$skill"
+    if [ -d "$SRC" ]; then
+      rm -rf "$DEST"
+      cp -r "$SRC" "$DEST"
+      echo "   Synced: $skill"
+    fi
+  done
+  echo "   Plugin skills sync complete."
+else
+  echo "→ infiniteleverage-plugin not found at $PLUGIN_REPO — skipping plugin sync."
+fi
+
 echo ""
 echo "✅ All zips rebuilt at:"
 for f in "$SKILLS_DIR"/*.zip; do
