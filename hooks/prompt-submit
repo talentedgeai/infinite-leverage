@@ -21,7 +21,7 @@ inject() {
 echo "$prompt_lower" | grep -qE '\b(plan|spec|epic|acceptance criteria|create issues|break into tickets)\b' && \
   inject "[Agent routing] This looks like a PM task → @product-manager"
 
-echo "$prompt_lower" | grep -qE '\b(build|implement|code this|write the function|debug|diagnose|prototype|spike|refactor|tech debt)\b' && \
+echo "$prompt_lower" | grep -qE '\b(build|implement|code this|write the function|debug|diagnose|why is this broken|prototype|spike|refactor|tech debt)\b' && \
   inject "[Agent routing] This looks like a developer task → @developer"
 
 echo "$prompt_lower" | grep -qE '\b(triage|test strategy|test plan|what to test|classify this bug)\b' && \
