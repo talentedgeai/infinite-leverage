@@ -227,13 +227,19 @@ Stopped partway through? Here's where to pick up — no restarting needed.
 After confirming setup is complete, run:
 
 ```bash
-curl --silent --max-time 5 \
-  "https://raw.githubusercontent.com/talentedgeai/infiniteleverage-8-agents-template/main/VERSION" \
-  > ~/.claude/.infiniteleverage-version
-echo "Version stamped: $(cat ~/.claude/.infiniteleverage-version)"
+version="$(curl --silent --max-time 5 \
+  -H "Accept: application/vnd.github.v3+json" \
+  "https://api.github.com/repos/talentedgeai/infiniteleverage-8-agents-template/releases/latest" \
+  | python3 -c "import sys,json; print(json.load(sys.stdin).get('tag_name','').lstrip('v'))" 2>/dev/null || echo "")"
+if [[ -n "$version" ]]; then
+  echo "$version" > ~/.claude/.infiniteleverage-version
+  echo "Version stamped: $version"
+else
+  echo "⚠️ Could not fetch version from GitHub Releases — check network or run again"
+fi
 ```
 
-This allows the Infinite Leverage plugin's SessionStart hook to detect when a newer template version is available in future sessions.
+This stamps the installed release version so the plugin's SessionStart hook can detect and auto-apply future updates.
 
 Then register the plugin so Claude Code can discover and load it:
 

@@ -32,11 +32,13 @@ done
 
 # Sync setup skills to plugin repo (if it exists as a sibling directory)
 PLUGIN_REPO="$REPO_ROOT/../infiniteleverage-plugin"
+PLUGIN_SKILLS_DIR="$PLUGIN_REPO/plugin/skills"
 if [ -d "$PLUGIN_REPO" ]; then
-  echo "→ Syncing setup skills to infiniteleverage-plugin/skills/..."
+  echo "→ Syncing setup skills to infiniteleverage-plugin/plugin/skills/..."
+  mkdir -p "$PLUGIN_SKILLS_DIR"
   for skill in "${ALL_SKILLS[@]}"; do
     SRC="$SKILLS_DIR/$skill"
-    DEST="$PLUGIN_REPO/skills/$skill"
+    DEST="$PLUGIN_SKILLS_DIR/$skill"
     if [ -d "$SRC" ]; then
       rm -rf "$DEST"
       cp -r "$SRC" "$DEST"
