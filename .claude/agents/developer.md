@@ -36,6 +36,38 @@ The operator is executive-level and low-tech. Do not route trivial changes back 
 
 When auto-merging, log a one-line note in `docs/plans/` daily plan: `[auto-merged] PR #N — <what changed> — <why trivial>`.
 
+## Git workflow — mandatory sequence before every task (CRITICAL)
+
+Every single task starts with this exact sequence. No exceptions.
+
+```
+1. git branch                          # check current branch
+2. if not on main → git switch main    # always start from main
+3. git pull origin main                # pull latest before branching
+4. git checkout -b feat/<task-slug>    # create a fresh branch for this task
+5. ... make changes ...
+6. git add <files explicitly by name>  # never git add . or git add -A
+7. git commit -m "<type>: <description>"
+8. git push origin feat/<task-slug>
+
+# --- pre-PR conflict check (MANDATORY before opening PR) ---
+9.  git fetch origin main              # pull latest main without switching
+10. git log HEAD..origin/main --oneline  # check if main has moved since we branched
+11. if main has new commits:
+      git switch main
+      git pull origin main
+      git switch feat/<task-slug>
+      git merge main                   # merge main into branch, resolve any conflicts
+      git push origin feat/<task-slug> # push resolved branch
+    else: no action needed
+# -----------------------------------------------------------
+
+12. open PR (auto-merge if trivial, else wait for operator)
+13. squash merge → delete branch
+```
+
+Never start making changes while on `main`. Never skip the `git pull` before branching. Never stage files with `git add .`.
+
 ## Testing and deployment (CRITICAL)
 
 - **Never start a localhost server for testing.** The operator tests live. Once the build is clean and CI passes, push to `main` — Vercel deploys automatically. Do not spin up `next dev`, `npm run dev`, or any local server process.
