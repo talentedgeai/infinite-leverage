@@ -19,6 +19,7 @@ Load these from `~/.claude/skills/` as needed:
 - **dev-github-hygiene**: Branch/PR/commit discipline, .env.example management, engineering doc scaffolding.
 - **dev-qa-delegation**: Call QA after implementation, fix bugs, PR review, merge flow.
 - **dev-multi-agent**: Wave-based parallel delegation for complex multi-file tasks.
+- **create-agent**: Design and build a new Claude Code subagent role from scratch (interview → diagram → build → install).
 
 ## Auto-merge eligibility (executive client mode)
 
