@@ -210,7 +210,7 @@ Stopped partway through? Here's where to pick up — no restarting needed.
 - [ ] Project scaffolded at `~/code-projects/{project-slug}/` with context folders + `website/` **[P4]**
 - [ ] `.specify/` initialized in project root (done by `infiniteleverage-project` Step 8.5 — verify with `ls .specify/`)
 - [ ] `.env.local` written with all credentials (inside `website/`)
-- [ ] Global skills: `daily-checkin`, `create-local-routine`, `skill-creator`, `create-agent` **[P11]**
+- [ ] Global skills: `daily-checkin`, `create-local-routine`, `create-agent`, `infiniteleverage-help` **[P11]**
 - [ ] GitHub repo created, pushed, Vercel project imported (Root Directory=website set in dashboard) **[P5][P6]**
 - [ ] `vercel link` run, env vars added via `vercel env`, deployment verified (`vercel ls`)
 - [ ] Site live on Vercel (HTTP 200)

@@ -34,7 +34,7 @@ The script checks and reports ✅ / ⚠️ / ❌ for each item:
 | Supabase MCP | MCP entry in `settings.local.json` + auth credentials (`SUPABASE_URL` + `SERVICE_ROLE_KEY`) in `~/.claude/.env` |
 | Hooks | `~/.claude/hooks/pre-bash` + `prompt-submit` exist and are executable |
 | Hook wiring | `PreToolUse` and `UserPromptSubmit` entries present in `settings.local.json` |
-| Global skills | `daily-checkin`, `create-local-routine`, `infiniteleverage-patch`, `create-agent` installed |
+| Global skills | `daily-checkin`, `create-local-routine`, `infiniteleverage-patch`, `infiniteleverage-help`, `create-agent` installed |
 | Agent count | ≥ 8 agents in `~/.claude/agents/` |
 
 **If any ❌ items appear**: show the user the full report and ask which gaps to fix before continuing. Do not auto-fix without confirmation — some gaps (like missing credentials) require manual input.
