@@ -233,7 +233,7 @@ echo ""
 
 # ── 9. Required global skills ────────────────────────────────────────────────
 echo "[ Global Skills ]"
-for skill in daily-checkin create-local-routine infiniteleverage-patch; do
+for skill in daily-checkin create-local-routine infiniteleverage-patch infiniteleverage-help; do
   if [ -f "$CLAUDE_DIR/skills/$skill/SKILL.md" ]; then
     check "~/.claude/skills/$skill/" ok ""
   else
