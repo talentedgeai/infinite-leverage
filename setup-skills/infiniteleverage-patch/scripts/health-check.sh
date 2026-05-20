@@ -204,9 +204,36 @@ else
 fi
 echo ""
 
-# ── 8. Required global skills ─────────────────────────────────────────────────
+# ── 8. Hooks ─────────────────────────────────────────────────────────────────
+echo "[ Hooks ]"
+HOOKS_DIR="$CLAUDE_DIR/hooks"
+SETTINGS_FOR_HOOKS="$CLAUDE_DIR/settings.local.json"
+for hook in pre-bash prompt-submit; do
+  if [[ -f "$HOOKS_DIR/$hook" && -x "$HOOKS_DIR/$hook" ]]; then
+    check "~/.claude/hooks/$hook" ok ""
+  elif [[ -f "$HOOKS_DIR/$hook" ]]; then
+    check "~/.claude/hooks/$hook" warn "exists but not executable — run: chmod +x $HOOKS_DIR/$hook"
+  else
+    check "~/.claude/hooks/$hook" missing "not installed — run infiniteleverage-patch to install"
+  fi
+done
+if [[ -f "$SETTINGS_FOR_HOOKS" ]]; then
+  if grep -q "pre-bash" "$SETTINGS_FOR_HOOKS" 2>/dev/null; then
+    check "PreToolUse wired in settings.local.json" ok ""
+  else
+    check "PreToolUse wired in settings.local.json" missing "run infiniteleverage-patch to wire"
+  fi
+  if grep -q "prompt-submit" "$SETTINGS_FOR_HOOKS" 2>/dev/null; then
+    check "UserPromptSubmit wired in settings.local.json" ok ""
+  else
+    check "UserPromptSubmit wired in settings.local.json" missing "run infiniteleverage-patch to wire"
+  fi
+fi
+echo ""
+
+# ── 9. Required global skills ────────────────────────────────────────────────
 echo "[ Global Skills ]"
-for skill in daily-checkin create-routines infiniteleverage-patch; do
+for skill in daily-checkin create-local-routine infiniteleverage-patch; do
   if [ -f "$CLAUDE_DIR/skills/$skill/SKILL.md" ]; then
     check "~/.claude/skills/$skill/" ok ""
   else

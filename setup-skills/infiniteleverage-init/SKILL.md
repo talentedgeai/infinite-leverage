@@ -62,9 +62,10 @@ Claude will give you a personalised status report — no redoing steps you've al
 4. The bundled copy inside this skill's zip is a **fallback** for offline use only. If GitHub is reachable, always prefer the live repo.
 
 ```bash
-# Fetch canonical agents at any time:
+# Fetch canonical agents and hooks at any time:
 gh repo clone talentedgeai/infiniteleverage-8-agents-template /tmp/il-agents
 cp /tmp/il-agents/.claude/agents/*.md ~/.claude/agents/
+bash ~/.claude/skills/infiniteleverage-patch/scripts/install-hooks.sh /tmp/il-agents
 rm -rf /tmp/il-agents
 ```
 
@@ -209,11 +210,12 @@ Stopped partway through? Here's where to pick up — no restarting needed.
 - [ ] Project scaffolded at `~/code-projects/{project-slug}/` with context folders + `website/` **[P4]**
 - [ ] `.specify/` initialized in project root (done by `infiniteleverage-project` Step 8.5 — verify with `ls .specify/`)
 - [ ] `.env.local` written with all credentials (inside `website/`)
-- [ ] Global skills: `daily-checkin`, `create-routines`, `skill-creator`, `create-agent` **[P11]**
+- [ ] Global skills: `daily-checkin`, `create-local-routine`, `skill-creator`, `create-agent` **[P11]**
 - [ ] GitHub repo created, pushed, Vercel project imported (Root Directory=website set in dashboard) **[P5][P6]**
 - [ ] `vercel link` run, env vars added via `vercel env`, deployment verified (`vercel ls`)
 - [ ] Site live on Vercel (HTTP 200)
 - [ ] All 8 agents fetched from GitHub canonical repo to `~/.claude/agents/` **[P13]**
+- [ ] Hooks installed: `~/.claude/hooks/pre-bash` + `prompt-submit` copied and wired into `settings.local.json`
 - [ ] `email-index.md` Stage 0 populated
 - [ ] 10 RemoteTrigger routines registered — verify at https://claude.ai/code/routines **[P10]**
 - [ ] HANDOFF.md written **[P17]**

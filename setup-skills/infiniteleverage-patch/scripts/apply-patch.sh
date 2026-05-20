@@ -109,8 +109,24 @@ if [ -d "$SKILLS_SRC" ]; then
     fi
   done
 
+  # Remove deprecated skills that have been renamed or removed from the template
+  DEPRECATED_SKILLS=("create-local-task")
+  skills_removed=0
+  for deprecated in "${DEPRECATED_SKILLS[@]}"; do
+    deprecated_path="$SKILLS_DEST/$deprecated"
+    if [ -d "$deprecated_path" ]; then
+      if rm -rf "$deprecated_path"; then
+        echo "  - removed deprecated skill: $deprecated"
+        skills_removed=$((skills_removed + 1))
+      else
+        echo "  ERROR: failed to remove deprecated skill $deprecated" >&2
+        skills_errors=$((skills_errors + 1))
+      fi
+    fi
+  done
+
   echo ""
-  echo "=== SKILLS: $skills_added added · $skills_updated updated ==="
+  echo "=== SKILLS: $skills_added added · $skills_updated updated · $skills_removed removed ==="
 fi
 
 # ── Phase 3: Rules ────────────────────────────────────────────────────────────
@@ -174,6 +190,17 @@ if [ -x "$INJECTOR" ]; then
     shopt -u nullglob
   fi
   echo "   AGENT-DELEGATION refreshed in $delegation_touched CLAUDE.md file(s)"
+fi
+
+# ── Phase 5: Hooks ───────────────────────────────────────────────────────────
+
+INSTALL_HOOKS="$HOME/.claude/skills/infiniteleverage-patch/scripts/install-hooks.sh"
+echo ""
+echo "→ Installing hooks…"
+if [[ -x "$INSTALL_HOOKS" ]]; then
+  bash "$INSTALL_HOOKS" "$REPO_ROOT"
+else
+  echo "  ⚠️  install-hooks.sh not found at $INSTALL_HOOKS — skipping (run patch again after skills sync)"
 fi
 
 # ── Summary ───────────────────────────────────────────────────────────────────

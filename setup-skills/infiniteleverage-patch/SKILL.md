@@ -32,7 +32,9 @@ The script checks and reports ✅ / ⚠️ / ❌ for each item:
 | `~/.claude/.env` | Required keys present and non-empty: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`, `RESEND_API_KEY`. Optional: `LARK_APP_ID`, `LARK_APP_SECRET`, `LARK_WEBHOOK_URL` (all three or none — partial config warns). |
 | CLI tools | `gh`, `vercel`, `supabase`, `resend` all in PATH and reporting versions |
 | Supabase MCP | MCP entry in `settings.local.json` + auth credentials (`SUPABASE_URL` + `SERVICE_ROLE_KEY`) in `~/.claude/.env` |
-| Global skills | `daily-checkin`, `create-routines`, `infiniteleverage-patch`, `create-agent` installed |
+| Hooks | `~/.claude/hooks/pre-bash` + `prompt-submit` exist and are executable |
+| Hook wiring | `PreToolUse` and `UserPromptSubmit` entries present in `settings.local.json` |
+| Global skills | `daily-checkin`, `create-local-routine`, `infiniteleverage-patch`, `create-agent` installed |
 | Agent count | ≥ 8 agents in `~/.claude/agents/` |
 
 **If any ❌ items appear**: show the user the full report and ask which gaps to fix before continuing. Do not auto-fix without confirmation — some gaps (like missing credentials) require manual input.
@@ -48,6 +50,7 @@ The script checks and reports ✅ / ⚠️ / ❌ for each item:
 - Missing CLI tool: brew install for system tools (`brew install gh supabase`), npm install -g for JS tools (`npm install -g vercel resend`)
 - Missing Supabase MCP entry: re-run `setup-permissions.py` from this skill or manually add `"mcpServers"` section to `settings.local.json`
 - Missing skills: ask if they want to install the missing skills
+- Missing hooks or hook wiring: run `bash ~/.claude/skills/infiniteleverage-patch/scripts/install-hooks.sh /tmp/il-agents` (clone first if `/tmp/il-agents` doesn't exist)
 
 ---
 
