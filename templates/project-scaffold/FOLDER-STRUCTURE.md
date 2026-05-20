@@ -96,6 +96,9 @@ These files have hard-coded names that skills and agents reference by path:
 │           └── images.md                        ← Image prompts
 │
 ├── context/                                    ← Agent-only context (not project docs)
+│   ├── brand/
+│   │   ├── voice.md                             ← Tone, vocabulary, dos/don'ts
+│   │   └── palette.md                           ← Color tokens
 │   ├── general-project-agent-context/
 │   │   ├── publish-log.md                       ← Append-only publish ledger
 │   │   └── blog-index.md                        ← Pointer to website blog index
@@ -117,9 +120,6 @@ These files have hard-coded names that skills and agents reference by path:
 │   │   ├── templates/PH-template-name.md
 │   │   └── workflows/PH-workflow-name.md
 │   ├── archive/                                 ← Superseded docs
-│   ├── brand/
-│   │   ├── voice.md
-│   │   └── palette.md
 │   ├── engineering/
 │   │   ├── changes/YYYY-MM-DD-PH-change.md
 │   │   └── prompts/PH-setup-prompt.md

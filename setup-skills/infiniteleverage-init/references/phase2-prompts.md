@@ -345,12 +345,12 @@ description: This skill should be used when the user says "daily checkin", "morn
 ---
 Steps: (1) git log --oneline -10 (2) gh pr list --state open (3) check content/topics/ for brief.md without blog.md (4) output: what shipped, open PRs, content queued
 
-Create ~/.claude/skills/create-routines/SKILL.md:
+Create ~/.claude/skills/create-local-routine/SKILL.md:
 ---
-name: create-routines
-description: This skill should be used when the user says "create task", "new task", "log task", or "add a task". Creates a structured task file with description, acceptance criteria, and priority.
+name: create-local-routine
+description: Create a persistent scheduled routine using mcp__scheduled-tasks — stored on disk in ~/.claude/scheduled-tasks/, local timezone, no expiry, no minimum interval. Runs while Claude Desktop is open; catches up on next launch if the app was closed.
 ---
-Steps: (1) ask: title, description, priority (2) write to working_files/tasks/{YYYY-MM-DD}-{slug}.md (3) format: # Title / Priority / Created / ## Description / ## Acceptance criteria
+Use mcp__scheduled-tasks__create_scheduled_task. Always load schema first via ToolSearch. Steps: (1) gather: routine ID (kebab-case), description, schedule (local time), prompt body (2) load schema (3) register via create_scheduled_task (4) confirm ID and storage path to user.
 
 Create ~/.claude/skills/skill-creator/SKILL.md:
 ---
