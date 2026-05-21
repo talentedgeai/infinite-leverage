@@ -1,6 +1,7 @@
 ---
 name: pm-epic-writing
-description: Full discovery-to-epic workflow. Runs speckit-specify → speckit-git-feature → speckit-clarify → pm-clarify-guard → speckit-analyze → pm-analyze-split → writes Dan Shipper epic entry to docs/product/epics.md → creates/updates docs/product/epic-status.md → hands off to developer agent. Triggered when the PM says "write a new epic", "specify a feature", or when a client interview has produced a new idea.
+description: >-
+  Takes a new feature idea through the full discovery process — asks the right clarifying questions, checks for gaps and conflicts, and turns it into a detailed written brief (called an epic) that the developer can build from with confidence. Triggered when the PM says 'write a new epic', 'specify a feature', or after a client conversation produces a new idea. Output goes to docs/product/epics.md.
 ---
 
 # PM: Epic Writing — Full Discovery Workflow

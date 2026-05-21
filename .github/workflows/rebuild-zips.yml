@@ -1,0 +1,39 @@
+name: Rebuild and Release Zips
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.claude/agents/**'
+      - '.claude/skills/**'
+      - 'setup-skills/**'
+      - 'scripts/rebuild-zips.sh'
+
+jobs:
+  rebuild:
+    name: Rebuild setup-skill zips and publish release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Rebuild zips
+        run: bash scripts/rebuild-zips.sh
+
+      - name: Read version
+        id: version
+        run: echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          draft: false
+          prerelease: false
+          files: setup-skills/*.zip
+          body: |
+            Auto-built from commit ${{ github.sha }} on `main`.
+
+            Install or update: run `/infiniteleverage-patch` in Claude Code.

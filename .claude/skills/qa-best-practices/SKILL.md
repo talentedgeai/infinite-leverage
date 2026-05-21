@@ -1,6 +1,7 @@
 ---
 name: qa-best-practices
-description: Testing pyramid enforcement, unit/integration/e2e patterns, anti-patterns to refuse, and explicit can/cannot-test boundaries for AI-driven QA.
+description: >-
+  Defines how to write good tests at every level — fast unit tests for individual functions, integration tests for database interactions, and end-to-end browser tests only for the most critical user journeys. Also lists the testing anti-patterns to avoid and a clear boundary for what AI can and cannot reliably test.
 ---
 
 # QA: Best Practices

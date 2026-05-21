@@ -1,6 +1,7 @@
 ---
 name: designer-style-to-photo
-description: Map blog content tone to the best-fit design system preset, then construct a structured image prompt aligned to the preset's visual language.
+description: >-
+  Reads a blog post's tone and subject matter, matches it to the best visual style from the design system, and writes a detailed, structured image prompt ready for the image generation step. Bridges the gap between written content and a visual that feels on-brand.
 ---
 
 # Designer: Style-to-Photo Alignment

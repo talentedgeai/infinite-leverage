@@ -1,6 +1,7 @@
 ---
 name: dev-karpathy
-description: Karpathy-style coding principles: spec-first, digestible design, junior-engineer-proof tasks, TDD, simplicity-first. Apply before and during implementation.
+description: >-
+  Applies a set of proven engineering principles that keep code simple, readable, and easy to test: always plan before coding, build in small verifiable steps, and prefer the simplest solution that works. Named after Andrej Karpathy's approach to clear, thoughtful engineering. Apply before and during any implementation.
 ---
 
 # Developer: Karpathy Coding Principles

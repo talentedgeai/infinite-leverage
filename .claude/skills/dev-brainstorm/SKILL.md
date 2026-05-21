@@ -1,11 +1,7 @@
 ---
 name: dev-brainstorm
-description: >
-  Use BEFORE any implementation loop — writing code, scaffolding files, or executing a plan.
-  Triggered when the Developer receives a feature request, bug fix, or task description
-  that has not yet been broken into a concrete spec. Explores scope, constraints, and
-  approach, then produces a written spec the developer and human must approve before
-  any implementation begins.
+description: >-
+  Opens up the options before committing to an approach — explores different ways to solve a problem, compares trade-offs, and helps choose the best path forward. Use when you're unsure how to build something or when there are multiple reasonable solutions.
 credits: |
   Adapted from superpowers:brainstorming (claude-plugins-official/superpowers v5.1.0)
   Source: /Users/tracnguyendang/.claude/plugins/cache/claude-plugins-official/superpowers/5.1.0/skills/brainstorming/SKILL.md

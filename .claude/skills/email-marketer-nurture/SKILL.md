@@ -1,6 +1,7 @@
 ---
 name: email-marketer-nurture
-description: Nurture subscribers via Resend transactional email — welcome sequences, weekly digests, re-engagement. Convert site visitors into subscribers and subscribers into clients.
+description: >-
+  Manages the full subscriber email lifecycle — sends a welcome sequence to new subscribers, prepares weekly digest emails featuring the latest blog posts, and re-engages subscribers who have gone quiet. All emails are drafted for operator approval before any send command runs. Uses Resend for individual transactional emails and Brevo for larger bulk campaigns.
 ---
 
 # Email Marketer: Subscriber Nurture

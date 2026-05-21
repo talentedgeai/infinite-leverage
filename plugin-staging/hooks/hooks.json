@@ -9,6 +9,27 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/pre-bash 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/prompt-submit 2>/dev/null || true"
+          }
+        ]
+      }
     ]
   }
 }

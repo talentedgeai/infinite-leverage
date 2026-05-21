@@ -15,26 +15,41 @@ Universal agent definition templates and bootstrap skills for the Infinite Lever
 │   ├── designer.md
 │   ├── web-publisher.md
 │   └── email-marketer.md
-├── skills/                    ← 21 standalone skill files (one per capability, rich standalone context)
+├── skills/                    ← Standalone skill files (one per capability, rich standalone context)
 │   ├── pm-client-interview/
 │   ├── pm-documentation/
 │   ├── pm-project-status/
 │   ├── pm-standup/
 │   ├── pm-epic-writing/
+│   ├── pm-constitution-sync/
 │   ├── dev-planning/
+│   ├── dev-feature-plan/
+│   ├── dev-brainstorm/
+│   ├── dev-zoom-out/
 │   ├── dev-karpathy/
-│   ├── dev-github-hygiene/
-│   ├── dev-qa-delegation/
+│   ├── dev-tdd/
+│   ├── dev-prototype/
+│   ├── dev-improve-arch/
 │   ├── dev-multi-agent/
+│   ├── dev-github-hygiene/
+│   ├── dev-diagnose/
+│   ├── dev-grill/
+│   ├── dev-qa-delegation/
+│   ├── dev-handoff/
+│   ├── qa-triage/
 │   ├── qa-best-practices/
 │   ├── qa-planning/
 │   ├── qa-documentation/
+│   ├── devops-ops/
+│   ├── devops-setup-pre-commit/
+│   ├── devops-cicd/
+│   ├── devops-git-guardrails/
 │   ├── designer-design-system/
 │   ├── designer-ui-ux/
 │   ├── designer-style-to-photo/
 │   ├── designer-image-generation/
 │   ├── writer-seo-content/
-│   ├── devops-ops/
+│   ├── marketing-strategist/
 │   ├── web-publisher-publish/
 │   └── email-marketer-nurture/
 └── rules/
@@ -67,35 +82,36 @@ scripts/
 ### Build Team
 | Agent | Skills (`.claude/skills/`) |
 |-------|---------------------------|
-| product-manager | `pm-client-interview`, `pm-documentation`, `pm-project-status`, `pm-standup`, `pm-epic-writing` |
-| developer | `dev-planning`, `dev-karpathy`, `dev-github-hygiene`, `dev-qa-delegation`, `dev-multi-agent` |
-| qa | `qa-best-practices`, `qa-planning`, `qa-documentation` |
-| devops | `devops-ops` |
+| product-manager | `pm-client-interview`, `pm-documentation`, `pm-project-status`, `pm-standup`, `pm-epic-writing`, `pm-constitution-sync` |
+| developer | `dev-planning`, `dev-feature-plan`, `dev-brainstorm`, `dev-zoom-out`, `dev-karpathy`, `dev-tdd`, `dev-prototype`, `dev-improve-arch`, `dev-multi-agent`, `dev-github-hygiene`, `dev-diagnose`, `dev-grill`, `dev-qa-delegation`, `dev-handoff` |
+| qa | `qa-triage`, `qa-best-practices`, `qa-planning`, `qa-documentation` |
+| devops | `devops-ops`, `devops-setup-pre-commit`, `devops-cicd`, `devops-git-guardrails` |
 
 ### GTM Team
 | Agent | Skills (`.claude/skills/`) |
 |-------|---------------------------|
-| writer | `writer-seo-content` |
+| writer | `writer-seo-content`, `marketing-strategist` |
 | designer | `designer-design-system`, `designer-ui-ux`, `designer-style-to-photo`, `designer-image-generation` |
 | web-publisher | `web-publisher-publish` |
 | email-marketer | `email-marketer-nurture` |
 
 ## Updating Agent Templates
 
-1. Edit `.claude/agents/*.md` — these are canonical
-2. Run `./scripts/rebuild-zips.sh` — syncs to skill bundles and rebuilds zips
-3. Upload new zips to GitHub Releases for deployment
+1. Edit `.claude/agents/*.md` or `.claude/skills/*/SKILL.md` — these are canonical
+2. Commit and push to `main` — CI rebuilds zips automatically and publishes a GitHub Release
+3. Run `/infiniteleverage-patch` on any client machine to pull the latest
 
 ```bash
-# One-command update:
+# Manual rebuild (local only — CI handles releases):
 ./scripts/rebuild-zips.sh
-# Output: setup-skills/infiniteleverage-{init,onboard,patch}.zip
+# Output: setup-skills/infiniteleverage-{init,onboard,patch,project}.zip
 ```
 
 ## Releases
 
-Pre-built zips are published to [GitHub Releases](https://github.com/talentedgeai/infiniteleverage-8-agents-template/releases).
-Import these into your Claude Team account or deploy to RemoteTrigger schedules.
+Pre-built zips are auto-published to [GitHub Releases](https://github.com/talentedgeai/infiniteleverage-8-agents-template/releases) by CI on every push to `main` that touches agents or skills.
+
+Clients update by running `/infiniteleverage-patch` in Claude Code — no manual zip upload needed.
 
 ## Template Format
 

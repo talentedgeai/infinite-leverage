@@ -1,13 +1,29 @@
 # devops — Project Persona
 
-Project-specific overrides for the devops agent. The default persona lives in the agent template repo at `agents/devops/context/default-persona.md`. This file customizes the agent for {Project Name}.
+Project-level rules for the devops agent. These override or extend global defaults.
 
-## Project context
-- (Industry, audience, tone, brand voice)
+## Purpose
+Use this file to capture project-specific infrastructure rules every devops session must follow.
+Fill this in after the CI/CD pipeline is set up and the deployment target is confirmed.
 
 ## Project-specific rules
-- (What the agent must always do for this project)
-- (What the agent must never do for this project)
+<!-- What devops must always do for this project -->
+- (e.g. Always verify Vercel environment variables match `.env.example` before deploying)
+- (e.g. Always notify the operator before rotating any API key)
 
-## Stack and tools
-- (Project-specific tools the agent uses)
+<!-- What devops must never do for this project -->
+- (e.g. Never bypass branch protection on main)
+- (e.g. Never store secrets in GitHub Actions variables — use Vercel env only)
+
+## Infrastructure
+<!-- Lock in project-specific infra details here -->
+- Hosting: (e.g. Vercel — team: PH-TEAM, project: PH-PROJECT)
+- CI: (e.g. GitHub Actions — `.github/workflows/ci.yml`)
+- Database: (e.g. Supabase — project ref: PH-PROJECT-REF)
+- Monitoring: (e.g. Vercel Analytics + Sentry)
+
+## Environment variables
+<!-- List required env vars and where they live -->
+- See `.env.example` for the full list
+- Production secrets: Vercel dashboard → Environment Variables
+- Local dev: `.env.local` (gitignored)

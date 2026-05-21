@@ -16,6 +16,7 @@ These files have hard-coded names that skills and agents reference by path:
 | `README.md` | Developer agent | Manual |
 | `.env.example` | Developer agent | `dev-github-hygiene` skill |
 | `.gitignore` | Developer agent | Manual |
+| `docs/brand/style-guide.md` | All agents | Manual (PM-guided during setup) |
 | `context/general-project-agent-context/publish-log.md` | web-publisher | Append-only |
 | `.specify/memory/constitution.md` | PM agent | `speckit-constitution` skill |
 | `.specify/features/{slug}/spec.md` | PM agent | `speckit-specify` via `pm-epic-writing` |
@@ -50,37 +51,15 @@ These files have hard-coded names that skills and agents reference by path:
 │       └── git/
 │           └── git-config.yml                  ← All auto-commits disabled by default
 │
-├── agents/                                     ← Per-agent context + skills + workflows
-│   ├── product-manager/
+├── agents/                                     ← Per-agent project context + optional local skills
+│   ├── <agent-name>/                           ← One folder per agent (product-manager, developer, …)
 │   │   ├── context/
-│   │   │   └── persona.md                      ← Project overrides for PM
-│   │   ├── skills/
-│   │   │   └── pm-project-overrides/SKILL.md
-│   │   └── workflows/
-│   │       ├── daily-standup.md
-│   │       └── release-monitor.md
-│   ├── developer/
-│   │   ├── context/persona.md
-│   │   └── skills/dev-stack-overrides/SKILL.md
-│   ├── qa/
-│   │   ├── context/persona.md
-│   │   └── skills/qa-checklist-overrides/SKILL.md
-│   ├── devops/
-│   │   ├── context/persona.md
-│   │   └── skills/
-│   ├── designer/
-│   │   ├── context/persona.md
-│   │   └── skills/designer-brand-overrides/SKILL.md
-│   ├── writer/
-│   │   ├── context/persona.md
-│   │   └── skills/writer-voice-overrides/SKILL.md
-│   ├── web-publisher/
-│   │   ├── context/persona.md
-│   │   ├── skills/publisher-pipeline-overrides/SKILL.md
-│   │   └── output/                              ← Build artifacts staging
-│   └── email-marketer/
+│   │   │   └── persona.md                      ← Project overrides loaded by the global agent on first run
+│   │   └── skills/                             ← Optional: add project-specific skills here
+│   │       └── <skill-name>/SKILL.md           ← Loaded AFTER global skills; project rules take precedence
+│   └── web-publisher/
 │       ├── context/persona.md
-│       └── skills/
+│       └── output/                             ← Build artifacts staging (web-publisher only)
 │
 ├── content/                                    ← Source-of-truth content
 │   ├── content-calendar/
@@ -96,17 +75,19 @@ These files have hard-coded names that skills and agents reference by path:
 │           └── images.md                        ← Image prompts
 │
 ├── context/                                    ← Agent-only context (not project docs)
-│   ├── brand/
-│   │   ├── voice.md                             ← Tone, vocabulary, dos/don'ts
-│   │   └── palette.md                           ← Color tokens
 │   ├── general-project-agent-context/
 │   │   ├── publish-log.md                       ← Append-only publish ledger
 │   │   └── blog-index.md                        ← Pointer to website blog index
-│   └── source-material/                         ← Raw research per topic area
+│   └── source-material/                         ← All raw material the Writer scans for relevance
+│       ├── working_files/                        ← Agent scratch space (gitignored — never committed)
+│       ├── research/                             ← Optional: operator-curated selections (marked items = priority)
+│       │   └── YYYY-MM-DD-<N>.md                ← Checked/ticked items take precedence; unchecked = skip
 │       └── PH-research-topic/
-│           └── PH-notes.md
+│           └── PH-notes.md                      ← Raw notes, interviews, PDFs dropped by operator
 │
 ├── docs/                                       ← Human-readable project docs
+│   ├── brand/
+│   │   └── style-guide.md                       ← Brand voice, palette, typography, visual rules — read by all agents
 │   ├── product/                                 ← PM agent territory
 │   │   ├── product.md                           [FIXED]
 │   │   ├── epics.md                             [FIXED — created/updated by pm-epic-writing]
@@ -163,10 +144,10 @@ These files have hard-coded names that skills and agents reference by path:
 
 1. **Never invent new top-level folders.** New work goes inside an existing slot. If a slot doesn't fit, raise it to the PM agent first.
 2. **Honor fixed filenames.** Never rename `product.md`, `epics.md`, `epic-status.md`, `project-status.html`. Skills break otherwise.
-3. **Per-agent context lives under `agents/<agent>/`**, not under `docs/`. `docs/` is for humans.
-4. **Per-agent skill overrides** in `agents/<agent>/skills/<skill-name>/SKILL.md` take precedence over global `~/.claude/skills/` versions.
+3. **Per-agent context lives under `agents/<agent>/context/`**, not under `docs/`. `docs/` is for humans.
+4. **Project-local skills** go in `agents/<agent>/skills/<skill-name>/SKILL.md`. These are loaded after global skills and take precedence — do not duplicate global skill names, only add new project-specific capabilities.
 5. **Source content → `content/topics/<slug>/`. Published artifacts → `website/`.** Never publish directly from `content/`.
-6. **Working scratch files → `working_files/`** (gitignored). Never commit.
+6. **Working scratch files → `context/source-material/working_files/`** (gitignored). Never commit. Keeping scratch space alongside source material avoids a second top-level folder and makes it obvious it's ephemeral.
 7. **Worktrees → `.claude/worktrees/`** (gitignored). One per parallel task.
 8. **spec-kit artifacts → `.specify/features/{slug}/`.** Never write spec.md, impl-plan.md, or tasks.md outside `.specify/`.
 

@@ -1,6 +1,7 @@
 ---
 name: dev-improve-arch
-description: Use when a module needs strategic architectural improvement beyond a point fix. Triggered when the developer says "improve the architecture", "this module is a mess", "we should refactor this properly", or when the PM flags tech debt as a priority. Scans the domain, inventories friction points, ranks improvements, and requires approval before executing any one.
+description: >-
+  Refactors a messy or over-complicated section of the codebase with a clear before/after plan. Use when tech debt is slowing down development or when a module has become hard to understand or change. Scans the problem area, ranks the improvements, and requires explicit approval before touching anything.
 credits: |
   Adapted from mattpocock/skills (improve-codebase-architecture)
   Source: https://github.com/mattpocock/skills

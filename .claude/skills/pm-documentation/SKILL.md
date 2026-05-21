@@ -1,6 +1,7 @@
 ---
 name: pm-documentation
-description: Scaffold and maintain docs/product/product.md with a strict 14-section format. Run once after pm-client-interview to create the file; re-run whenever product strategy changes. Does NOT write epics, epic-status, or timeline — those are owned by pm-epic-writing.
+description: >-
+  Creates and maintains the single source of truth about the business — who the customers are, what problem is being solved, and what the product does. Run once after the client interview to create the file, then update it whenever the strategy changes. Everything the team builds is anchored to this document.
 ---
 
 # PM: Product Documentation

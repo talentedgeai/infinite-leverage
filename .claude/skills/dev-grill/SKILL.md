@@ -1,6 +1,7 @@
 ---
 name: dev-grill
-description: Use when a spec or plan has been drafted but not yet executed. Triggered when the developer says "grill me", "stress-test this plan", "what could go wrong", or before starting any non-trivial implementation. Runs adversarial interrogation — 10+ questions — and blocks execution until all answers are satisfactory.
+description: >-
+  Stress-tests a plan by asking hard questions about what could go wrong — edge cases, missing assumptions, and failure modes. Use before starting any significant implementation to catch problems in the plan rather than in the code. Asks 10 or more adversarial questions and does not proceed until all are answered satisfactorily.
 credits: |
   Adapted from mattpocock/skills (grill-me)
   Source: https://github.com/mattpocock/skills

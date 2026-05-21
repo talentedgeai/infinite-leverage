@@ -1,6 +1,7 @@
 ---
 name: dev-prototype
-description: Use when there is a hard technical unknown that needs a throwaway spike before committing to an implementation approach. Triggered when the developer says "prototype", "spike", "I'm not sure if this is technically feasible", or when a plan contains an unvalidated technical assumption. The prototype is always deleted after the question is answered.
+description: >-
+  Builds a throwaway experiment to answer a hard technical question before committing to a full implementation. Use when it's unclear whether something is technically feasible — the prototype is always deleted once the question is answered, so nothing ships until there's real confidence it will work.
 credits: |
   Adapted from mattpocock/skills (prototype)
   Source: https://github.com/mattpocock/skills

@@ -1,6 +1,7 @@
 ---
 name: qa-planning
-description: Dan Shipper style QA planning — tight developer loop, immediate feedback, actionable reports. Draft QA plan from acceptance criteria before writing tests.
+description: >-
+  Creates a targeted QA plan for a specific feature based on its acceptance criteria — what to test, how to test it, and how to give the developer fast feedback. Run before writing any tests to make sure the test coverage matches what was actually promised in the spec.
 ---
 
 # QA: Planning (Dan Shipper Style)

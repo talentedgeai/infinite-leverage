@@ -1,6 +1,7 @@
 ---
 name: devops-setup-pre-commit
-description: Use when a project needs pre-commit hooks set up for code quality gates. Triggered when the DevOps agent says "setup pre-commit", "add husky", "add lint-staged", or when the project has no pre-commit hooks and the developer is about to start shipping features. Installs Husky + lint-staged + Prettier + type-check.
+description: >-
+  Installs automatic code quality checks that run before every commit — catches style violations, formatting issues, and type errors locally before they ever reach GitHub or the live site. Run once per project during initial setup.
 credits: |
   Adapted from mattpocock/skills (setup-pre-commit)
   Source: https://github.com/mattpocock/skills

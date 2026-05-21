@@ -95,7 +95,7 @@ PHASE 2 — Claude Code (automated)
   ├── [P3] Global rules: ~/.claude/rules/global-engineering.md
   ├── Credentials: ~/.claude/.env with all API keys
   ├── [P7] Supabase MCP: configure in settings.local.json + verify auth against SUPABASE_URL + SERVICE_ROLE_KEY
-  ├── [P11] Global skills: daily-checkin, create-local-routine
+  ├── [P11] Global skills: daily-checkin, create-local-routine, create-remote-routine
   ├── [P13] Agent templates: fetch from GitHub canonical repo (fallback: bundled `agents/`)
   ├── [P13][P1] Agent install: copy all 8 to `~/.claude/agents/`
   ├── Test: all 8 agents respond in Claude Code
@@ -199,7 +199,7 @@ Stopped partway through? Here's exactly where to pick up.
 - [ ] `~/.claude/rules/global-engineering.md` written
 - [ ] `~/.claude/.env` written with all API keys
 - [ ] Supabase MCP configured and authenticated **[P7]**
-- [ ] Global skills: `daily-checkin`, `create-local-routine` **[P11]**
+- [ ] Global skills: `daily-checkin`, `create-local-routine`, `create-remote-routine` **[P11]**
 - [ ] All 8 agents fetched from GitHub canonical repo to `~/.claude/agents/` **[P13]**
 - [ ] All 8 agents tested and responding
 - [ ] `email-index.md` verified — Stage 0 populated

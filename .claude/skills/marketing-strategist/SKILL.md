@@ -1,6 +1,7 @@
 ---
 name: marketing-strategist
-description: Synthesize a client interview transcript into a complete marketing strategy system. Reads a transcript/briefing file and produces `context/strategy.md`, `context/content-process.md`, and `context/content-calendar.md`, then scaffolds supporting folders. Asks follow-up questions when the transcript leaves gaps. Trigger when the user says "marketing strategy", "synthesize my interview", "scaffold marketing", or "/marketing-strategist".
+description: >-
+  Turns a client interview or business briefing into a complete marketing strategy — who the audience is, what messaging will resonate, which channels to focus on, and a 90-day content calendar to execute against. Run once at the start of a new project or campaign.
 ---
 
 # Marketing Strategist

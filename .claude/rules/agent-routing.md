@@ -65,6 +65,10 @@ For full routing context in any session, invoke:
 - `/use-dev-team` — full routing table, handoff chain, and skills index for PM + Developer + QA + DevOps
 - `/use-marketing-team` — full routing table, content pipeline, and skills index for Writer + Designer + Web Publisher + Email Marketer
 
+## Something not working?
+
+See `docs/guide/troubleshooting.md` for plain-English fixes to the most common problems (agents not responding, CI failures, production down, image generation errors, scheduled routines not running).
+
 ---
 
 ## Cross-Team Handoff Points

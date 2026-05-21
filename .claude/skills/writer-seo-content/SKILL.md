@@ -1,6 +1,7 @@
 ---
 name: writer-seo-content
-description: One blog post per run with SEO-optimized content, Neil Patel self-critique, and structured brief-driven workflow. Produces blog.md and image-prompts.md.
+description: >-
+  Writes one complete, SEO-optimized blog post per run based on an approved brief. Applies a rigorous self-critique pass before finalizing — checking the hook, structure, evidence, readability, and call to action. Always produces the post file and a visual brief for the Designer to generate the hero image.
 ---
 
 # Writer: SEO Content Production
@@ -28,7 +29,7 @@ Find the first folder that has `brief.md` but NOT `blog.md`. Validate brief.md h
 
 ## Output per Run
 1. `content/topics/{slug}/blog.md` — full post in owner's voice
-2. `content/topics/{slug}/image-prompts.md` — visual prompt for Designer
+2. `content/topics/{slug}/image-prompts.md` — JSON image prompts for Designer (see format below)
 
 ## Neil Patel Self-Critique (mandatory after every draft)
 
@@ -63,11 +64,35 @@ Run this checklist before saving final files:
 - If a section doesn't add new information, it goes
 
 ## image-prompts.md Format
+
+One Markdown section per image asset, each containing a JSON block. The Designer reads these directly — be specific and brand-consistent.
+
+```markdown
+# Image prompts — {post title}
+
+## hero.webp
+```json
+{
+  "subject": "[main visual element — e.g. 'a focused professional at a minimal desk']",
+  "style": "[art/photo style — e.g. 'clean editorial photography, shallow depth of field']",
+  "mood": "[emotional tone — e.g. 'calm, confident, aspirational']",
+  "palette": "[key colors from brand palette — e.g. 'navy, warm white, gold accent']",
+  "composition": "[framing note — e.g. '16:9 landscape, subject left-aligned, negative space right']",
+  "avoid": "[explicit exclusions — e.g. 'no text overlays, no stock-photo clichés, no clutter']"
+}
 ```
-subject: [main visual element]
-style: [art style or photographic style]
-mood: [emotional tone]
-palette: [key colors]
-composition: [framing or layout note]
-avoid: [things to exclude]
+
+## social-card.png
+```json
+{
+  "subject": "...",
+  "style": "...",
+  "mood": "...",
+  "palette": "...",
+  "composition": "[1200x630, bold central focus, readable at small size]",
+  "avoid": "..."
+}
 ```
+```
+
+Include only the image types needed for the post. Always include `hero.webp`. Add `social-card.png` if the brief requests social promotion. Add `inline-{n}.png` only if the post explicitly needs illustrative diagrams.

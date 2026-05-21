@@ -1,6 +1,7 @@
 ---
 name: designer-design-system
-description: Maintain a 5-preset design system at docs/brand/style-guide.md with color palettes, typography, spacing, and shadow tokens. Each preset maps to a content type.
+description: >-
+  Creates and maintains the visual identity guide for the project — five design presets covering colours, fonts, and visual style, each matched to a different type of content. Ensures all images and visuals look consistent and on-brand across the site. Output lives at docs/brand/style-guide.md.
 ---
 
 # Designer: Design System
