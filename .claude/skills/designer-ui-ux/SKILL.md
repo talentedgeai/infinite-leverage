@@ -1,6 +1,7 @@
 ---
 name: designer-ui-ux
-description: UI/UX design best practices — accessibility (WCAG 2.1 AA), responsive design, interaction states, performance, and consistency principles.
+description: >-
+  Applies accessibility, responsive design, and usability standards to any UI work — ensures the site works for people with disabilities, looks correct on all screen sizes, and has clear interactive states for every button, link, and form. Reference this when reviewing or designing any page component.
 ---
 
 # Designer: UI/UX Best Practices

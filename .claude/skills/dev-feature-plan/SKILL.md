@@ -1,6 +1,7 @@
 ---
 name: dev-feature-plan
-description: Orchestrate speckit-plan then speckit-tasks in one uninterrupted run for a given feature spec. Resolves dev-layer analyze findings in Phase 0 before planning. No client input required between steps. Called by dev-planning when a spec path is provided.
+description: >-
+  Turns an approved feature spec into a concrete, step-by-step build plan — phases, tasks, dependencies, and effort estimates — before any code is written. Use this whenever a feature is ready to be built but the how still needs to be mapped out.
 ---
 
 # Dev Feature Plan

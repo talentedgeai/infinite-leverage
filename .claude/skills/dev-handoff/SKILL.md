@@ -1,6 +1,7 @@
 ---
 name: dev-handoff
-description: Use when a developer session is pausing, ending, or handing work to another agent or developer. Triggered when the developer says "handoff", "I'm done for now", "passing this to QA", "wrapping up", or when the session is about to end with in-progress work. Writes a HANDOFF.md to docs/engineering/changes/{date}-{slug}/.
+description: >-
+  Writes a structured summary document (HANDOFF.md) so work can be picked up again without losing context — covering what was done, what's still in progress, what's blocked, and what the next person needs to know. Use whenever a working session ends before a feature is complete.
 credits: |
   Adapted from mattpocock/skills (handoff)
   Source: https://github.com/mattpocock/skills

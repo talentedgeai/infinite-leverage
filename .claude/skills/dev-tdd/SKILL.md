@@ -1,6 +1,7 @@
 ---
 name: dev-tdd
-description: Use when implementing with strict test-first discipline. Triggered when the developer says "tdd", "test-driven", "red-green-refactor", or when the PM plan specifies test-first implementation. Enforces the red → green → refactor cycle with hard rules against horizontal slicing.
+description: >-
+  Enforces test-first development — write a failing test first, then write only the minimum code needed to make it pass, then clean up. This catches bugs early and ensures every feature ships with test coverage. Use when building anything that needs to be reliable.
 credits: |
   Adapted from mattpocock/skills (tdd)
   Source: https://github.com/mattpocock/skills
@@ -40,6 +41,18 @@ Examples of vertical slices:
 - "Given a valid email, signup returns a user ID"
 - "Given an invalid email, signup returns a 400 with a message"
 - NOT: "Build the User model" (horizontal)
+
+## Running tests vs. running a dev server
+
+These are different things — do not confuse them:
+
+| What | Command example | Allowed? |
+|---|---|---|
+| Run the test suite | `npm test`, `npx jest`, `npx vitest` | ✅ Yes — always |
+| Run E2E tests (headless) | `npx playwright test` | ✅ Yes |
+| Start a dev server | `npm run dev`, `next dev` | ❌ No — use Vercel preview instead |
+
+TDD requires running tests. Running `npm test` is not "starting a localhost server" — it is a process that exits when finished. You can and should run it at every red/green/refactor step.
 
 ## Cycle Discipline
 

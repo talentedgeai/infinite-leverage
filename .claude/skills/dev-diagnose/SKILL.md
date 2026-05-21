@@ -1,6 +1,7 @@
 ---
 name: dev-diagnose
-description: Use when a bug surfaces and the root cause is not obvious. Triggered when the developer says "diagnose this", "I can't figure out why", "this is broken and I don't know why", or when a bug is confirmed but the cause is unclear. Runs a structured debug loop: reproduce → minimise → hypothesise → instrument → fix → gate.
+description: >-
+  Works through a confusing bug with a six-step scientific process: reproduce it reliably, narrow it down to the smallest case, form a theory about the cause, test the theory, apply the fix, then verify the fix holds under all conditions. Use when a bug is hard to pin down.
 credits: |
   Adapted from mattpocock/skills (diagnose)
   Source: https://github.com/mattpocock/skills

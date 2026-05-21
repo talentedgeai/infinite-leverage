@@ -1,6 +1,7 @@
 ---
 name: pm-constitution-sync
-description: After speckit-constitution writes .specify/memory/constitution.md, copy it to docs/product/constitution.md so it sits alongside product.md and epics.md. Run once per project during initial setup, or any time the constitution is updated.
+description: >-
+  Copies the project's agreed-upon principles and rules into the main docs folder (docs/product/constitution.md) where all agents can find them. Run once during initial project setup and again whenever the principles are updated.
 ---
 
 # PM Constitution Sync

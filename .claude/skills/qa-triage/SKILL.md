@@ -1,6 +1,7 @@
 ---
 name: qa-triage
-description: Use when a bug needs to be classified and routed. Triggered when the QA agent says "triage", "classify this bug", "route this issue", or when a bug report arrives without a priority or assignee. Runs the triage state machine: classify → score → route. Outputs to docs/qa/ and updates epic-status.md and project-status.html.
+description: >-
+  Classifies every incoming bug by severity (P0 = site completely down, P1 = major feature broken, P2 = significant issue, P3 = minor cosmetic), scores its priority, and routes it to the right person. Always run this first for any new bug report — nothing gets worked on without being triaged. Output goes to docs/qa/ and the project status dashboard.
 credits: |
   Adapted from mattpocock/skills (triage)
   Source: https://github.com/mattpocock/skills

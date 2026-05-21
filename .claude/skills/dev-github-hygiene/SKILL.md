@@ -1,6 +1,7 @@
 ---
 name: dev-github-hygiene
-description: Branch/PR/commit discipline, .env.example management, engineering doc scaffolding. Keep git history clean and auditable.
+description: >-
+  Ensures every change follows clean practices: proper branches, clear commit messages, a maintained .env.example file so environment setup is always documented, and engineering notes for each change. Use at the start of any feature to keep the repository organized and auditable.
 ---
 
 # Developer: GitHub Hygiene

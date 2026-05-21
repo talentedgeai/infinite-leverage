@@ -1,6 +1,7 @@
 ---
 name: pm-project-status
-description: Single self-contained HTML dashboard with epic progress tracking, 5-point pipeline per epic, build log, and companion doc links. CSS-variable themed.
+description: >-
+  Builds and updates the project status dashboard — a single HTML page showing which features are planned, in progress, and shipped. Includes a build log, key metrics, and links to all important docs. The operator uses this to understand where the project stands at a glance.
 ---
 
 # PM: Project Status Dashboard

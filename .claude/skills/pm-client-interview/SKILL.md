@@ -1,6 +1,7 @@
 ---
 name: pm-client-interview
-description: Two-round stakeholder interview to gather business context. Runs once per project. Outputs raw material for docs/product/product.md. No more than 5 questions per round.
+description: >-
+  Guides a structured two-round interview with the business owner to understand their goals, their customers, and what success looks like. Run once at the very start of a new project — this conversation becomes the foundation that everything else is built on. Output feeds directly into the product strategy document.
 ---
 
 # PM: Client Interview

@@ -1,6 +1,7 @@
 ---
 name: dev-planning
-description: Read project-status.html and epic-status.md to identify approved items and open bugs, then draft a daily plan under docs/plans/. If called with a spec path, routes to dev-feature-plan instead of the daily planning workflow.
+description: >-
+  Reads the current project status, open features, and known bugs, then creates a prioritized list of what to build today. Run at the start of each working session to get a clear, approved plan before writing any code.
 ---
 
 # Developer: Planning from Project Status

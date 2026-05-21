@@ -1,6 +1,7 @@
 ---
 name: devops-git-guardrails
-description: Use when setting up a project to block dangerous git commands from Claude Code. Triggered when the DevOps agent says "git guardrails", "add git hooks for claude", "protect main branch", or during initial project setup. Installs Claude Code PreToolUse hooks that intercept and block force push, reset --hard, branch -D main, git add ., and --amend on published commits.
+description: >-
+  Adds safety rules that block the most dangerous git commands — force-pushing to main, accidentally staging all files at once, and bypassing commit checks. Prevents the most common ways work gets accidentally lost or overwritten.
 credits: |
   Adapted from mattpocock/skills (git-guardrails-claude-code)
   Source: https://github.com/mattpocock/skills

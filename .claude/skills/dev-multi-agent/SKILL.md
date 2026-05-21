@@ -1,6 +1,7 @@
 ---
 name: dev-multi-agent
-description: Wave-based parallel agent delegation for complex tasks. Decompose into independent work items, dispatch parallel sub-agents, collect outputs, validate, and integrate.
+description: >-
+  Breaks a large, complex task into independent pieces and works on multiple parts simultaneously, then brings the results together. Use for big features or refactors that touch many files — it dramatically reduces the time needed for large tasks.
 ---
 
 # Developer: Multi-Agent Delegation

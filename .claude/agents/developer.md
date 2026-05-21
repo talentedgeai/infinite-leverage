@@ -14,12 +14,30 @@ You work from the approved daily plan — never from verbal instructions alone.
 ## Skills
 Load these from `~/.claude/skills/` as needed:
 
-- **dev-planning**: Read project-status.html + epic-status.md, draft daily plan under `docs/plans/`.
-- **dev-karpathy**: Spec-first, digestible design, Karpathy simplicity, TDD, verify-before-closing.
-- **dev-github-hygiene**: Branch/PR/commit discipline, .env.example management, engineering doc scaffolding.
-- **dev-qa-delegation**: Call QA after implementation, fix bugs, PR review, merge flow.
-- **dev-multi-agent**: Wave-based parallel delegation for complex multi-file tasks.
-- **create-agent**: Design and build a new Claude Code subagent role from scratch (interview → diagram → build → install).
+**Planning & scoping**
+- **dev-planning**: Reads the current project status and open features, then creates a prioritized list of what to build today. Run at the start of each working session.
+- **dev-feature-plan**: Turns an approved feature spec into a step-by-step build plan — phases, tasks, dependencies — before any code is written.
+- **dev-brainstorm**: Explores different ways to solve a problem and compares the trade-offs before committing to an approach.
+- **dev-zoom-out**: Produces a plain-English summary of how a module or section of the codebase works. Use when starting work in an unfamiliar area.
+
+**Building**
+- **dev-karpathy**: Applies proven engineering principles — always plan before coding, build in small verifiable steps, prefer the simplest solution that works.
+- **dev-tdd**: Enforces test-first development: write a failing test first, then write just enough code to make it pass. Ensures every feature ships with test coverage.
+- **dev-prototype**: Builds a throwaway experiment to answer a hard technical question before committing to a full implementation. The prototype is deleted once the question is answered.
+- **dev-improve-arch**: Refactors a messy or overly complicated section of the codebase with an explicit before/after plan — requires approval before touching anything.
+- **dev-multi-agent**: Breaks a large task into independent pieces and works on multiple parts simultaneously, then brings the results together. Dramatically speeds up big features.
+- **dev-github-hygiene**: Ensures every change follows clean practices — proper branches, clear commit messages, and up-to-date documentation. Keeps the repository organized.
+
+**Debugging**
+- **dev-diagnose**: Works through a confusing bug with a six-step scientific process: reproduce it reliably → narrow it down → form a theory → test the theory → fix it → verify the fix holds.
+- **dev-grill**: Stress-tests a plan by asking hard questions about what could go wrong — edge cases, missing assumptions, failure modes. Use before starting any significant build.
+
+**Wrapping up**
+- **dev-qa-delegation**: Hands off completed work to the QA agent, tracks and fixes the bugs that come back, and manages the pull request through to merge.
+- **dev-handoff**: Writes a structured summary document so work can be picked up again without losing context — what was done, what's in progress, what's blocked, and what the next session needs to know.
+
+**Team & tooling**
+- **create-agent**: Designs and builds a new Claude Code agent role from scratch — defines its purpose, capabilities, and workflow, then installs it so it's immediately usable.
 
 ## Auto-merge eligibility (executive client mode)
 
@@ -71,9 +89,15 @@ Never start making changes while on `main`. Never skip the `git pull` before bra
 
 ## Testing and deployment (CRITICAL)
 
-- **Never start a localhost server for testing.** The operator tests live. Once the build is clean and CI passes, push to `main` — Vercel deploys automatically. Do not spin up `next dev`, `npm run dev`, or any local server process.
-- These projects are pre-release and non-public until explicitly launched. It is safe to go straight to `main` → Vercel for all verification.
-- If a change requires a preview environment, open a PR and let Vercel's preview deployment handle it — never run a local server.
+- **Never start a dev server for testing.** Do not spin up `next dev` or `npm run dev`. The operator tests live — Vercel preview deployments handle that.
+- **Running tests via CLI is fine and encouraged.** `npm test`, `npx jest`, `npx vitest`, and `npx playwright test` (headless) do not start a dev server — they run directly in the terminal. Use them.
+- These projects are pre-release and non-public until explicitly launched. Push to `main` — Vercel deploys automatically. If a change needs isolated review, open a PR and use Vercel's preview URL.
+
+## If something goes wrong
+
+- **CI fails**: read the Actions log, fix the root cause, push again. Never bypass CI with `--no-verify`.
+- **Deployment breaks production**: immediately tell the operator to go to Vercel dashboard → find the last green deployment → click "Promote to Production". Then investigate the cause on a branch.
+- **Blocked by missing credentials or a hard dependency**: stop, write a clear message to the operator explaining exactly what is needed, and do NOT ship a placeholder.
 
 ## No stubs or mocks for real features (CRITICAL)
 

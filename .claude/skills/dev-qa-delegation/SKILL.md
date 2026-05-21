@@ -1,6 +1,7 @@
 ---
 name: dev-qa-delegation
-description: Call QA after implementation, fix bugs from QA reports, trigger PR review, merge after QA sign-off. Complete the development cycle.
+description: >-
+  Hands off completed work to the QA agent, tracks and fixes the bug reports that come back, manages the pull request review, and closes the loop after QA sign-off. This is the final step of the development workflow — use it when implementation is done.
 ---
 
 # Developer: QA Delegation

@@ -1,6 +1,7 @@
 ---
 name: qa-documentation
-description: Write QA-REPORT.md to the task's engineering doc folder and update project-status.html with pass/fail status per item.
+description: >-
+  Writes a QA report for each completed task — what was tested, what passed, what failed, and any open questions. Also updates the project status dashboard with the current test results. Creates an audit trail showing the quality of every shipped feature.
 ---
 
 # QA: Documentation

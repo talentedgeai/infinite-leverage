@@ -1,6 +1,7 @@
 ---
 name: designer-image-generation
-description: Generate one hero image per run using Gemini. Discover the next unwritten image, generate via API, optimise to WebP under 200 KB.
+description: >-
+  Generates one hero image using the Gemini AI image API, optimizes it to a compact web-friendly file (WebP, under 200 KB), and saves it alongside the blog post. Reads the image prompt created by the Style-to-Photo skill. If generation fails, saves the prompt so it can be used in any external image tool.
 ---
 
 # Designer: Image Generation

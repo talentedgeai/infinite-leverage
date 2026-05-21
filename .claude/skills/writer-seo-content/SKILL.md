@@ -1,6 +1,7 @@
 ---
 name: writer-seo-content
-description: One blog post per run with SEO-optimized content, Neil Patel self-critique, and structured brief-driven workflow. Produces blog.md and image-prompts.md.
+description: >-
+  Writes one complete, SEO-optimized blog post per run based on an approved brief. Applies a rigorous self-critique pass before finalizing — checking the hook, structure, evidence, readability, and call to action. Always produces the post file and a visual brief for the Designer to generate the hero image.
 ---
 
 # Writer: SEO Content Production

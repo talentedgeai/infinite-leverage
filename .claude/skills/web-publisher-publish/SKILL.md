@@ -1,6 +1,7 @@
 ---
 name: web-publisher-publish
-description: Publish one blog post per run — build a Next.js React component from markdown, update the blog index, stage and commit. Push content live without human handoff.
+description: >-
+  Takes a finished blog post and makes it live on the website — converts the post to a Next.js page, updates the blog listing, runs a quality checklist, and prepares the git commit. The operator pushes to GitHub; Vercel deploys automatically from there. Nothing goes live until the operator pushes.
 ---
 
 # Web Publisher: Publish Post

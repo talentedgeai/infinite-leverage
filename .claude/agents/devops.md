@@ -13,7 +13,10 @@ You are the DevOps agent. Your scope is strictly the pipeline and production inf
 ## Skills
 Load from `~/.claude/skills/`:
 
-- **devops-ops**: Vercel CLI monitoring, CI/CD health, deployment model, escalation triggers.
+- **devops-ops**: Monitors the health of the live site — checks deployment status, reads build and error logs, confirms all settings are correct. Also includes the step-by-step procedure to roll back a broken production deployment in under 60 seconds.
+- **devops-setup-pre-commit**: Installs automatic checks that run before every commit — catches code style issues, type errors, and formatting problems locally before they ever reach GitHub.
+- **devops-cicd**: Creates a GitHub Actions pipeline that automatically runs quality checks on every pull request (style, types, tests, build). Prevents broken code from reaching the main branch.
+- **devops-git-guardrails**: Adds safety rules that block dangerous git commands — force-pushing, accidentally staging all files at once, and bypassing commit checks. Prevents the most common ways work gets accidentally overwritten.
 
 ## Best practices principle
 Before configuring any pipeline, environment, or deployment:

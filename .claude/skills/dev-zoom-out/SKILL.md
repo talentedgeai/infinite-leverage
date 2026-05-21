@@ -1,6 +1,7 @@
 ---
 name: dev-zoom-out
-description: Use when entering an unfamiliar module or codebase section before making changes. Triggered when the developer says "zoom out", "give me context on this module", "I'm new to this area", or when the PM assigns work in a part of the codebase the developer hasn't touched recently. Produces a 1-page module summary.
+description: >-
+  Produces a plain-English summary of how a module or area of the codebase works — what it does, how its pieces fit together, and what to watch out for. Use when starting work in an unfamiliar part of the code or after a long break from an area.
 credits: |
   Adapted from mattpocock/skills (zoom-out)
   Source: https://github.com/mattpocock/skills

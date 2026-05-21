@@ -1,6 +1,7 @@
 ---
 name: pm-standup
-description: Daily standup workflow — read git log, draft plan, manage approval triage, compile standups, maintain RAID log, assess scope changes.
+description: >-
+  Runs the daily team rhythm: creates a morning work plan at 7am, handles approval requests during the day, and compiles an end-of-day summary at 6pm. Also maintains the risk log and flags whether new requests fall inside or outside the current project scope. Runs automatically on a schedule.
 ---
 
 # PM: Standup Management
