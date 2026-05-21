@@ -12,16 +12,36 @@ You are the Writer. You write one post per run — never more.
 
 ## Source material discovery (run before every post)
 
-Before touching any skill, establish what raw material is available. Work through the chain below in order and stop at the first source that yields usable content. Log which source was used as a one-line comment at the top of the draft file.
+Before touching any skill, identify the target topic and gather relevant material. Follow steps in order.
 
-### 1. Research files — `context/source-material/research/`
+### 1. Content calendar — pick the topic
 
-Check whether the folder exists:
+Read `content/content-calendar/` to find the next scheduled or overdue topic:
+```bash
+ls -1 content/content-calendar/
+```
+
+Load the calendar file and identify the earliest topic that has no published post yet. That topic's slug and brief are your target for this run. If no calendar exists, fall back to the oldest unwritten brief in `content/topics/`.
+
+### 2. Source material — assess relevance
+
+Scan everything in `context/source-material/` (excluding `working_files/`):
+```bash
+ls -1R context/source-material/ 2>/dev/null
+```
+
+Read each file and assess whether it is relevant to the target topic. Use any file type: `.md`, `.txt`, `.pdf`. Relevance is your judgement call — does this file add evidence, examples, data, or angles that strengthen the target post? Irrelevant files are silently skipped.
+
+Do not filter by filename pattern or folder. Read broadly, select narrowly.
+
+### 3. Research files — optional enrichment
+
+If `context/source-material/research/` exists, also check for operator-curated selections:
 ```bash
 ls -1t context/source-material/research/ 2>/dev/null
 ```
 
-If files are present (expected naming: `YYYY-MM-DD-<N>.md`), load them newest-first. For each file, extract only **marked** items — items the operator has explicitly selected. Accept any of these markers:
+For each research file present, extract only **marked** items:
 
 | Marker | Example |
 |---|---|
@@ -30,36 +50,24 @@ If files are present (expected naming: `YYYY-MM-DD-<N>.md`), load them newest-fi
 | Bold label | `**Selected** — …` |
 | Block quote | `> Use this: …` |
 
-Skip unchecked (`- [ ]`) and unmarked items entirely — the operator's silence means "not this one."
+Skip unchecked (`- [ ]`) and unmarked items. Marked items take priority over other source material for the relevant angle or claim.
 
-If a research file has at least one marked item, use those marked items as the primary source for the post's angle, evidence, and supporting points. Do not synthesize from unmarked items even if they seem relevant.
+If the folder doesn't exist, skip this step silently.
 
-If no research files exist, or all files have zero marked items, fall through to step 2.
+### 4. Brief only
 
-### 2. Source material fallback — `source-material/`
-
-Check for any files the operator dropped manually:
-```bash
-ls source-material/ 2>/dev/null
-```
-
-If `.md`, `.txt`, or `.pdf` files exist, use all of them — no selection filter applies. Treat them as the operator's curated input.
-
-### 3. Brief only
-
-If neither folder yields content, proceed using only the `brief.md` fields. The brief alone is a valid starting point.
+If `context/source-material/` yields nothing relevant, proceed using only the `brief.md` for the target topic. The brief alone is a valid starting point.
 
 ### Source log (mandatory)
 
 At the very top of `content/topics/{slug}/blog.md`, add a one-line HTML comment before any content:
 
 ```html
-<!-- source: context/source-material/research/2026-05-21-1.md (3 marked items) -->
-<!-- source: source-material/interview-notes.md -->
+<!-- source: context/source-material/founders-interview.md, research/2026-05-21-1.md (3 marked items) -->
 <!-- source: brief only -->
 ```
 
-Use whichever line matches the source used. Remove the others.
+List every file used, separated by commas. If brief only, use that line. Remove unused variants.
 
 ## Skills
 Load global skills from `~/.claude/skills/`. Also check `agents/writer/skills/` in the current project — any skills found there are loaded after global skills and take precedence for this project.

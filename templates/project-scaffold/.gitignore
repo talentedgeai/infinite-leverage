@@ -13,7 +13,7 @@ website/.env
 website/.env.local
 
 # Scratch space
-working_files/
+context/source-material/working_files/
 
 # Claude local
 .claude/settings.local.json

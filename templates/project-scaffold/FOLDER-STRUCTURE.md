@@ -78,11 +78,12 @@ These files have hard-coded names that skills and agents reference by path:
 │   ├── general-project-agent-context/
 │   │   ├── publish-log.md                       ← Append-only publish ledger
 │   │   └── blog-index.md                        ← Pointer to website blog index
-│   └── source-material/                         ← Raw research and reference files
-│       ├── research/                             ← Operator-curated research files (writer reads these first)
-│       │   └── YYYY-MM-DD-<N>.md                ← Checked items = selected for writing; unchecked = skip
+│   └── source-material/                         ← All raw material the Writer scans for relevance
+│       ├── working_files/                        ← Agent scratch space (gitignored — never committed)
+│       ├── research/                             ← Optional: operator-curated selections (marked items = priority)
+│       │   └── YYYY-MM-DD-<N>.md                ← Checked/ticked items take precedence; unchecked = skip
 │       └── PH-research-topic/
-│           └── PH-notes.md                      ← Raw notes dropped by operator (writer fallback)
+│           └── PH-notes.md                      ← Raw notes, interviews, PDFs dropped by operator
 │
 ├── docs/                                       ← Human-readable project docs
 │   ├── brand/
@@ -146,7 +147,7 @@ These files have hard-coded names that skills and agents reference by path:
 3. **Per-agent context lives under `agents/<agent>/context/`**, not under `docs/`. `docs/` is for humans.
 4. **Project-local skills** go in `agents/<agent>/skills/<skill-name>/SKILL.md`. These are loaded after global skills and take precedence — do not duplicate global skill names, only add new project-specific capabilities.
 5. **Source content → `content/topics/<slug>/`. Published artifacts → `website/`.** Never publish directly from `content/`.
-6. **Working scratch files → `working_files/`** (gitignored). Never commit.
+6. **Working scratch files → `context/source-material/working_files/`** (gitignored). Never commit. Keeping scratch space alongside source material avoids a second top-level folder and makes it obvious it's ephemeral.
 7. **Worktrees → `.claude/worktrees/`** (gitignored). One per parallel task.
 8. **spec-kit artifacts → `.specify/features/{slug}/`.** Never write spec.md, impl-plan.md, or tasks.md outside `.specify/`.
 
