@@ -44,6 +44,26 @@ rm -rf /tmp/il-agents
 
 ---
 
+## Settings Safety Protocol
+
+Before writing any configuration file — `settings.local.json`, `CLAUDE.md`, `global-engineering.md`, `.env` — check what's already there and follow these three rules:
+
+| Scenario | Action |
+|---|---|
+| File exists with compatible content (e.g. `settings.local.json` with different permissions, `CLAUDE.md` with custom sections already present) | **Merge** — add what's missing without removing what's already there |
+| File exists and is a complete previous version of this template | **Upgrade** — replace the whole file with the latest version |
+| File exists with content that conflicts with the template's intended pattern | **Try to resolve** — preserve the user's value and intent while satisfying the template requirement. If you can't resolve cleanly without losing something, ask the user before touching the file |
+
+**When asking about a conflict, use plain language — no JSON keys, no file paths, no technical jargon:**
+- Say what the setting *does*, not what it's called
+- Offer a simple choice: keep theirs, use the template's, or combine both
+
+> **Example:** "Your Claude Code is already set to ask permission before running shell commands. The team setup works best with shell commands allowed automatically. Would you like to switch to automatic, keep the ask-first behaviour, or handle them separately?"
+
+> **Example:** "You already have a global Claude instruction file with some notes in it. We'd like to add the 8-agent team routing table. Should we add it at the end, or would you like to look at the additions first?"
+
+---
+
 ## Smart Start — Find Out Where You Are
 
 Already started this and not sure where you left off? Run this first in Claude Code (or Claude chat):

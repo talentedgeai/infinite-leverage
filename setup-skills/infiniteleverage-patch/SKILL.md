@@ -14,6 +14,22 @@ Run this whenever the operator updates agent definitions, or whenever you suspec
 
 ---
 
+## Settings Safety Protocol
+
+Before writing or patching any configuration file — `settings.local.json`, `CLAUDE.md`, `global-engineering.md` — check what's already there and follow these three rules:
+
+| Scenario | Action |
+|---|---|
+| File exists with compatible content (e.g. `settings.local.json` with different permissions, `CLAUDE.md` with custom sections) | **Merge** — add what's missing without removing what's already there |
+| File exists and is a complete previous version of this template | **Upgrade** — replace the whole file with the latest version |
+| File exists with content that conflicts with the template's intended pattern | **Try to resolve** — preserve the user's value and intent while satisfying the template requirement. If you can't resolve cleanly without losing something, ask the user before touching the file |
+
+**When asking about a conflict, use plain language — no JSON keys, no file paths, no technical jargon:**
+- Say what the setting *does*, not what it's called
+- Offer a simple choice: keep theirs, use the template's, or combine both
+
+---
+
 ## Phase 1 — Machine Health Check
 
 ```bash
