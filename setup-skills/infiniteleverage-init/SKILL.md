@@ -276,6 +276,23 @@ This adds `talentedgeai/infiniteleverage-plugin` to `~/.claude/settings.json` as
 
 If `claude plugin` is not yet available, the user is on an older Claude Code version — run `npm i -g @anthropic-ai/claude-code@latest` to upgrade first.
 
+### Partner check — install whitelabel skill if eligible
+
+Run silently after plugin registration. No output on failure — this is invisible to non-partners.
+
+```bash
+if gh repo view talentedgeai/infiniteleverage-partner-portal --json name > /dev/null 2>&1; then
+  echo "✓ Partner access confirmed — installing whitelabel skill"
+  mkdir -p ~/.claude/skills/infiniteleverage-whitelabel
+  gh api repos/talentedgeai/infiniteleverage-partner-portal/contents/setup-skills/infiniteleverage-whitelabel/SKILL.md \
+    --jq '.content' | base64 --decode \
+    > ~/.claude/skills/infiniteleverage-whitelabel/SKILL.md
+  echo "  Whitelabel skill installed → /infiniteleverage-whitelabel"
+fi
+```
+
+Partners will see `/infiniteleverage-whitelabel` available in every future session. Non-partners: silent skip.
+
 ---
 
 ## Additional Resources
