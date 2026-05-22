@@ -41,8 +41,51 @@ Check each item. Mark ✅ Pass / ⚠️ Warning / ❌ Fail with a one-line findi
 - Meta descriptions: present? 120–160 chars? Compelling and unique?
 - Canonical tags: present? Correctly self-referencing? No conflicts?
 - Robots meta: any pages accidentally set to `noindex`?
-- Open Graph tags: og:title, og:description, og:image, og:url all present?
-- Twitter Card meta: present for social sharing?
+- Open Graph tags: og:title, og:description, og:image, og:url all present? og:image should be at least 1200×630px.
+- og:type set correctly? (`website` for homepage, `article` for blog posts)
+- og:site_name present? (used by Facebook, LinkedIn, Slack, Discord for brand display)
+- og:locale set? (important for international sites)
+- Favicon: `favicon.ico` or `icon.png` present in `public/`? Apple touch icon (`apple-touch-icon.png`, 180×180) present? `<link rel="icon">` referenced in `<head>`? Check `app/favicon.ico`, `public/favicon.ico`, and `src/app/icon.*` for framework-specific locations.
+
+### Social Platform Checks
+
+Each platform has specific requirements beyond base OG tags. Check the following:
+
+**Twitter / X**
+- `twitter:card` → `summary_large_image` for content pages, `summary` for utility pages
+- `twitter:title`, `twitter:description`, `twitter:image` explicitly set (don't rely on OG fallback — X can be inconsistent)
+- `twitter:site` (@handle) and `twitter:creator` present on blog/article pages?
+- Image minimum: 800×418px; max file size 5MB
+
+**LinkedIn**
+- Relies on OG tags — no proprietary tags needed, but LinkedIn is strict:
+- `og:image:width` and `og:image:height` must be explicitly declared (LinkedIn won't infer dimensions)
+- Image minimum: 1200×627px; without explicit dimensions LinkedIn may not render the preview
+- `og:description` under 200 chars (LinkedIn truncates aggressively)
+- LinkedIn caches previews heavily — check if old previews are stuck using the LinkedIn Post Inspector
+
+**Pinterest**
+- `og:image` should be portrait-friendly (2:3 ratio, e.g. 1000×1500px) for Pin previews — landscape images perform poorly
+- Rich Pins: add `<meta name="pinterest-rich-pin" content="true" />` for articles/products to pull structured data
+- To block pinning on specific pages: `<meta name="pinterest" content="nopin" />`
+- Article Rich Pins need `og:type="article"` plus `article:published_time` and `article:author`
+
+**Discord**
+- Uses OG tags for link embeds
+- `theme-color` meta controls the embed's left-border accent color: `<meta name="theme-color" content="#HEX">`
+- `og:image` renders at up to 400px wide in embeds — ensure text in the image is legible at that size
+- Discord respects `twitter:card: summary` to show a compact embed instead of a large image
+
+**Slack**
+- Uses OG tags for link unfurling
+- `og:image` renders as a thumbnail (max ~80×80px in compact mode, larger in expanded) — logos work better than hero images
+- Slack respects `x-ua-compatible` and caches aggressively; test with a fresh URL or `?v=` param after changes
+
+**WhatsApp / Telegram**
+- Both use OG tags only — no proprietary tags
+- `og:image` must be publicly accessible (no auth, no redirect chains) — these crawlers don't follow redirects well
+- WhatsApp: image should be square or 1.91:1; renders at ~300px
+- Both crawl at link-send time, not on page load — if OG tags were added after the link was first shared, the preview won't update for existing shares
 
 ### Crawlability
 - `robots.txt`: exists in `public/`? No critical paths blocked? Correct syntax?
