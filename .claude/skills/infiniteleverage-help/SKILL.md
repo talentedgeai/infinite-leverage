@@ -9,12 +9,24 @@ Print the following menu verbatim, then offer to invoke any skill the user point
 
 ---
 
+## 🚀 Setup & Maintenance
+
+| Skill | Trigger | Produces |
+|-------|---------|---------|
+| `infiniteleverage-init` | "set up a new machine", "bootstrap from scratch", "I just got a new Mac Mini" | Full Mac Mini bootstrap: website + 8 agents + schedules |
+| `infiniteleverage-onboard` | "connect my laptop", "add my personal machine", "onboard a new computer" | Laptop connected to existing AI team |
+| `infiniteleverage-patch` | "update my agents", "sync to latest", "my skills are out of date" | Health check + agents/skills/hooks synced to latest |
+| `infiniteleverage-project` | "new project", "scaffold a project", "start a new client project" | New project directory scaffolded with 8-agent team wired in |
+| `infiniteleverage-help` | "what can I do", "show the menu", "what skills are available" | This menu |
+
+---
+
 ## 🛠 Developer
 
 | Skill | Trigger | Produces |
 |-------|---------|---------|
 | `dev-planning` | "plan today's work", "read project status" | Daily plan drafted under `docs/plans/` |
-| `dev-karpathy` | "spec first", "keep it simple", "Karpathy mode" | Spec-first design → TDD implementation |
+| `dev-karpathy` | "spec first before coding", "think before building", "design the solution fully first" | Spec-first design → TDD implementation |
 | `dev-tdd` | "tdd", "red-green-refactor", "test-driven" | Failing test → minimal impl → green |
 | `dev-feature-plan` | "plan this feature", "break this down" | Scoped feature plan with acceptance criteria |
 | `dev-brainstorm` | "brainstorm", "think through options" | Structured options + recommendation |
@@ -23,7 +35,7 @@ Print the following menu verbatim, then offer to invoke any skill the user point
 | `dev-grill` | "grill me", "stress-test this plan", "what could go wrong" | Devil's advocate review of a plan or design |
 | `dev-prototype` | "spike", "prototype", "is this feasible" | Minimal proof-of-concept + verdict |
 | `dev-improve-arch` | "refactor", "improve architecture", "tech debt" | Targeted architecture improvement plan |
-| `dev-github-hygiene` | "branch hygiene", "PR discipline", "commit standards" | Branch/PR/commit guardrails enforced |
+| `dev-github-hygiene` | "clean up branches", "enforce PR rules", "fix commit messages" | Branch/PR/commit guardrails enforced |
 | `dev-qa-delegation` | "call QA", "hand off to QA", "done implementing" | QA delegated, bugs fixed, PR merged |
 | `dev-multi-agent` | "parallel agents", "wave-based", "multi-file task" | Wave-based parallel agent delegation |
 | `dev-handoff` | "handoff", "wrapping up", "passing to QA" | BRIDGE.md handoff doc written |
@@ -58,14 +70,14 @@ Print the following menu verbatim, then offer to invoke any skill the user point
 |-------|---------|---------|
 | `pm-epic-writing` | "write an epic", "acceptance criteria", "spec this feature" | Epic with AC written to `docs/product/epics.md` |
 | `pm-to-issues` | "create issues", "break into tickets", "to issues" | GitHub issues created from the epic |
-| `pm-grill-with-docs` | "validate plan", "check against docs", "grill with docs" | Plan verified against product docs |
+| `pm-grill-with-docs` | "validate plan against docs", "does this match the spec", "check plan for gaps" | Plan verified against product docs |
 | `pm-standup` | "standup", "daily briefing", "what shipped" | Standup summary from git log |
 | `pm-client-interview` | "client interview", "intake", "gather requirements" | Structured intake doc written |
 | `pm-project-status` | "update project status", "project health" | `docs/project-status.html` updated |
 | `pm-documentation` | "update docs", "write product docs" | Product documentation updated |
 | `pm-clarify-guard` | "clarify", "ambiguous requirement", "missing detail" | Clarifying questions surfaced before building |
 | `pm-analyze-split` | "split this epic", "too big", "break this up" | Epic split into deliverable chunks |
-| `pm-constitution-sync` | "sync constitution", "update product principles" | Product constitution synced |
+| `pm-constitution-sync` | "update product principles", "our strategy has changed", "sync the constitution" | Product constitution synced |
 
 ---
 
@@ -112,18 +124,7 @@ Print the following menu verbatim, then offer to invoke any skill the user point
 | `create-local-routine` | "create a routine", "automate this", "schedule this locally" | CronCreate routine registered |
 | `create-agent` | "create an agent", "I need a new agent role" | Full agent package installed to `.claude/agents/` |
 | `marketing-strategist` | "marketing strategy", "content plan", "campaign brief" | Marketing strategy or campaign brief |
-| `global-caveman` | "caveman mode", "explain simply", "eli5" | Complex concept explained simply |
-
----
-
-## 🚀 Setup & Maintenance
-
-| Skill | Trigger | Produces |
-|-------|---------|---------|
-| `infiniteleverage-init` | "init", "bootstrap a new machine", "set up from scratch" | Full Mac Mini bootstrap: website + 8 agents + schedules |
-| `infiniteleverage-onboard` | "onboard", "connect my laptop", "personal laptop setup" | Laptop connected to existing AI team |
-| `infiniteleverage-patch` | "patch", "sync agents", "update my setup" | Health check + agents/skills/hooks synced to latest |
-| `infiniteleverage-help` | "help", "what can I do", "show me the menu" | This menu |
+| `global-caveman` | "explain this simply", "I don't understand this", "explain like I'm 5" | Complex concept explained simply |
 
 ---
 
