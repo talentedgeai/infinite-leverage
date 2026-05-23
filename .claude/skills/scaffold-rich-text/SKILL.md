@@ -22,21 +22,44 @@ Note as `$HIGHLIGHT_THEME`, `$INCLUDE_EDITOR`, `$HAS_TYPOGRAPHY`.
 
 ---
 
+## Editor choice
+
+Two options — pick one per project:
+
+| Option | Package | When to use |
+|---|---|---|
+| **MDXEditorFull** (recommended) | `@mdxeditor/editor` | User-facing content creation, CMS pages, rich editing UX |
+| **MarkdownEditor** (lightweight) | `@uiw/react-md-editor` | Admin forms, internal tools, quick markdown input |
+
+Note answer as `$EDITOR_CHOICE` (`mdxeditor` or `uiw`).
+
+---
+
 ## Step 1 — Install dependencies
 
+**Always needed (renderer):**
 ```bash
 npm install react-markdown remark-gfm rehype-highlight rehype-slug rehype-external-links
+npm install -D @tailwindcss/typography
 ```
 
-If `$INCLUDE_EDITOR`:
+**If `$EDITOR_CHOICE` = `mdxeditor` (recommended):**
+```bash
+npm install @mdxeditor/editor
+```
+Then add to `app/layout.tsx`:
+```ts
+import '@mdxeditor/editor/style.css'
+```
+
+**If `$EDITOR_CHOICE` = `uiw` (lightweight):**
 ```bash
 npm install @uiw/react-md-editor
 ```
-
-If not `$HAS_TYPOGRAPHY`:
-```bash
-npm install -D @tailwindcss/typography
-# Add to tailwind.config.ts: plugins: [require('@tailwindcss/typography')]
+Then add to `app/layout.tsx`:
+```ts
+import '@uiw/react-md-editor/markdown-editor.css'
+import '@uiw/react-md-editor/markdown.css'
 ```
 
 ---

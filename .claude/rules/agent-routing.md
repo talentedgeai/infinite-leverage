@@ -17,6 +17,7 @@ The following context patterns automatically invoke the relevant dev team agent.
 | "scaffold auth", "add login", "add Supabase auth", "scaffold authentication" | developer | `scaffold-auth` |
 | "scaffold SEO", "add metadata", "add sitemap", "add structured data", "add Open Graph" | developer | `scaffold-seo` |
 | "scaffold markdown", "add markdown renderer", "add rich text", "scaffold editor" | developer | `scaffold-rich-text` |
+| "scaffold performance", "add loading states", "add skeletons", "improve loading time", "add Suspense" | developer | `scaffold-performance` |
 | "build", "implement", "code this", "write the function" | developer | — |
 | "debug", "why is this broken", "diagnose", "I can't figure out" | developer | `dev-diagnose` |
 | "zoom out", "give me context on this module", "I'm new to this area" | developer | `dev-zoom-out` |
