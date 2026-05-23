@@ -13,6 +13,10 @@ The following context patterns automatically invoke the relevant dev team agent.
 | "plan", "spec", "write an epic", "what should we build", "acceptance criteria" | product-manager | — |
 | "create issues", "break into tickets", "to issues" | product-manager | `pm-to-issues` |
 | "validate plan", "check against epics", "grill with docs" | product-manager | `pm-grill-with-docs` |
+| "scaffold chatbot", "add multi-session chat", "add AI chat" | developer | `scaffold-chatbot` |
+| "scaffold auth", "add login", "add Supabase auth", "scaffold authentication" | developer | `scaffold-auth` |
+| "scaffold SEO", "add metadata", "add sitemap", "add structured data", "add Open Graph" | developer | `scaffold-seo` |
+| "scaffold markdown", "add markdown renderer", "add rich text", "scaffold editor" | developer | `scaffold-rich-text` |
 | "build", "implement", "code this", "write the function" | developer | — |
 | "debug", "why is this broken", "diagnose", "I can't figure out" | developer | `dev-diagnose` |
 | "zoom out", "give me context on this module", "I'm new to this area" | developer | `dev-zoom-out` |
