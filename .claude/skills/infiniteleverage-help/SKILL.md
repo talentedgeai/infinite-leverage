@@ -81,6 +81,22 @@ Print the following menu verbatim, then offer to invoke any skill the user point
 
 ---
 
+## 🏗 Scaffold
+
+| Skill | Trigger | Produces |
+|-------|---------|---------|
+| `scaffold-auth` | "add auth", "set up login", "I need authentication" | Supabase auth (email + OAuth) stamped into the Next.js project |
+| `scaffold-chatbot` | "add a chatbot", "multi-session AI chat", "build a chat interface" | Full AI chatbot with sessions, streaming, and history wired in |
+| `scaffold-seo` | "add SEO", "set up metadata", "I need a sitemap" | SEO metadata, JSON-LD, sitemap, and robots.txt added |
+| `scaffold-performance` | "improve loading", "add skeletons", "optimize performance" | Suspense boundaries, skeleton screens, and LCP best practices |
+| `scaffold-rich-text` | "add a markdown editor", "render rich text", "I need a text editor" | Markdown renderer + editor component stamped in |
+| `scaffold-notifications` | "add notifications", "I need toast alerts", "set up in-app notifications" | Notification system (realtime bell + Supabase table) stamped in |
+| `scaffold-file-upload` | "add file upload", "I need drag and drop uploads", "set up file storage" | File upload UI + Supabase Storage wiring stamped in |
+| `scaffold-dashboard` | "add a dashboard", "I need a sidebar layout", "scaffold the admin area" | Protected layout shell with Sidebar, MobileDrawer, Breadcrumbs, auth guard |
+| `scaffold-payments` | "add Stripe", "I need billing", "set up subscriptions" | Stripe Checkout + webhook + subscriptions table + feature-gate guard |
+
+---
+
 ## ✍️ Writer
 
 | Skill | Trigger | Produces |
