@@ -28,6 +28,22 @@ Load global skills from `~/.claude/skills/` as needed. Also check `agents/develo
 - **dev-multi-agent**: Breaks a large task into independent pieces and works on multiple parts simultaneously, then brings the results together. Dramatically speeds up big features.
 - **dev-github-hygiene**: Ensures every change follows clean practices — proper branches, clear commit messages, and up-to-date documentation. Keeps the repository organized.
 
+**Scaffold skills** — stamp production-ready feature baselines into any Next.js + Supabase project. Each skill asks a few customisation questions, creates all necessary files, and leaves `TODO:` markers for project-specific overrides. Invoke with the trigger phrases below or directly by skill name.
+
+| Skill | Trigger phrases | What it creates |
+|---|---|---|
+| **scaffold-chatbot** | "add chatbot", "add multi-session chat", "scaffold AI chat" | Supabase schema, streaming API route (AI SDK v6), session CRUD, TanStack Query hooks, Zustand store, full chat UI |
+| **scaffold-auth** | "add auth", "add login", "scaffold authentication", "add Supabase auth" | SSR Supabase clients, server actions (login/signup/logout/reset), OAuth callback, TanStack Form pages, session guards |
+| **scaffold-seo** | "add SEO", "scaffold metadata", "add sitemap", "add structured data", "add Open Graph" | `generateMetadata` helpers, JSON-LD structured data, sitemap.ts, robots.ts, next/font config |
+| **scaffold-rich-text** | "add markdown renderer", "scaffold markdown editor", "add rich text" | ReactMarkdown renderer, MDXEditorFull (production WYSIWYG), lightweight @uiw editor option |
+| **scaffold-performance** | "scaffold performance", "add loading states", "add skeletons", "add Suspense" | loading.tsx, 5 skeleton components, clientOnly/lazyLoad helpers |
+| **scaffold-notifications** | "add notifications", "scaffold notification bell", "add realtime notifications" | Supabase notifications table + RLS, realtime subscription, NotificationBell component, TanStack Query hooks |
+| **scaffold-file-upload** | "add file upload", "scaffold storage", "add drag and drop upload" | Supabase Storage bucket setup, FileUpload component, signed URL API route, next/image remote config |
+| **scaffold-dashboard** | "scaffold dashboard", "add dashboard layout", "add sidebar nav" | Protected layout shell, sidebar nav, breadcrumbs, responsive mobile drawer, auth guard wired in |
+| **scaffold-payments** | "add payments", "scaffold Stripe", "add subscriptions", "add billing" | Stripe Checkout session, webhook handler, subscriptions table, feature-gate guard, customer portal |
+
+See `docs/scaffold-skills-index.md` for the full reference index and combination patterns.
+
 **Debugging**
 - **dev-diagnose**: Works through a confusing bug with a six-step scientific process: reproduce it reliably → narrow it down → form a theory → test the theory → fix it → verify the fix holds.
 - **dev-grill**: Stress-tests a plan by asking hard questions about what could go wrong — edge cases, missing assumptions, failure modes. Use before starting any significant build.
