@@ -164,6 +164,41 @@ ls ~/.claude/scheduled-tasks/
 
 **Note on CronCreate re-registration**: Copying the SKILL.md files does NOT automatically re-register running cron jobs. After a patch, tell the user to re-run Prompt 10 (schedule registration) if they want updated task prompts to take effect. Existing `CronCreate` jobs with `durable: true` continue running the old prompt until deleted and recreated.
 
+After applying, deploy `team-hours.py` to every existing project under `~/code-projects/`:
+
+```bash
+SCRIPT_SRC="$HOME/.claude/skills/pm-contribution-sync/team-hours.py"
+if [ -f "$SCRIPT_SRC" ]; then
+  for proj in ~/code-projects/*/; do
+    [ -f "$proj/CLAUDE.md" ] || continue          # skip non-IL projects
+    mkdir -p "$proj/scripts"
+    # Additive: only copy if absent or template is newer
+    if [ ! -f "$proj/scripts/team-hours.py" ] || \
+       [ "$SCRIPT_SRC" -nt "$proj/scripts/team-hours.py" ]; then
+      cp "$SCRIPT_SRC" "$proj/scripts/team-hours.py"
+      echo "  ✅ team-hours.py → $proj/scripts/"
+    else
+      echo "  = team-hours.py already current in $proj"
+    fi
+  done
+else
+  echo "  ⚠️  team-hours.py not found at $SCRIPT_SRC — skipping project deployment"
+fi
+```
+
+Also add `scripts/contribution-snapshot.json` to each project's `.gitignore` (machine-local paths, must not be committed):
+
+```bash
+for proj in ~/code-projects/*/; do
+  [ -f "$proj/CLAUDE.md" ] || continue
+  gi="$proj/.gitignore"
+  if ! grep -q "contribution-snapshot.json" "$gi" 2>/dev/null; then
+    echo "scripts/contribution-snapshot.json" >> "$gi"
+    echo "  ✅ .gitignore updated in $proj"
+  fi
+done
+```
+
 ---
 
 ### Step 5 — Clean up fetched templates
