@@ -49,6 +49,37 @@ Compile three sections:
 
 Update `docs/project-status.html` with the EOD summary. Add a timestamp.
 
+Also refresh the Pulse chart and emit a daily snapshot:
+
+```bash
+# Today's token + hours data
+python3 scripts/team-hours.py \
+  --start YYYY-MM-DD --end YYYY-MM-DD \
+  --author "Author 1" --author "Author 2" \
+  --jsonl-keyword <project-keyword> \
+  --tz +HH:00 \
+  --with-tokens \
+  --repo .
+```
+
+Use the output to update today's data point on each Pulse line. The Pulse chart is a single peak-normalised SVG (Y-axis = 0–100 % of each series' window peak). Update the reading-guide paragraph with the latest absolute peak value and day. Follow `docs/assessments/team-hours-methodology.md §5.5` for full chart rules.
+
+Also write the JSON snapshot for hub aggregation:
+
+```bash
+python3 scripts/team-hours.py \
+  --start YYYY-MM-DD --end YYYY-MM-DD \
+  --author "Author 1" --author "Author 2" \
+  --jsonl-keyword <project-keyword> \
+  --tz +HH:00 \
+  --with-tokens \
+  --json \
+  --repo . \
+  > scripts/contribution-snapshot.json
+```
+
+If `scripts/team-hours.py` does not exist, copy from `~/.claude/skills/pm-contribution-sync/team-hours.py` first.
+
 ## Step 4 — Notify (if Lark configured)
 
 If `LARK_WEBHOOK_URL` is set:

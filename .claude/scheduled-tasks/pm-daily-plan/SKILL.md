@@ -76,6 +76,27 @@ Update `docs/project-status.html` with:
 
 IMPORTANT: The developer agent reads project-status.html at 9 AM to start its day. Write the approved items section clearly so it can be parsed without ambiguity.
 
+## Step 4.5 — Update Team Contributions (Mondays only)
+
+On Mondays, run the team-hours script for the previous Mon–Fri window and append a new window-slice table to the `#contributors` section of `docs/project-status.html`.
+
+```bash
+python3 scripts/team-hours.py \
+  --start YYYY-MM-DD --end YYYY-MM-DD \
+  --author "Author 1" --author "Author 2" \
+  --jsonl-keyword <project-keyword> \
+  --tz +HH:00 \
+  --repo .
+```
+
+Follow the editorial rules in `docs/assessments/team-hours-methodology.md`:
+- Name the basis for every hours figure (`commit-span`, `claude-jsonl`, or `self-reported`)
+- Append — never retroactively recompute the cumulative table
+- Disclose Limitation 1 if JSONL figures appear for an author other than the script-runner
+- Label hours as "human tokens" in published tiles and tables (methodology footnotes still say "hours")
+- Headline table: two rows only — Owner row and Development team row (see editorial rule 8)
+- Never invent numbers
+
 ## Step 5 — Notify (if Lark configured)
 
 If `LARK_WEBHOOK_URL` is set:
