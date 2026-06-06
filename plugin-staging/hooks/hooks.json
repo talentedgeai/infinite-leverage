@@ -6,6 +6,20 @@
           {
             "type": "command",
             "command": "bash ~/.claude/hooks/session-start 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/session-ingest-start.py 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/session-ingest-end.py 2>/dev/null || true"
           }
         ]
       }
