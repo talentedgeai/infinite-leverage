@@ -86,6 +86,10 @@ def main() -> None:
         "primary_role": cfg.get("primary_role"),
         "occurred_on": now.strftime("%Y-%m-%d"),
         "occurred_hour": now.hour,
+        # Precise git-pull / session-start instant (ISO-8601, tz-aware). Anchor for
+        # the human-token metric; without it the function stores NULL and the metric
+        # reads 0. See docs/architecture/session-ingest-contract.md (human-token-tracker).
+        "started_at": now.isoformat(),
     }
     req = urllib.request.Request(
         url.rstrip("/") + "/functions/v1/ingest-session-start",
