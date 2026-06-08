@@ -171,11 +171,16 @@ gh pr create \
 ## Notes
 <anything reviewers or the merge agent should know>
 
+<!-- author: <handle> <git user.email> -->
+
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 EOF
 )" \
   --base main
 ```
+
+> The `<!-- author: ... -->` line is REQUIRED — see **Authorship block** below. Because the
+> heredoc is quoted (`<<'EOF'`), substitute the real handle + email before running the command.
 
 ### PR Title Rules
 
@@ -191,6 +196,33 @@ Always include:
 - **Summary**: 2–4 bullets on what changed and why
 - **Test Plan**: what was verified, how CI was checked
 - **Notes**: breaking changes, migration steps, or "safe to auto-merge" signal
+
+### Authorship block (REQUIRED)
+
+The central service account is the git committer for all team work, so GitHub attributes
+every commit/PR to it. To credit the real human, **every PR body MUST include an authorship
+block** that the daily data sync parses to fill `pull_requests.author_human_user_id`.
+
+Compute and append it from the local git identity:
+
+```bash
+EMAIL=$(git config user.email)
+HANDLE=$(git config user.name | tr ' ' '-' | tr '[:upper:]' '[:lower:]')
+# append to the PR body:  <!-- author: $HANDLE $EMAIL -->
+```
+
+Format (matched by `/<!--\s*author:\s*(\S+)\s+(\S+)\s*-->/i`):
+
+```
+<!-- author: <handle> <email> -->
+<!-- co-authors: <handle> <email>, <handle> <email> -->   (optional, when pairing)
+```
+
+- The `<email>` is the resolution key — it must be the git email registered as that person's
+  team member (so `resolve_team_member(email)` resolves). A wrong/placeholder email → the PR
+  is recorded as **unattributed** (not an error, but no credit).
+- Add a `co-authors:` line when pairing; zero or more `handle email` pairs, comma-separated.
+- Full contract: `docs/architecture/authorship-contract.md` in the human-token-tracker repo.
 
 ### Labels (add if the project uses them)
 
