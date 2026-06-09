@@ -33,16 +33,18 @@ def build_human_records(hh: dict, ctx: dict) -> list[dict]:
     """Per-day human-time records from a methodology.human_hours_for result. Pure; never raises on shape."""
     out = []
     for day, v in (hh.get("per_day") or {}).items():
+        hours = (hh.get("commit_hours_by_day") or {}).get(day, [])
+        first_hour = hours[0] if hours else 0  # first commit-hour, else midnight — matches team-hours.py occurred_at
         out.append({
             "record_type": "human",
             "occurred_on": day,
             "resolved_hours": v.get("resolved", 0.0),
             "source": v.get("source"),
-            "commit_hours": (hh.get("commit_hours_by_day") or {}).get(day, []),
+            "commit_hours": hours,
             "author_email": ctx.get("author_email", ""),
             "github_login": ctx.get("github_login", ""),
             "repo_full_name": ctx.get("repo_full_name", ""),
-            "started_at": f"{day}T00:00:00+00:00",
+            "started_at": f"{day}T{first_hour:02d}:00:00+00:00",
         })
     return out
 

@@ -12,7 +12,7 @@ def test_build_human_records_maps_per_day():       # AC15/AC17
     assert r["resolved_hours"] == 2.5
     assert r["commit_hours"] == [9, 11]
     assert r["author_email"] == "a@e.ai" and r["github_login"] == "alice" and r["repo_full_name"] == "o/r"
-    assert r["started_at"] == "2026-06-09T00:00:00+00:00"   # midnight, for month-path bucketing
+    assert r["started_at"] == "2026-06-09T09:00:00+00:00"   # first commit-hour (matches team-hours.py occurred_at)
 
 def test_build_human_records_empty():
     assert build_human_records({"per_day": {}, "commit_hours_by_day": {}}, {}) == []
