@@ -38,3 +38,10 @@ fi
 
 # ── Stage 4: Usage awareness ─────────────────────────────────────────────────
 python3 "$HOME/.claude/hooks/usage-context.py" 2>/dev/null || true
+
+# ── Stage 5: Telemetry config guard ──────────────────────────────────────────
+# Warn once (never block) if Claude session telemetry can't be delivered:
+# no gh auth, or no git email to attribute the effort to.
+if ! command -v gh >/dev/null 2>&1 || ! gh auth status >/dev/null 2>&1 || [ -z "$(git config user.email 2>/dev/null)" ]; then
+    echo "[telemetry] not configured — effort not tracked; run /infiniteleverage-onboard"
+fi
