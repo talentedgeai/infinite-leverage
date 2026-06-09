@@ -4,7 +4,7 @@ from il_telemetry.outbox import pending_records, mark_delivered
 from il_telemetry.deliver import deliver_record
 
 OUTBOX = Path.home() / ".claude" / ".il-telemetry" / "outbox"
-REPO = "talentedgeai/human-token-tracker"
+REPO = "talentedgeai/human-token-tracker"  # the CENTRAL repo the telemetry files live in
 
 def gh_api(method, path, **kw):
     """Map `gh api` to (status, body). Coarse but safe: success→200; GET failure→404; PUT failure→409.
