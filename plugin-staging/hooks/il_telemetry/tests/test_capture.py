@@ -3,9 +3,9 @@ from il_telemetry.capture import capture_session
 
 FIX = Path(__file__).parent / "fixtures" / "session.jsonl"
 
-def test_tokens_summed():                     # AC1
+def test_tokens_summed():                     # AC1' — billed = input+output+cache_creation
     m = capture_session(str(FIX), "sess-1")
-    assert m["claude_tokens"] == 100 + 50 + 200 + 30
+    assert m["claude_tokens"] == (100 + 50 + 10) + (200 + 30 + 5)   # cache_read (9999/8888) NOT counted
 
 def test_active_minutes_excludes_gap():       # AC2
     m = capture_session(str(FIX), "sess-1")

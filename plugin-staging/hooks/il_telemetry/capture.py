@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
+from il_telemetry.methodology import _extract_usage
 
 _GAP = timedelta(minutes=30)
 
@@ -17,8 +18,7 @@ def capture_session(transcript_path: str, session_id: str) -> dict | None:
                 obj = json.loads(line)
             except Exception:
                 continue
-            u = (obj.get("message") or {}).get("usage") or {}
-            tokens += int(u.get("input_tokens", 0)) + int(u.get("output_tokens", 0))
+            tokens += _extract_usage(obj)["billed"]
             ts = obj.get("timestamp")
             if ts:
                 try:
