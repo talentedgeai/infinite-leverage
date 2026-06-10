@@ -69,3 +69,19 @@ GEMINI_API_KEY=
 3. **Optional vars go commented out** (prefixed `#`) so the file runs with just core vars.
 4. **Section headers** — group by service. New services get a new `# ── Service ──` block.
 5. **`NEXT_PUBLIC_` prefix** — only for values safe to expose in the browser bundle.
+
+## Claude session telemetry (Stream A) — prerequisites
+
+Per-contributor Claude token usage and session time are captured by global hooks
+and delivered to `talentedgeai/human-token-tracker` via your existing GitHub auth.
+**There is no secret to set on your machine.** You only need:
+
+1. **GitHub CLI authenticated** — `gh auth status` must succeed (`gh auth login` if not).
+2. **Write access to `talentedgeai/human-token-tracker`** — confirm with
+   `gh api repos/talentedgeai/human-token-tracker --jq .permissions`.
+3. **A `team_members` row** in the tracker DB keyed to your git email
+   (`git config user.email`) — provisioned during onboarding. Without it your effort
+   lands unattributed.
+
+If `gh` is not authenticated or your git email is unset, the SessionStart guard prints a
+one-line reminder and effort is simply not tracked — your session is never blocked.

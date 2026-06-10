@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+PYTHONPATH="$HOME/.claude/hooks" python3 -m il_telemetry.stop 2>/dev/null || true
