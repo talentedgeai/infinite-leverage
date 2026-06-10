@@ -50,6 +50,17 @@ else
   echo "→ infiniteleverage-plugin not found at $PLUGIN_REPO — skipping plugin sync."
 fi
 
+# Sync hooks (incl il_telemetry + hooks.json registrations) to the plugin repo so the
+# marketplace plugin actually carries the effort-tracking hooks. Without this the
+# plugin never ships il_telemetry and contributors get no tracking.
+PLUGIN_HOOKS_DIR="$PLUGIN_REPO/plugin/hooks"
+if [ -d "$PLUGIN_REPO" ]; then
+  echo "→ Syncing plugin-staging/hooks/ → infiniteleverage-plugin/plugin/hooks/..."
+  mkdir -p "$PLUGIN_HOOKS_DIR"
+  cp -r "$REPO_ROOT/plugin-staging/hooks/." "$PLUGIN_HOOKS_DIR/"
+  echo "   Hooks sync complete (incl il_telemetry/ + hooks.json)."
+fi
+
 echo ""
 echo "✅ All zips rebuilt at:"
 for f in "$SKILLS_DIR"/*.zip; do

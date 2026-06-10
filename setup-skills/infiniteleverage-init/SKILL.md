@@ -134,9 +134,9 @@ PHASE 1 — Claude Chat (manual)
 
 PHASE 2 — Claude Code (automated)
   Setup + Agents — Claude Code does all of this
-  ├── Tool install: gh, node, jq, ffmpeg, vercel CLI, supabase CLI, resend CLI, Claude Code CLI + auth
+  ├── Tool install: gh, node, jq, ffmpeg, vercel CLI, resend CLI, Claude Code CLI + auth
   ├── [P3] Global permissions + engineering rules
-  ├── [P7] Supabase MCP: install + authenticate (one browser click only)
+  ├── [P7] Supabase plugin (MCP): operator installs `plugin:supabase` via `/plugin` → Claude runs auth (one browser click)
   ├── [P4][P8][P9] Project scaffold: context folders + Next.js 16 in website/ subdir
   ├── Credentials: .env.local written from credentials file
   ├── [P5][P6] Deploy: git push → GitHub → Vercel CI/CD
@@ -174,7 +174,7 @@ See `references/phase1-manual.md` for complete step-by-step.
 Open Claude Code Desktop on the Mac Mini. Run prompts from `references/phase2-prompts.md` in sequence. Each prompt is self-contained — Claude Code executes it fully before the next one starts.
 
 **Decision points:**
-- Supabase OAuth: the only manual step in Phase 2. Claude outputs a URL → open in browser → Authorize → tell Claude "done". **[P7]**
+- Supabase plugin + OAuth: the two manual steps in Phase 2. Claude Code cannot install a plugin or click through OAuth on its own, so it will pause and prompt you. (1) Run `/plugin` in Claude Code → marketplace → install **supabase** → restart if prompted. (2) Claude outputs an auth URL → open in browser → Authorize → tell Claude "done". **[P7]**
 - Vercel import: one browser action (import repo at vercel.com/new, set Root Directory = website/). Claude handles everything else. **[P6]**
 - No approved plan when Developer runs: stop, notify via Lark (if configured) or log to HANDOFF.md, do not proceed. **[P1]**
 
@@ -198,7 +198,7 @@ Stopped partway through? Here's where to pick up — no restarting needed.
 | Phase 1, steps 4–6 | `brew --version` works, no credentials file | Phase 1, Step 5 |
 | Phase 1 complete, Phase 2 not started | `claude --version` fails | Phase 2, Prompt 1 |
 | Phase 2 Prompt 1–2 | `ls ~/.claude/rules/` empty | Phase 2, Prompt 1 |
-| Phase 2 Prompt 3–4 | Supabase MCP not in settings | Phase 2, Prompt 3 |
+| Phase 2 Prompt 3–4 | Supabase plugin not installed / MCP not authenticated | Phase 2, Prompt 3 |
 | Phase 2 Prompt 5–6 | `ls ~/code-projects/{project-slug}` empty | Phase 2, Prompt 4 |
 | Phase 2 Prompt 7 | No GitHub repo yet | Phase 2, Prompt 7 |
 | Phase 2 Prompt 8+ | `ls ~/.claude/agents/` shows 0 agents | Phase 2, Prompt 8 |
@@ -223,10 +223,10 @@ Stopped partway through? Here's where to pick up — no restarting needed.
 - [ ] git installed (`git --version` works)
 
 ### Phase 2 — Claude Code
-- [ ] gh, node, jq, ffmpeg, vercel CLI, supabase CLI, resend CLI, Claude Code CLI installed and authenticated
+- [ ] gh, node, jq, ffmpeg, vercel CLI, resend CLI, Claude Code CLI installed and authenticated
 - [ ] `~/.claude/settings.local.json` with `Bash(*)` + `acceptEdits`
 - [ ] `~/.claude/rules/global-engineering.md` written
-- [ ] Supabase MCP configured **[P7]**
+- [ ] Supabase plugin (`plugin:supabase`) installed via `/plugin` + MCP authenticated **[P7]**
 - [ ] Project scaffolded at `~/code-projects/{project-slug}/` with context folders + `website/` **[P4]**
 - [ ] `.specify/` initialized in project root (done by `infiniteleverage-project` Step 8.5 — verify with `ls .specify/`)
 - [ ] `.env.local` written with all credentials (inside `website/`)
