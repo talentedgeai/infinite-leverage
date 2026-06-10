@@ -6,21 +6,27 @@ See docs/assessments/team-hours-methodology.md for the full spec.
 Usage:
   python3 scripts/team-hours.py \\
     --start 2026-05-25 --end 2026-05-29 \\
-    --author "TracNg99" --author "James Murray" \\
+    --author "TracNg99" --author-email "trac@edge8.ai" \\
+    --author "James Murray" --author-email "james@edge8.ai" \\
     --jsonl-keyword longev --jsonl-keyword wha \\
     --tz +07:00 \\
-    --repo .
+    --repo . \\
+    --project-slug edge8-web \\
+    --sync-output scripts/contribution-sync.json
 
 Options:
   --start           Start date inclusive (YYYY-MM-DD)
   --end             End date inclusive (YYYY-MM-DD)
   --author          Git author name or email (repeatable)
+  --author-email    DB-resolution email paired with each --author (repeatable, same order)
   --jsonl-keyword   Keyword to match ~/.claude/projects/*keyword*/ dirs (repeatable)
   --tz              UTC offset for local-day bucketing, e.g. +07:00 (default +00:00)
   --repo            Path to the git repo (default: .)
+  --project-slug    Project slug written into the sync file header
   --with-tokens     Also aggregate Claude token totals from JSONL
   --no-jsonl        Skip JSONL scan; resolved hours fall back to commit-span only
   --json            Emit machine-readable JSON instead of Markdown
+  --sync-output     Path to write contribution-sync.json for DB ingestion
 """
 
 import argparse
@@ -102,8 +108,19 @@ def commit_span_by_day(times: list, tz: timezone) -> dict:
     }
 
 
+def commit_hours_by_day(times: list, tz: timezone) -> dict:
+    """Return {date: sorted list of clock-hours} from commit timestamps — used for man_hour slot expansion."""
+    by_day = defaultdict(set)
+    for dt in times:
+        local = dt.astimezone(tz)
+        by_day[local.date()].add(local.hour)
+    return {day: sorted(hours) for day, hours in by_day.items()}
+
+
 def scan_jsonl(dirs: list, start: date, end: date, tz: timezone, with_tokens: bool):
-    """§2.3 + §2.4 — JSONL activity hours and token totals (deduped dirs)."""
+    """§2.3 + §2.4 — JSONL activity hours and token totals (deduped dirs).
+    Returns: (hours_by_day, tokens_by_day, unique_dirs, all_ts)
+    all_ts is the full sorted timestamp list used for sync-file hour-slot expansion."""
     end_excl = end + timedelta(days=1)
     all_ts = []
     tokens_by_day = defaultdict(lambda: {'billed': 0, 'total': 0})
@@ -164,7 +181,7 @@ def scan_jsonl(dirs: list, start: date, end: date, tz: timezone, with_tokens: bo
         active += (last - sess_start).total_seconds()
         hours_by_day[day] = (active + sessions * SESSION_S) / 3600
 
-    return hours_by_day, dict(tokens_by_day), unique_dirs
+    return hours_by_day, dict(tokens_by_day), unique_dirs, all_ts
 
 
 def _extract_ts(obj: dict):
@@ -221,6 +238,114 @@ def resolve(span_by_day: dict, jsonl_by_day: dict, window: list) -> dict:
     return result
 
 
+# ── sync file builder ─────────────────────────────────────────────────────────
+def _write_sync_file(args, output: dict, start: date, end: date, tz: timezone) -> None:
+    """Write contribution-sync.json — direct POST payloads for ingest-session-* edge functions.
+
+    man_hours   → POST to ingest-session-start  (one row per author per commit-hour, idempotent)
+    token_entries → POST to ingest-session-end  (human centihours + billed claude tokens per author per day)
+
+    The GitHub workflow adds client_id / project_id from env before posting.
+    Units: human_tokens = round(resolved_hours × 100) [centihours as int], claude_tokens = raw billed tokens.
+    Claude tokens are operator-level (§2.4); attributed to the author with the most resolved hours per day.
+    """
+    author_emails: list = args.author_email
+    authors: list = args.author
+
+    # Map author name → email (positionally paired; unmatched authors are skipped in sync output)
+    email_map: dict = {
+        authors[i]: author_emails[i]
+        for i in range(min(len(authors), len(author_emails)))
+        if author_emails[i]
+    }
+
+    tokens_by_day: dict = output.get('tokens_by_day', {})
+
+    man_hours: list = []
+    token_entries: list = []
+
+    # For each day, find the dominant author (most resolved hours) to carry claude tokens
+    def dominant_author_for_day(day_str: str) -> str | None:
+        best, best_h = None, -1.0
+        for author in authors:
+            if author not in email_map:
+                continue
+            v = output['authors'][author]['per_day'].get(day_str, {})
+            h = v.get('resolved', 0.0)
+            if h > best_h:
+                best_h = h
+                best = author
+        return best
+
+    for author, r in output['authors'].items():
+        email = email_map.get(author)
+        if not email:
+            continue
+
+        # man_hours — one slot per distinct commit-hour
+        for day_str, hours in r.get('commit_hours_by_day', {}).items():
+            for hour in hours:
+                man_hours.append({
+                    'author_email': email,
+                    'occurred_on': day_str,
+                    'occurred_hour': hour,
+                    'primary_role': None,
+                })
+
+        # token_entries — one row per active day
+        for day_str, v in r['per_day'].items():
+            resolved = v.get('resolved', 0.0)
+            if resolved <= 0:
+                continue
+
+            # Determine first commit-hour or midnight for occurred_at
+            day_obj = date.fromisoformat(day_str)
+            hours_list = r.get('commit_hours_by_day', {}).get(day_str, [])
+            hour = hours_list[0] if hours_list else 0
+            occurred_at = datetime(
+                day_obj.year, day_obj.month, day_obj.day, hour,
+                tzinfo=tz
+            ).isoformat()
+
+            # Claude tokens for this day — operator total, only to the dominant author
+            day_claude = 0
+            day_tok = tokens_by_day.get(day_str, {})
+            if day_tok and dominant_author_for_day(day_str) == author:
+                day_claude = day_tok.get('billed', 0)
+
+            source = 'pr_commit' if v.get('source') == 'commit-span' else 'planning'
+
+            token_entries.append({
+                'author_email': email,
+                'occurred_at': occurred_at,
+                'source': source,
+                'human_tokens': round(resolved * 100),  # centihours as int
+                'claude_tokens': day_claude,
+            })
+
+    sync = {
+        'schema_version': 1,
+        'generated_at': datetime.now(timezone.utc).isoformat(),
+        'project_slug': args.project_slug or '',
+        'window': output['window'],
+        '_notes': {
+            'human_tokens_unit': 'centihours (resolved_hours × 100)',
+            'claude_tokens_unit': 'raw billed tokens (operator account, attributed to dominant author per day)',
+            'man_hours_target': 'POST each entry to ingest-session-start with client_id + project_id from env',
+            'token_entries_target': 'POST each entry to ingest-session-end with client_id + project_id from env',
+        },
+        'man_hours': man_hours,
+        'token_entries': token_entries,
+    }
+
+    out_path = Path(args.sync_output)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_path, 'w', encoding='utf-8') as fh:
+        json.dump(sync, fh, indent=2)
+    print(f'[sync] wrote {out_path} ({len(man_hours)} man_hour slots, {len(token_entries)} token entries)',
+          file=sys.stderr)
+
+
 # ── main ──────────────────────────────────────────────────────────────────────
 def main():
     ap = argparse.ArgumentParser(
@@ -233,9 +358,13 @@ def main():
     ap.add_argument('--jsonl-keyword', action='append', default=[], dest='jsonl_keyword')
     ap.add_argument('--tz', default='+00:00')
     ap.add_argument('--repo', default='.')
+    ap.add_argument('--author-email', action='append', default=[], dest='author_email')
+    ap.add_argument('--project-slug', default='')
     ap.add_argument('--with-tokens', action='store_true')
     ap.add_argument('--no-jsonl', action='store_true')
     ap.add_argument('--json', action='store_true')
+    ap.add_argument('--sync-output', default='', metavar='PATH',
+                    help='Write contribution-sync.json to PATH for DB ingestion')
     args = ap.parse_args()
 
     tz = parse_tz(args.tz)
@@ -249,14 +378,17 @@ def main():
     tokens_by_day: dict = {}
     scanned_dirs: list = []
 
+    jsonl_all_ts: list = []
     if jsonl_dirs_raw:
-        shared_jsonl_hours, tokens_by_day, scanned_dirs = scan_jsonl(
+        shared_jsonl_hours, tokens_by_day, scanned_dirs, jsonl_all_ts = scan_jsonl(
             jsonl_dirs_raw, start, end, tz, with_tokens=args.with_tokens
         )
 
     results = {}
+    commit_hours_per_author: dict = {}
     for author in args.author:
         commits = fetch_commits(args.repo, author, start, end, tz)
+        commit_hours_per_author[author] = commit_hours_by_day(commits, tz)
         span_by_day = commit_span_by_day(commits, tz)
         strict = git_hours_strict(commits)
         per_day = resolve(span_by_day, shared_jsonl_hours, window)
@@ -282,12 +414,25 @@ def main():
                 str(d): v for d, v in per_day.items()
                 if v['resolved'] > 0 or v['commit_span'] > 0 or v['jsonl'] > 0
             },
+            'commit_hours_by_day': {
+                str(d): hrs for d, hrs in commit_hours_per_author[author].items()
+            },
         }
+
+    # Compute JSONL active clock-hours by day (operator-level, for sync expansion)
+    jsonl_hours_by_day: dict = {}
+    if jsonl_all_ts:
+        by_day_set: dict = defaultdict(set)
+        for ts in jsonl_all_ts:
+            local = ts.astimezone(tz)
+            by_day_set[local.date()].add(local.hour)
+        jsonl_hours_by_day = {str(d): sorted(h) for d, h in by_day_set.items()}
 
     output = {
         'window': {'start': str(start), 'end': str(end)},
         'authors': results,
         'jsonl_dirs_scanned': [str(d) for d in scanned_dirs],
+        'jsonl_hours_by_day': jsonl_hours_by_day,
         'no_jsonl': args.no_jsonl,
     }
 
@@ -302,7 +447,12 @@ def main():
 
     if args.json:
         print(json.dumps(output, indent=2))
+        if args.sync_output:
+            _write_sync_file(args, output, start, end, tz)
         return
+
+    if args.sync_output:
+        _write_sync_file(args, output, start, end, tz)
 
     # ── Markdown output ────────────────────────────────────────────────────────
     print(f"## Team Contributions — {start} → {end}\n")

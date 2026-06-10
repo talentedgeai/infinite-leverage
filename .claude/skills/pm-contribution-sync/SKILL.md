@@ -59,20 +59,25 @@ Read from `.env` or `CLAUDE.md`. If absent, default to `+00:00` and note it.
 
 ## Step 3 — Run team-hours.py per project
 
-For each project in the sync list:
+For each project in the sync list, resolve `--author-email` from `CLAUDE.md ## Authors` (format: `Name <email>`) or from `git log --format='%aN <%aE>'`. Pair each `--author` with the matching `--author-email` positionally.
 
 ```bash
 python3 ~/code-projects/<slug>/scripts/team-hours.py \
   --start <window-start> \
   --end <window-end> \
-  --author "<author1>" --author "<author2>" \
+  --author "<author1>" --author-email "<email1>" \
+  --author "<author2>" --author-email "<email2>" \
   --jsonl-keyword <keyword> \
   --tz <offset> \
   --with-tokens \
+  --project-slug <slug> \
   --json \
+  --sync-output ~/code-projects/<slug>/scripts/contribution-sync.json \
   --repo ~/code-projects/<slug> \
   > ~/code-projects/<slug>/scripts/contribution-snapshot.json
 ```
+
+`--sync-output` writes `contribution-sync.json` alongside the snapshot (see Step 5b).
 
 **Window:** default = last 7 days (Mon–Sun). On the first run for a project, use the window since the earliest commit if ≤ 30 days; otherwise default to last 7.
 
@@ -130,6 +135,80 @@ The snapshot is the machine-readable handoff to `pm-hub-report`. Schema:
 ```
 
 Write to `~/code-projects/<slug>/scripts/contribution-snapshot.json`. This file is gitignored (add to `.gitignore` if not already present — it contains machine-local JSONL paths).
+
+---
+
+## Step 5b — Write contribution-sync.json (DB ingestion file)
+
+`team-hours.py --sync-output` produces this file automatically alongside the snapshot. It contains direct POST payloads for the `human-token-tracker` Supabase edge functions.
+
+**Schema:**
+
+```json
+{
+  "schema_version": 1,
+  "generated_at": "ISO-8601",
+  "project_slug": "acme-bookstore",
+  "window": { "start": "YYYY-MM-DD", "end": "YYYY-MM-DD" },
+  "_notes": {
+    "human_tokens_unit": "centihours (resolved_hours × 100)",
+    "claude_tokens_unit": "raw billed tokens (operator account, attributed to dominant author per day)",
+    "man_hours_target": "POST each entry to ingest-session-start with client_id + project_id from env",
+    "token_entries_target": "POST each entry to ingest-session-end with client_id + project_id from env"
+  },
+  "man_hours": [
+    {
+      "author_email": "trac@edge8.ai",
+      "occurred_on": "2026-06-01",
+      "occurred_hour": 9,
+      "primary_role": null
+    }
+  ],
+  "token_entries": [
+    {
+      "author_email": "trac@edge8.ai",
+      "occurred_at": "2026-06-01T09:00:00+07:00",
+      "source": "pr_commit",
+      "human_tokens": 150,
+      "claude_tokens": 45000
+    }
+  ]
+}
+```
+
+**Field notes:**
+- `man_hours` → one entry per author per git commit-hour. Maps to `ingest-session-start` → `man_hour_entries` (idempotent via unique index on `team_member_id + occurred_on + occurred_hour` WHERE `auto_session`).
+- `token_entries` → one entry per author per active day. Maps to `ingest-session-end` → `token_entries`. `human_tokens` in centihours (int); `claude_tokens` = billed tokens (operator total, attributed to the author with the most resolved hours that day — see methodology §2.4).
+- `author_email` is resolved server-side via `resolve_team_member` RPC — no UUID lookup needed in the workflow.
+- The GitHub workflow adds `client_id` and `project_id` from environment secrets before posting.
+
+**gitignore:** Add `scripts/contribution-sync.json` to `.gitignore` — it contains private email and timing data.
+
+**Sample GitHub workflow step:**
+
+```yaml
+- name: Ingest team hours
+  env:
+    SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+    INGEST_SECRET: ${{ secrets.INGEST_SECRET }}
+    CLIENT_ID: ${{ secrets.HUMAN_TOKEN_CLIENT_ID }}
+    PROJECT_ID: ${{ secrets.HUMAN_TOKEN_PROJECT_ID }}
+  run: |
+    jq -c '.man_hours[]' scripts/contribution-sync.json | while read entry; do
+      curl -sf -X POST "$SUPABASE_URL/functions/v1/ingest-session-start" \
+        -H "x-ingest-secret: $INGEST_SECRET" \
+        -H "Content-Type: application/json" \
+        -d "$(echo "$entry" | jq --arg c "$CLIENT_ID" --arg p "$PROJECT_ID" \
+              '. + {client_id:$c, project_id:$p}')"
+    done
+    jq -c '.token_entries[]' scripts/contribution-sync.json | while read entry; do
+      curl -sf -X POST "$SUPABASE_URL/functions/v1/ingest-session-end" \
+        -H "x-ingest-secret: $INGEST_SECRET" \
+        -H "Content-Type: application/json" \
+        -d "$(echo "$entry" | jq --arg c "$CLIENT_ID" --arg p "$PROJECT_ID" \
+              '. + {client_id:$c, project_id:$p}')"
+    done
+```
 
 ---
 
