@@ -171,8 +171,93 @@ Run prompts from `references/phase2-prompts.md` in sequence. Each is self-contai
 - All 8 agents respond when tested
 - `~/.claude/hooks/pre-bash` and `~/.claude/hooks/prompt-submit` installed and wired
 - Product Manager has been briefed on business context **[P14]**
+- Effort-tracking registration checked (registered or skipped with marker)
 
 See `references/phase2-prompts.md` for the full prompt sequence.
+
+### Phase 2 — Effort tracking registration (last step before wrap-up)
+
+After agents are installed and tested, register the cloned project repo for effort tracking.
+
+First confirm the repo's `owner/repo` slug (visible in the GitHub URL or via `gh repo view --json nameWithOwner --jq .nameWithOwner` from inside the project directory).
+
+Ask the operator:
+
+> Do you want to register `<owner>/<repo>` for effort tracking so this project appears in the dashboard? (y / skip)
+
+**If the operator says "skip":** write the local declined marker:
+
+```bash
+REPO_SLUG="<owner>__<repo>"   # substitute real values
+mkdir -p "$HOME/.claude/.il-telemetry/unregistered"
+touch "$HOME/.claude/.il-telemetry/unregistered/$REPO_SLUG"
+echo "Skipped. To register later, delete: ~/.claude/.il-telemetry/unregistered/$REPO_SLUG"
+```
+
+**If the operator says "y":** gather these details interactively:
+
+| Field | Question to ask |
+|---|---|
+| Type | "Is this a personal project or a client project?" → `personal` or `client` |
+| Display name | "What's the human-readable display name for this project?" |
+| *(client only)* Client name | "What is the client's company name?" |
+| *(client only)* Client initials | "Two-letter initials (e.g. E8)?" |
+| *(client only)* Is internal? | "Are you part of the client's organisation? (y/n)" |
+| *(client only)* Exclude identities | "Any git emails or GitHub logins belonging to the client's own team that should NOT count as AI-assisted? (one per line, blank to finish)" |
+
+Then commit the registration JSON to `talentedgeai/human-token-tracker` on the `telemetry` branch:
+
+```bash
+# Resolve owner/repo and GitHub login
+REPO_FULL="<owner>/<repo>"           # e.g. acmecorp/acme-bookstore
+GH_LOGIN=$(gh api user --jq '.login')
+PROJECT_DISPLAY="<Display Name>"
+
+# Build JSON (Claude assembles from the answers above)
+# Minimal personal example:
+REGISTRATION_JSON='{
+  "repo_full_name": "'"$REPO_FULL"'",
+  "github_login": "'"$GH_LOGIN"'",
+  "type": "personal",
+  "project_name": "'"$PROJECT_DISPLAY"'",
+  "client": { "name": "", "initials": "", "is_internal": true },
+  "exclude_identities": [],
+  "submitted_at": "'"$(date -u +%FT%TZ)"'"
+}'
+
+# Path on telemetry branch
+REG_PATH="registrations/$(echo "$REPO_FULL" | tr '/' '_' | sed 's|/|__|g').json"
+# Correct safe filename: owner__repo
+REG_PATH="registrations/$(echo "$REPO_FULL" | sed 's|/|__|g').json"
+
+# Check if file already exists (for sha on update)
+STATUS_RESP=$(gh api "repos/talentedgeai/human-token-tracker/contents/${REG_PATH}?ref=telemetry" 2>/dev/null || echo "")
+EXISTING_SHA=$(echo "$STATUS_RESP" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('sha',''))" 2>/dev/null || echo "")
+ENCODED=$(echo "$REGISTRATION_JSON" | base64)
+
+# PUT to telemetry branch
+if [ -n "$EXISTING_SHA" ]; then
+  gh api -X PUT "repos/talentedgeai/human-token-tracker/contents/${REG_PATH}" \
+    -f "message=registration: $REPO_FULL" \
+    -f "content=$ENCODED" \
+    -f "branch=telemetry" \
+    -f "sha=$EXISTING_SHA"
+else
+  gh api -X PUT "repos/talentedgeai/human-token-tracker/contents/${REG_PATH}" \
+    -f "message=registration: $REPO_FULL" \
+    -f "content=$ENCODED" \
+    -f "branch=telemetry"
+fi
+```
+
+On success:
+```
+✅ Registration submitted → telemetry branch: registrations/<owner>__<repo>.json
+   The tracker applies it on its next ingest run (no DB credentials needed).
+   Effort records for this repo will appear in the dashboard once active.
+```
+
+On error: show the raw error output and tell the operator to retry this step. The rest of the onboarding is unaffected.
 
 ---
 
@@ -223,6 +308,7 @@ Stopped partway through? Here's exactly where to pick up.
 - [ ] `email-index.md` verified — Stage 0 populated
 - [ ] Mac Mini scheduled work confirmed running **[P10]**
 - [ ] Product Manager briefed on business context **[P1][P14]**
+- [ ] Effort-tracking registration submitted or skipped (marker written if skipped)
 
 **Client is now operational. Point them to the first-actions guide in `references/first-actions.md`.**
 
