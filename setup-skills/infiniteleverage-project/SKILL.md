@@ -540,6 +540,87 @@ To wire up auto-deploys on Vercel:
   cd $TARGET && vercel link
 ```
 
+### Step 13 — Register the repo for effort tracking (interactive, optional but recommended)
+
+Now that the GitHub repo exists, register it with the Infinite Leverage effort tracker so human-hours and Claude-session records are captured and displayed in the dashboard.
+
+Ask the operator:
+
+> Do you want to register `$GH_OWNER/$PROJECT_SLUG` for effort tracking now?
+> This lets the dashboard show time spent per project. (y / skip)
+
+**If the operator says "skip":** write the local declined marker so the session-start hook stops prompting:
+
+```bash
+mkdir -p "$HOME/.claude/.il-telemetry/unregistered"
+touch "$HOME/.claude/.il-telemetry/unregistered/${GH_OWNER}__${PROJECT_SLUG}"
+echo "Skipped. Marker written — you won't be prompted again for this repo."
+echo "To register later, delete: ~/.claude/.il-telemetry/unregistered/${GH_OWNER}__${PROJECT_SLUG}"
+```
+
+**If the operator says "y":** gather these details interactively:
+
+| Field | Question to ask |
+|---|---|
+| Type | "Is this a personal project or a client project?" → `personal` or `client` |
+| Display name | "What's the human-readable display name?" (default: `$PROJECT_NAME`) |
+| *(client only)* Client name | "What is the client's company name?" |
+| *(client only)* Client initials | "Two-letter initials for the client (e.g. E8)?" |
+| *(client only)* Is internal? | "Are you part of the client's organisation? (y/n)" — sets `is_internal` |
+| *(client only)* Exclude identities | "Are there git emails or GitHub logins belonging to the client's own people that should NOT be counted as AI-assisted effort? (enter email or GitHub login, one per line; blank line to finish)" |
+
+Then build the JSON, commit it to the `telemetry` branch of `talentedgeai/human-token-tracker` at path `registrations/<owner>__<repo>.json`:
+
+```bash
+# 1. Resolve current GitHub login
+GH_LOGIN=$(gh api user --jq '.login')
+
+# 2. Build the JSON (Claude assembles this from the answers above)
+#    Example for a client project:
+REGISTRATION_JSON='{
+  "repo_full_name": "'"$GH_OWNER/$PROJECT_SLUG"'",
+  "github_login": "'"$GH_LOGIN"'",
+  "type": "client",
+  "project_name": "'"$PROJECT_NAME"'",
+  "client": { "name": "Acme Corp", "initials": "AC", "is_internal": false },
+  "exclude_identities": [
+    { "git_email": "bob@acme.com", "github_login": "bob-acme", "label": "Client" }
+  ],
+  "submitted_at": "'"$(date -u +%FT%TZ)"'"
+}'
+
+# 3. Check if the file already exists on the telemetry branch (to get its sha for update)
+REG_PATH="registrations/${GH_OWNER}__${PROJECT_SLUG}.json"
+STATUS_RESP=$(gh api "repos/talentedgeai/human-token-tracker/contents/${REG_PATH}?ref=telemetry" 2>/dev/null || echo "")
+EXISTING_SHA=$(echo "$STATUS_RESP" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('sha',''))" 2>/dev/null || echo "")
+
+# 4. Base64-encode the content
+ENCODED=$(echo "$REGISTRATION_JSON" | base64)
+
+# 5. PUT to the telemetry branch (with sha if updating, without if creating)
+if [ -n "$EXISTING_SHA" ]; then
+  gh api -X PUT "repos/talentedgeai/human-token-tracker/contents/${REG_PATH}" \
+    -f "message=registration: $GH_OWNER/$PROJECT_SLUG" \
+    -f "content=$ENCODED" \
+    -f "branch=telemetry" \
+    -f "sha=$EXISTING_SHA"
+else
+  gh api -X PUT "repos/talentedgeai/human-token-tracker/contents/${REG_PATH}" \
+    -f "message=registration: $GH_OWNER/$PROJECT_SLUG" \
+    -f "content=$ENCODED" \
+    -f "branch=telemetry"
+fi
+```
+
+On success, print:
+```
+✅ Registration submitted: registrations/$GH_OWNER__$PROJECT_SLUG.json → telemetry branch
+   The tracker applies new registrations on its next ingest run (no DB credentials needed).
+   Once active, effort records for this repo will appear in the dashboard.
+```
+
+On any error, print the error output and tell the operator they can retry by re-invoking this step. Do not leave partial state.
+
 ---
 
 ## What this skill does NOT do
