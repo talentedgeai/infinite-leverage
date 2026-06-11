@@ -259,6 +259,20 @@ On success:
 
 On error: show the raw error output and tell the operator to retry this step. The rest of the onboarding is unaffected.
 
+### Validate effort tracking
+
+After the registration step, run these five checks and report each as **PASS** or **FAIL**:
+
+```bash
+gh auth status
+git config user.email
+git -C . remote get-url origin
+ls ~/.claude/hooks/il_telemetry >/dev/null 2>&1 && echo "telemetry hooks: OK" || echo "telemetry hooks: MISSING → update plugin + /infiniteleverage-patch"
+grep -q session-telemetry ~/.claude/settings.local.json && echo "registered: OK" || echo "registered: MISSING"
+```
+
+Report each line's result plainly: "PASS — gh authenticated as …", "FAIL — telemetry hooks: MISSING → update plugin + /infiniteleverage-patch", etc. If any check fails, note the remediation alongside it. The rest of the onboarding is not blocked by a FAIL here — record it and move on.
+
 ---
 
 ## Resume Paths
