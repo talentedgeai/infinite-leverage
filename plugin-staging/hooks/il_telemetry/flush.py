@@ -5,6 +5,7 @@ from il_telemetry.outbox import pending_records, mark_delivered
 from il_telemetry.deliver import deliver_record
 from il_telemetry import methodology
 from il_telemetry.context import gather_context
+from il_telemetry.registration import check_and_gate
 
 OUTBOX = Path.home() / ".claude" / ".il-telemetry" / "outbox"
 REPO = "talentedgeai/human-token-tracker"  # the CENTRAL repo the telemetry files live in
@@ -76,6 +77,8 @@ def main() -> None:
                 repo = rec.get("repo_full_name") or ""
                 if "/" not in repo:
                     continue
+                if not check_and_gate(repo):
+                    continue  # repo not registered — skip delivery silently
                 owner, name = repo.split("/", 1)
                 deliver_record(gh_api, {**rec, "client_slug": owner, "project_slug": name})
             except Exception:
@@ -86,6 +89,8 @@ def main() -> None:
             repo = rec.get("repo_full_name") or ""
             if "/" not in repo:
                 continue
+            if not check_and_gate(repo):
+                continue  # repo not registered — skip delivery silently
             owner, name = repo.split("/", 1)
             payload = {**rec, "record_type": "claude", "client_slug": owner, "project_slug": name}
             if deliver_record(gh_api, payload):
