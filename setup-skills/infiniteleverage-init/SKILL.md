@@ -209,6 +209,7 @@ Stopped partway through? Here's where to pick up — no restarting needed.
 ## Checklist
 
 ### Phase 1 — Manual
+- [ ] Run `gh auth login` and set `git config --global user.email` — required for effort tracking to attribute your work.
 - [ ] Operator email active: `{firstname}@{clientdomain}.com`
 - [ ] GitHub `{clientslug}` created and verified
 - [ ] Claude Pro account active

@@ -52,6 +52,10 @@ The script checks and reports ✅ / ⚠️ / ❌ for each item:
 | Hook wiring | `PreToolUse` and `UserPromptSubmit` entries present in `settings.local.json` |
 | Global skills | `daily-checkin`, `create-local-routine`, `create-remote-routine`, `infiniteleverage-patch`, `infiniteleverage-help`, `create-agent` installed |
 | Agent count | ≥ 8 agents in `~/.claude/agents/` |
+| Telemetry hooks dir | `~/.claude/hooks/il_telemetry/` present — remediation: update the plugin + re-run `/infiniteleverage-patch` |
+| Telemetry hook wiring | `Stop`, `SessionEnd`, `SessionStart` each wired in `settings.local.json` — remediation: update the plugin + re-run `/infiniteleverage-patch` |
+| gh auth | `gh auth status` shows authenticated account — remediation: `gh auth login` |
+| git user.email | `git config user.email` non-empty — remediation: `git config --global user.email 'you@example.com'` |
 
 **If any ❌ items appear**: show the user the full report and ask which gaps to fix before continuing. Do not auto-fix without confirmation — some gaps (like missing credentials) require manual input.
 

@@ -254,6 +254,37 @@ else
 fi
 echo ""
 
+# ── 10. Telemetry / effort tracking ──────────────────────────────────────────
+echo "[ Telemetry — Effort Tracking ]"
+TELEMETRY_DIR="$CLAUDE_DIR/hooks/il_telemetry"
+if [ -d "$TELEMETRY_DIR" ]; then
+  check "~/.claude/hooks/il_telemetry/ present" ok ""
+else
+  check "~/.claude/hooks/il_telemetry/ present" missing "update the plugin + re-run /infiniteleverage-patch"
+fi
+if [ -f "$SETTINGS" ]; then
+  for event in Stop SessionEnd SessionStart; do
+    if grep -q "$event" "$SETTINGS" 2>/dev/null; then
+      check "  $event hook wired in settings.local.json" ok ""
+    else
+      check "  $event hook wired in settings.local.json" missing "update the plugin + re-run /infiniteleverage-patch"
+    fi
+  done
+fi
+gh_auth_ok=$(gh auth status 2>&1 | grep -c "Logged in" || true)
+if [ "$gh_auth_ok" -gt 0 ]; then
+  check "gh auth status" ok ""
+else
+  check "gh auth status" missing "run: gh auth login"
+fi
+git_email=$(git config user.email 2>/dev/null || echo "")
+if [ -n "$git_email" ]; then
+  check "git config user.email" ok "$git_email"
+else
+  check "git config user.email" missing "run: git config --global user.email 'you@example.com'"
+fi
+echo ""
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo "==========================="
 if [ "$issues" -eq 0 ]; then
