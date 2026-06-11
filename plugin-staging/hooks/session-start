@@ -45,3 +45,49 @@ python3 "$HOME/.claude/hooks/usage-context.py" 2>/dev/null || true
 if ! command -v gh >/dev/null 2>&1 || ! gh auth status >/dev/null 2>&1 || [ -z "$(git config user.email 2>/dev/null)" ]; then
     echo "[telemetry] not configured — effort not tracked; run /infiniteleverage-onboard"
 fi
+
+# ── Stage 5b: Registration notice ────────────────────────────────────────────
+# If inside a git repo with a remote origin, check whether this repo is
+# registered for effort tracking. Print a single line if not. Never blocks.
+_IL_TRACKER_URL="${IL_TRACKER_URL:-https://human-token-tracker.vercel.app}"
+_REPO_REMOTE=$(git config --get remote.origin.url 2>/dev/null || true)
+if [ -n "$_REPO_REMOTE" ] && command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+    _REPO_FULL=$(python3 - <<'PY' 2>/dev/null
+import subprocess, sys
+raw = subprocess.run(["git","config","--get","remote.origin.url"],
+                    capture_output=True, text=True).stdout.strip()
+s = raw
+if s.endswith(".git"): s = s[:-4]
+if ":" in s and "//" not in s:
+    s = s.split(":",1)[1]
+else:
+    parts = s.split("//",1)[-1].split("/",1)
+    s = parts[1] if len(parts)>1 else parts[0]
+print(s.strip("/"))
+PY
+    )
+    if [ -n "$_REPO_FULL" ]; then
+        # Check local unregistered marker first (avoids network call)
+        _MARKER_FILE="$HOME/.claude/.il-telemetry/unregistered/$(echo "$_REPO_FULL" | tr '/' '_' | sed 's|/|__|g')"
+        _SAFE_MARKER=$(echo "$_REPO_FULL" | sed 's|/|__|g')
+        _MARKER_PATH="$HOME/.claude/.il-telemetry/unregistered/$_SAFE_MARKER"
+        if [ -f "$_MARKER_PATH" ]; then
+            : # already known unregistered — skip probe, no noise
+        else
+            _STATUS=$(python3 - "$_IL_TRACKER_URL" "$_REPO_FULL" <<'PY' 2>/dev/null
+import sys, urllib.request, urllib.error, json
+tracker, repo = sys.argv[1], sys.argv[2]
+try:
+    url = f"{tracker}/api/projects/status?repo={urllib.request.quote(repo, safe='/')}"
+    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent":"il-telemetry/1.0"}), timeout=5) as r:
+        print("registered" if json.loads(r.read()).get("registered") else "unregistered")
+except Exception:
+    print("unknown")
+PY
+            )
+            if [ "$_STATUS" = "unregistered" ]; then
+                echo "[Infinite Leverage] This repo isn't tracked yet — ask me to \"register this project for effort tracking\" (or say skip)."
+            fi
+        fi
+    fi
+fi
