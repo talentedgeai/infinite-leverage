@@ -51,6 +51,20 @@ done
 [[ ${#updated[@]} -gt 0 ]]   && echo "  ~ updated hooks:   ${updated[*]}"
 [[ ${#installed[@]} -eq 0 && ${#updated[@]} -eq 0 ]] && echo "  = hooks already up to date"
 
+# ── Telemetry hooks (from plugin-staging/hooks) ───────────────────────────────
+# The il_telemetry package + Stop/SessionEnd wrappers live in plugin-staging/hooks
+# (not the top-level hooks/ dir) and include a DIRECTORY the file-only loop above
+# skips. Copy them explicitly so effort tracking is actually delivered + registered.
+PS_HOOKS="$SOURCE_DIR/plugin-staging/hooks"
+if [[ -d "$PS_HOOKS/il_telemetry" ]]; then
+  rm -rf "$HOOKS_DEST/il_telemetry"
+  cp -r "$PS_HOOKS/il_telemetry" "$HOOKS_DEST/il_telemetry"
+  for w in session-telemetry-stop session-telemetry-end; do
+    if [[ -f "$PS_HOOKS/$w" ]]; then cp "$PS_HOOKS/$w" "$HOOKS_DEST/$w"; chmod +x "$HOOKS_DEST/$w"; fi
+  done
+  echo "  + installed telemetry hooks: il_telemetry/, session-telemetry-stop, session-telemetry-end"
+fi
+
 # ── Wire into settings.local.json ────────────────────────────────────────────
 
 python3 - "$SETTINGS" "$HOOKS_DEST" <<'PYEOF'
@@ -72,8 +86,11 @@ hooks_cfg = settings.setdefault("hooks", {})
 
 # Each entry: (event_name, hook_filename, matcher)
 HOOK_DEFS = [
-    ("PreToolUse",        "pre-bash",       "Bash"),
-    ("UserPromptSubmit",  "prompt-submit",  ""),
+    ("PreToolUse",        "pre-bash",                "Bash"),
+    ("UserPromptSubmit",  "prompt-submit",           ""),
+    ("Stop",              "session-telemetry-stop",  ""),
+    ("SessionEnd",        "session-telemetry-end",   ""),
+    ("SessionStart",      "session-telemetry-end",   ""),
 ]
 
 wired = []

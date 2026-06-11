@@ -149,18 +149,21 @@ Replace each placeholder with the actual value from the credentials file.
 
 ---
 
-## Prompt 5 — Supabase MCP
+## Prompt 5 — Supabase plugin (MCP)
+
+> The Supabase connection comes from the **official Claude Code Supabase plugin** (`plugin:supabase`), not the standalone Supabase CLI. Installing a plugin and clicking through OAuth are steps Claude Code cannot do on its own — Claude will pause and walk you through them.
 
 ```
-Set up the Supabase MCP server on this machine:
-1. Fetch the latest Supabase MCP setup documentation so you follow the current install method
-2. Add the MCP server to ~/.claude/settings.local.json
-3. Start the Supabase authentication flow and give me the browser URL to authorize
-4. After I tell you I've completed authorization, finish the auth flow
-5. Verify the connection by listing the Supabase projects on this account
+Connect this machine to Supabase using the official Claude Code Supabase plugin:
+1. You cannot install a plugin for me — tell me to install it myself, then pause. I will run `/plugin` in Claude Code, open the marketplace, install "supabase", and restart the session if prompted. Wait until I confirm the plugin is installed.
+2. Once I confirm the plugin is installed, start the Supabase authentication flow (mcp__supabase__authenticate) and give me the browser URL to authorize.
+3. After I tell you I've authorized in the browser, finish the auth flow (mcp__supabase__complete_authentication).
+4. Verify the connection by listing the Supabase projects on this account.
 ```
 
-> **Manual step**: Claude outputs a URL → open in browser → **Authorize** → tell Claude "done".
+> **Manual steps (only you can do these — Claude will prompt you):**
+> 1. Run `/plugin` in Claude Code → marketplace → install **supabase** → restart the session if prompted.
+> 2. Open the auth URL Claude outputs → click **Authorize** → tell Claude "done".
 
 ---
 

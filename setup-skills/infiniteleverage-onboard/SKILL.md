@@ -94,11 +94,10 @@ Claude will scan your machine and give you a friendly "here's where you are" sum
 ```
 PHASE 1 — Claude Chat (manual)
   Prerequisites + quick win — client does this (Dave guides)
-  ├── [P3] Check/install: Chrome, Homebrew, git, gh, Node, supabase CLI, resend CLI
+  ├── [P3] Check/install: Chrome, Homebrew, git, gh, Node, resend CLI
   ├── [P5] Authenticate: GitHub CLI (browser OAuth)
   ├── Install: Claude Code Desktop (signed in with Claude Pro)
   ├── Install + authenticate: Claude Code CLI (required for automation)
-  ├── Install + authenticate: supabase CLI (`brew install supabase/tap/supabase`)
   ├── Install + authenticate: resend CLI (`npm install -g resend`)
   ├── [P6] Install + authenticate: Vercel CLI
   ├── Transfer: credentials file from Mac Mini (AirDrop or secure share)
@@ -108,13 +107,13 @@ PHASE 1 — Claude Chat (manual)
 
 PHASE 2 — Claude Code (automated)
   Machine config + agent install — Claude Code does all of this
-  ├── Check: all CLIs (gh, vercel, supabase, resend, claude) authenticated
+  ├── Check: all CLIs (gh, vercel, resend, claude) authenticated
   ├── [P3] Global dirs: ~/.claude/agents/, ~/.claude/skills/, ~/.claude/rules/
   ├── Permissions: ~/.claude/settings.local.json (Bash(*), acceptEdits, MCP)
   ├── Global CLAUDE.md: identity, agents pointer, content queue, schedule **[P9]**
   ├── [P3] Global rules: ~/.claude/rules/global-engineering.md
   ├── Credentials: ~/.claude/.env with all API keys
-  ├── [P7] Supabase MCP: configure in settings.local.json + verify auth against SUPABASE_URL + SERVICE_ROLE_KEY
+  ├── [P7] Supabase plugin (MCP): operator installs `plugin:supabase` via `/plugin` → Claude runs auth + verifies against SUPABASE_URL + SERVICE_ROLE_KEY
   ├── [P11] Global skills: daily-checkin, create-local-routine, create-remote-routine
   ├── [P13] Agent templates: fetch from GitHub canonical repo (fallback: bundled `agents/`)
   ├── [P13][P1] Agent install: copy all 8 to `~/.claude/agents/`
@@ -165,7 +164,7 @@ Open Claude Code Desktop in the project directory: click "Open Folder" → selec
 
 Run prompts from `references/phase2-prompts.md` in sequence. Each is self-contained.
 
-**The only manual step in Phase 2**: Supabase MCP OAuth. Claude outputs a URL → open in browser → Authorize → tell Claude "done". **[P7]**
+**The two manual steps in Phase 2**: installing the Supabase plugin and the OAuth click. Claude Code cannot install a plugin or authorize OAuth on its own, so it will pause and prompt you. (1) Run `/plugin` in Claude Code → marketplace → install **supabase** → restart if prompted. (2) Claude outputs an auth URL → open in browser → Authorize → tell Claude "done". **[P7]**
 
 **Phase 2 is complete when:**
 - `~/.claude/agents/` shows all 8 agents **[P13]**
@@ -200,25 +199,24 @@ Stopped partway through? Here's exactly where to pick up.
 ### Phase 1 — Manual
 - [ ] Chrome installed
 - [ ] Homebrew installed and in PATH
-- [ ] git, gh CLI, Node, supabase CLI, resend CLI installed
+- [ ] git, gh CLI, Node, resend CLI installed
 - [ ] GitHub CLI authenticated as operator account **[P5]**
 - [ ] Claude Code Desktop installed and signed in
 - [ ] Claude Code CLI installed and authenticated
 - [ ] Vercel CLI installed and authenticated **[P6]**
-- [ ] supabase CLI installed and authenticated
 - [ ] resend CLI installed and authenticated
 - [ ] Credentials file transferred from Mac Mini (secure transfer — never email)
 - [ ] Live project cloned to `~/code-projects/{project-slug}/` **[P5]**
 - [ ] `npm run dev` runs successfully at `http://localhost:3000`
 
 ### Phase 2 — Claude Code
-- [ ] All CLIs authenticated: gh, vercel, supabase, resend, claude
+- [ ] All CLIs authenticated: gh, vercel, resend, claude
 - [ ] `~/.claude/agents/`, `~/.claude/skills/`, `~/.claude/rules/` created
 - [ ] `~/.claude/settings.local.json` with `Bash(*)` + `acceptEdits` + MCP permissions **[P3]**
 - [ ] `~/.claude/CLAUDE.md` written (matches Mac Mini)
 - [ ] `~/.claude/rules/global-engineering.md` written
 - [ ] `~/.claude/.env` written with all API keys
-- [ ] Supabase MCP configured and authenticated **[P7]**
+- [ ] Supabase plugin (`plugin:supabase`) installed via `/plugin` + MCP authenticated **[P7]**
 - [ ] Global skills: `daily-checkin`, `create-local-routine`, `create-remote-routine` **[P11]**
 - [ ] All 8 agents fetched from GitHub canonical repo to `~/.claude/agents/` **[P13]**
 - [ ] All 8 agents tested and responding

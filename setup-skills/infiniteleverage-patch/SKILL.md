@@ -46,8 +46,8 @@ The script checks and reports ✅ / ⚠️ / ❌ for each item:
 | Project `CLAUDE.md` | (For every repo under `~/code-projects/`) has `AGENT-DELEGATION` block — auto-injected by `scripts/inject-agent-delegation.sh` when missing |
 | `~/.claude/rules/global-engineering.md` | File exists + has `## Environment variables` section |
 | `~/.claude/.env` | Required keys present and non-empty: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`, `RESEND_API_KEY`. Optional: `LARK_APP_ID`, `LARK_APP_SECRET`, `LARK_WEBHOOK_URL` (all three or none — partial config warns). |
-| CLI tools | `gh`, `vercel`, `supabase`, `resend` all in PATH and reporting versions |
-| Supabase MCP | MCP entry in `settings.local.json` + auth credentials (`SUPABASE_URL` + `SERVICE_ROLE_KEY`) in `~/.claude/.env` |
+| CLI tools | `gh`, `vercel`, `resend` all in PATH and reporting versions |
+| Supabase plugin (MCP) | `plugin:supabase` installed (Supabase MCP tools available) + auth credentials (`SUPABASE_URL` + `SERVICE_ROLE_KEY`) in `~/.claude/.env` |
 | Hooks | `~/.claude/hooks/pre-bash` + `prompt-submit` exist and are executable |
 | Hook wiring | `PreToolUse` and `UserPromptSubmit` entries present in `settings.local.json` |
 | Global skills | `daily-checkin`, `create-local-routine`, `create-remote-routine`, `infiniteleverage-patch`, `infiniteleverage-help`, `create-agent` installed |
@@ -63,8 +63,8 @@ The script checks and reports ✅ / ⚠️ / ❌ for each item:
 - `~/.claude/CLAUDE.md` references `00-product-overview.md`: update the product documentation section to use `product.md`
 - `AGENT-DELEGATION` block missing from any CLAUDE.md (global or project): inject it with `bash ~/.claude/skills/infiniteleverage-patch/scripts/inject-agent-delegation.sh <path-to-CLAUDE.md>` — the script is idempotent and only edits between BEGIN/END markers
 - Missing `~/.claude/.env` keys: ask the user to supply the values — never guess credentials
-- Missing CLI tool: brew install for system tools (`brew install gh supabase`), npm install -g for JS tools (`npm install -g vercel resend`)
-- Missing Supabase MCP entry: re-run `setup-permissions.py` from this skill or manually add `"mcpServers"` section to `settings.local.json`
+- Missing CLI tool: brew install for system tools (`brew install gh`), npm install -g for JS tools (`npm install -g vercel resend`)
+- Missing Supabase plugin: Claude Code cannot install a plugin on its own — ask the operator to run `/plugin` in Claude Code → marketplace → install **supabase** → restart if prompted, then run the auth flow (`mcp__supabase__authenticate` → `mcp__supabase__complete_authentication`)
 - Missing skills: ask if they want to install the missing skills
 - Missing hooks or hook wiring: run `bash ~/.claude/skills/infiniteleverage-patch/scripts/install-hooks.sh /tmp/il-agents` (clone first if `/tmp/il-agents` doesn't exist)
 

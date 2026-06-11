@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infinite Leverage — 8-Agent Template · Introduction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..500,0..100,0..1;1,9..144,300..500,0..100,0..1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#02081c; --ink-2:#060f2c; --ink-3:#0a1740;
+    --paper:#eaeef2; --paper-2:#f5f7fa; --cream:#fff;
+    --accent:#287be8; --accent-deep:#1a9e74; --mint:#6ff2c1; --pink:#d1458b;
+    --muted-on-paper:#02081c9e; --muted-dark:#eaeef29e;
+    --rule-on-paper:#02081c1f; --rule-dark:#eaeef21f;
+    --serif:"Fraunces",Georgia,serif;
+    --sans:"Inter",-apple-system,BlinkMacSystemFont,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+    --hl:var(--accent-deep);     /* emphasis (light mode) */
+    --card:var(--cream);
+    --muted:var(--muted-on-paper);
+    --rule:var(--rule-on-paper);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:var(--sans);
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+    overflow:hidden;line-height:1.5;
+  }
+  .deck{height:100vh;width:100vw;position:relative}
+  .slide{
+    position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;
+    padding:7vh 8vw;opacity:0;transform:translateY(12px);
+    transition:opacity .5s ease,transform .5s ease;overflow:auto;
+    background:var(--paper);
+  }
+  .slide::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(820px 600px at 88% -10%,rgba(40,123,232,.10),transparent 60%),
+               radial-gradient(680px 540px at -8% 112%,rgba(26,158,116,.07),transparent 55%);
+  }
+  .slide.active{display:flex;opacity:1;transform:none}
+  .slide > *{position:relative;z-index:1}
+
+  .eyebrow{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:inline-block;margin-bottom:22px}
+  h1{font-family:var(--serif);font-variation-settings:"opsz" 144,"SOFT" 50,"WONK" 0;font-weight:300;font-size:clamp(45px,7vw,108px);line-height:.94;letter-spacing:-.03em;color:var(--ink)}
+  h2{font-family:var(--serif);font-variation-settings:"opsz" 96,"SOFT" 50,"WONK" 0;font-weight:300;font-size:clamp(32px,4.4vw,68px);line-height:1;letter-spacing:-.025em;color:var(--ink);margin-bottom:24px}
+  h3{font-family:var(--serif);font-variation-settings:"opsz" 36,"SOFT" 50,"WONK" 0;font-weight:400;font-size:1.45rem;line-height:1.1;letter-spacing:-.02em;color:var(--ink);margin-bottom:6px}
+  p,li{font-size:clamp(1rem,1.4vw,1.12rem);color:var(--muted);line-height:1.6}
+  .lead{font-family:var(--sans);font-weight:400;font-size:clamp(1.05rem,1.7vw,1.35rem);color:var(--ink);max-width:62ch;margin-top:8px;line-height:1.55}
+  .em{font-style:italic;color:var(--hl)}
+  .grad{font-style:italic;color:var(--hl)}
+  .sub{color:var(--muted);margin-top:24px;max-width:64ch;font-size:1rem}
+
+  .grid{display:grid;gap:16px;margin-top:30px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:20px 22px}
+  .card .tag{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-deep);font-weight:500}
+  .card h3{margin-top:10px;font-size:1.25rem}
+  .card p{font-size:.96rem;margin-top:6px}
+
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border:1px solid var(--rule);border-radius:999px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:var(--card);margin:6px 6px 0 0}
+
+  .steps{display:grid;gap:13px;margin-top:28px}
+  .step{display:flex;gap:18px;align-items:flex-start;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:18px 20px}
+  .step .n{flex:0 0 40px;height:40px;width:40px;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-weight:400;font-size:1.2rem;color:var(--ink);background:var(--mint)}
+  .step h3{font-size:1.2rem}
+
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:30px}
+  .node{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:14px 18px;font-weight:500;color:var(--ink);font-size:1rem}
+  .node small{display:block;font-family:var(--mono);font-weight:400;color:var(--muted);font-size:.72rem;letter-spacing:.04em;margin-top:4px;text-transform:none}
+  .arrow{color:var(--accent);font-size:1.3rem}
+
+  .stack{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
+  .chip{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:15px 20px}
+  .chip b{font-weight:600}
+  .chip .dot{height:10px;width:10px;border-radius:50%}
+  .chip small{font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;color:var(--muted)}
+
+  code,.mono{font-family:var(--mono);font-size:.92em}
+  .codeblock{margin-top:24px;background:var(--ink-3);border:1px solid var(--rule);border-radius:14px;padding:20px 22px;font-family:var(--mono);font-size:.9rem;color:var(--paper);line-height:1.8;overflow:auto}
+  .codeblock .c{color:#6b7796}
+  .codeblock .k{color:var(--accent)}
+  .codeblock .s{color:var(--mint)}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:38px;align-items:center;margin-top:12px}
+  .badgeRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}
+  .repo{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:14px 18px;font-size:.95rem}
+  .repo b{font-family:var(--mono);font-size:.82rem;letter-spacing:.02em;font-weight:500}
+  .repo .git{font-size:1.1rem}
+  .repo small{color:var(--muted);font-family:var(--mono);font-size:.7rem}
+
+  ul.clean{list-style:none;margin-top:20px;display:grid;gap:13px}
+  ul.clean li{display:flex;gap:13px;align-items:flex-start;font-size:1.05rem}
+  ul.clean li::before{content:"";flex:0 0 7px;height:7px;width:7px;border-radius:50%;margin-top:11px;background:var(--accent)}
+
+  .kpi{font-family:var(--serif);font-variation-settings:"opsz" 144,"SOFT" 50,"WONK" 0;font-size:clamp(2.6rem,6vw,4.4rem);font-weight:300;line-height:1;letter-spacing:-.03em;color:var(--ink)}
+  .center{align-items:center;text-align:center}
+  .center .sub,.center .lead{margin-left:auto;margin-right:auto}
+
+  /* chrome */
+  .progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--mint));z-index:50;transition:width .4s ease}
+  .hud{position:fixed;bottom:22px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:18px;z-index:40}
+  .dots{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:60vw}
+  .dots i{height:7px;width:7px;border-radius:50%;background:var(--rule);cursor:pointer;transition:.2s;border:1px solid transparent}
+  .dots i.on{background:var(--accent);transform:scale(1.4)}
+  .nav{position:fixed;bottom:18px;right:24px;display:flex;gap:8px;z-index:40}
+  .nav button{height:42px;width:42px;border-radius:999px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font-size:1.1rem;cursor:pointer;backdrop-filter:blur(6px);transition:.2s}
+  .nav button:hover{border-color:var(--accent);color:var(--accent)}
+  .counter{position:fixed;top:20px;right:26px;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;color:var(--muted);z-index:40}
+  .brandmark{position:fixed;top:18px;left:26px;font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;z-index:40;color:var(--muted)}
+  .brandmark b{color:var(--ink);font-weight:500}
+  .hint{position:fixed;bottom:20px;left:26px;font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;color:var(--muted);z-index:40}
+
+  @media(max-width:860px){
+    .g2,.g3,.g4,.two{grid-template-columns:1fr}
+    .slide{padding:9vh 7vw}
+    .dots{max-width:40vw}
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="bar"></div>
+<div class="brandmark">⚡ Infinite&nbsp;<b>Leverage&nbsp;8</b></div>
+<div class="counter"><span id="cur">1</span>&nbsp;/&nbsp;<span id="tot">16</span></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 — TITLE -->
+  <section class="slide center" data-bg="dark">
+    <div class="eyebrow">The 8-Agent Template</div>
+    <h1>An autonomous<br><span class="em">AI company</span> in a box.</h1>
+    <p class="lead">One repository that turns Claude Code into a complete product &amp; marketing org — eight specialist agents, 70+ skills, and a stack that ships itself.</p>
+    <div class="badgeRow" style="justify-content:center">
+      <span class="pill">8 Agents</span>
+      <span class="pill">70+ Skills</span>
+      <span class="pill">9 Scaffolds</span>
+      <span class="pill">18 Protocols</span>
+    </div>
+    <p class="hint" style="position:static;margin-top:34px">→ / ← arrows · Space · swipe · F for fullscreen</p>
+  </section>
+
+  <!-- 2 — CONCEPT -->
+  <section class="slide" data-bg="dark">
+    <div class="eyebrow">The Concept</div>
+    <h2>Humans orchestrate.<br><span class="em">Agents act.</span></h2>
+    <p class="lead">Most "AI tools" wait for prompts. This template installs a <b>standing team</b> of role-based agents that each own a job, follow hard rules, and hand work to one another — like a real company, running on your machine.</p>
+    <div class="grid g3">
+      <div class="card"><div class="tag">Not a chatbot</div><h3>A team of roles</h3><p>Eight fixed agents — PM, Developer, QA, DevOps, Writer, Designer, Publisher, Email — each with its own remit.</p></div>
+      <div class="card"><div class="tag">Not magic</div><h3>Agents are folders</h3><p>Every agent is a plain Markdown file plus skills. Transparent, versioned, editable in git.</p></div>
+      <div class="card"><div class="tag">Not throwaway</div><h3>Work outlives you</h3><p>Context lives in the repo, not the chat. Any machine or session picks up exactly where the last left off.</p></div>
+    </div>
+  </section>
+
+  <!-- 3 — PURPOSE (paper) -->
+  <section class="slide paper" data-bg="paper">
+    <div class="eyebrow">The Purpose</div>
+    <h2>Why this exists</h2>
+    <div class="two">
+      <div>
+        <ul class="clean">
+          <li><b>Solo operators can't staff a team.</b> One person can't be PM, engineer, QA, designer and marketer at once.</li>
+          <li><b>AI help is inconsistent.</b> Ad-hoc prompting gives ad-hoc results — no process, no memory, no guardrails.</li>
+          <li><b>Context evaporates.</b> Every new chat starts from zero. Decisions and history get lost.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="tag">The fix</div>
+        <h3 style="font-size:1.55rem;margin-top:12px">A repeatable, self-documenting AI org</h3>
+        <p style="margin-top:14px">Fixed roles with hard rules → predictable output. Skills encode best practice → consistency. The repo is the memory → nothing is lost. Set it up once, then <b>just ask</b>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 — STACK -->
+  <section class="slide" data-bg="dark">
+    <div class="eyebrow">The Stack</div>
+    <h2>Four pillars, <span class="em">zero glue code</span></h2>
+    <p class="lead">The whole system runs on four tools the agents already know how to drive.</p>
+    <div class="stack">
+      <div class="chip"><span class="dot" style="background:var(--accent)"></span><div><b>Claude Code</b><br><small>the agents &amp; skills</small></div></div>
+      <div class="chip"><span class="dot" style="background:var(--mint)"></span><div><b>GitHub</b><br><small>code + context + memory</small></div></div>
+      <div class="chip"><span class="dot" style="background:var(--accent-deep)"></span><div><b>Vercel</b><br><small>deploy on git push</small></div></div>
+      <div class="chip"><span class="dot" style="background:var(--pink)"></span><div><b>Supabase</b><br><small>data · auth · storage</small></div></div>
+    </div>
+    <p class="sub">Golden rule — <b>nothing goes live except through <code>git push</code> → CI/CD.</b> No direct deploys, no manual promotion. Vercel builds automatically when code lands on <code>main</code>.</p>
+  </section>
+
+  <!-- 5 — 18 PROTOCOLS (paper) -->
+  <section class="slide paper" data-bg="paper">
+    <div class="eyebrow">The Operating System</div>
+    <h2>Built on 18 Protocols</h2>
+    <p class="lead">The principles that make an AI team actually work — surfaced as <code>[P#]</code> at the exact moment they matter during setup.</p>
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card"><div class="tag">Mindset</div><p style="margin-top:10px">Humans orchestrate; agents act. AI is the new CMS. Agents are folders, not magic.</p></div>
+      <div class="card"><div class="tag">Infrastructure</div><p style="margin-top:10px">GitHub for everything. Vercel deploys only via push. Supabase for data &amp; subscribers.</p></div>
+      <div class="card"><div class="tag">Building</div><p style="margin-top:10px">Design system before components. Concrete workflows. Schedules auto-run. Skills for admin.</p></div>
+      <div class="card"><div class="tag">Team &amp; Ops</div><p style="margin-top:10px">Eight fixed roles — no improvising. PM plans epics. PM reads git history first.</p></div>
+      <div class="card"><div class="tag">Continuity</div><p style="margin-top:10px">QA knows what AI can &amp; can't test. Context handed off via files + memory. Work outlives the operator.</p></div>
+      <div class="card" style="background:rgba(26,158,116,.10);border-color:rgba(26,158,116,.35)"><div class="tag">The payoff</div><h3 style="margin-top:10px">Leverage</h3><p style="margin-top:4px">One operator, the output of a full team.</p></div>
+    </div>
+  </section>
+
+  <!-- 6 — TEAM OVERVIEW -->
+  <section class="slide" data-bg="dark">
+    <div class="eyebrow">Meet the Team</div>
+    <h2>Two teams, <span class="em">eight agents</span></h2>
+    <div class="two" style="margin-top:10px">
+      <div class="card">
+        <div class="tag">Build Team</div>
+        <ul class="clean" style="margin-top:16px">
+          <li><b>Product Manager</b> — plans epics, writes specs &amp; acceptance criteria</li>
+          <li><b>Developer</b> — ships clean, secure, tested code from the plan</li>
+          <li><b>QA</b> — triages, tests against criteria, signs off</li>
+          <li><b>DevOps</b> — CI/CD, guardrails, deploys, incident response</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="tag">Go-To-Market Team</div>
+        <ul class="clean" style="margin-top:16px">
+          <li><b>Writer</b> — SEO blog posts, social copy, brand voice</li>
+          <li><b>Designer</b> — hero images, design system, UI mockups</li>
+          <li><b>Web Publisher</b> — turns content into live pages</li>
+          <li><b>Email Marketer</b> — nurtures every lead, drafts campaigns</li>
+        </ul>
+      </div>
+    </div>
+    <p class="sub">Each agent is a thin Markdown shell (role + hard rules) that loads rich, standalone skills on demand.</p>
+  </section>
+
+  <!-- 7 — DEV CHAIN -->
+  <section class="slide" data-bg="dark">
+    <div class="eyebrow">How Work Flows · Build</div>
+    <h2>The Dev Team chain</h2>
+    <p class="lead">Nothing skips a step. The Developer never starts without an approved plan; QA never skips triage; no agent deploys directly.</p>
+    <div class="flow">
+      <div class="node">Product Manager<small>approved plan + issues</small></div>
+      <span class="arrow">→</span>
+      <div class="node">Developer<small>feature built + PR</small></div>
+      <span class="arrow">→</span>
+      <div class="node">QA<small>triage &amp; verify vs. criteria</small></div>
+      <span class="arrow">→</span>
+      <div class="node" style="border-color:var(--mint)">merge → Vercel<small>auto-deploy on push</small></div>
+    </div>
+    <p class="sub">Bugs found by QA loop straight back to the Developer, then re-verify — until green.</p>
+  </section>
+
+  <!-- 8 — GTM CHAIN -->
+  <section class="slide" data-bg="dark">
+    <div class="eyebrow">How Work Flows · GTM</div>
+    <h2>The Marketing chain</h2>
+    <p class="lead">Copy is approved before images; images before publishing; campaigns are <b>always drafted</b>, never auto-sent.</p>
+    <div class="flow">
+      <div class="node">Writer<small>approved copy</small></div>
+      <span class="arrow">→</span>
+      <div class="node">Designer<small>approved images</small></div>
+      <span class="arrow">→</span>
+      <div class="node">Web Publisher<small>committed to git</small></div>
+      <span class="arrow">→</span>
+      <div class="node">Email Marketer<small>draft campaign</small></div>
+      <span class="arrow">→</span>
+      <div class="node" style="border-color:var(--pink)">Operator<small>approves → send</small></div>
+    </div>
+    <p class="sub">Hard rules keep humans in the loop exactly where it matters — publishing and sending.</p>
+  </section>
+
+  <!-- 9 — SKILLS (paper) -->
+  <section class="slide paper" data-bg="paper">
+    <div class="eyebrow">The Engine Room</div>
+    <h2>70+ skills do the real work</h2>
+    <p class="lead">Agents stay thin; skills hold the depth. Each skill is one self-contained capability the right agent loads when needed.</p>
+    <div class="grid g4" style="margin-top:26px">
+      <div class="card"><div class="tag">PM</div><p style="margin-top:8px">epic-writing · client-interview · standup · grill-with-docs · to-issues</p></div>
+      <div class="card"><div class="tag">Dev</div><p style="margin-top:8px">planning · tdd · diagnose · prototype · improve-arch · multi-agent · handoff</p></div>
+      <div class="card"><div class="tag">QA</div><p style="margin-top:8px">triage · best-practices · planning · documentation</p></div>
+      <div class="card"><div class="tag">DevOps</div><p style="margin-top:8px">cicd · pre-commit · git-guardrails · ops runbook</p></div>
+      <div class="card"><div class="tag">Writer</div><p style="margin-top:8px">seo-content · marketing-strategist</p></div>
+      <div class="card"><div class="tag">Designer</div><p style="margin-top:8px">image-generation · design-system · ui-ux · style-to-photo</p></div>
+      <div class="card"><div class="tag">Publish</div><p style="margin-top:8px">web-publisher-publish · email-nurture</p></div>
+      <div class="card"><div class="tag">Spec Kit</div><p style="margin-top:8px">specify · plan · tasks · implement · analyze</p></div>
+    </div>
+  </section>
+
+  <!-- 10 — SCAFFOLDS -->
+  <section class="slide" data-bg="dark">
+    <div class="eyebrow">Production Baselines</div>
+    <h2>9 scaffold skills, <span class="em">stamped in seconds</span></h2>
+    <p class="lead">Ask for a feature and the Developer stamps a production-ready baseline into any Next.js + Supabase project — real code, with <code>TODO:</code> markers at every project-specific decision.</p>
+    <div class="grid g3" style="margin-top:22px">
+      <div class="card"><h3>Auth</h3><p>SSR Supabase clients, login/signup/reset, OAuth, session guards.</p></div>
+      <div class="card"><h3>Chatbot</h3><p>Streaming AI SDK v6 route, multi-session history, full chat UI.</p></div>
+      <div class="card"><h3>Dashboard</h3><p>Protected layout, sidebar nav, breadcrumbs, mobile drawer.</p></div>
+      <div class="card"><h3>SEO</h3><p>Metadata helpers, JSON-LD, sitemap.ts, robots.ts, fonts.</p></div>
+      <div class="card"><h3>Payments</h3><p>Stripe Checkout, webhook, subscriptions, feature gates.</p></div>
+      <div class="card"><h3>Performance</h3><p>loading.tsx, skeletons, Suspense &amp; lazy-load helpers.</p></div>
+      <div class="card"><h3>Notifications</h3><p>Realtime bell, Supabase table + RLS, query hooks.</p></div>
+      <div class="card"><h3>File Upload</h3><p>Drag-and-drop, signed-URL API, Supabase Storage.</p></div>
+      <div class="card"><h3>Rich Text</h3><p>Markdown renderer + WYSIWYG editor (MDXEditor).</p></div>
+    </div>
+  </section>
+
+  <!-- 11 — THE REPOS (paper) -->
+  <section class="slide paper" data-bg="paper">
+    <div class="eyebrow">Single Source of Truth</div>
+    <h2>One canonical repo, two plugins</h2>
+    <p class="lead">All agents, skills, rules, scaffolds and bootstrap prompts live in <b>one</b> repo. Client machines are consumers — never hand-edited.</p>
+    <div class="grid" style="margin-top:24px;gap:12px">
+      <div class="repo"><span class="git">📦</span><div><b>talentedgeai/infiniteleverage-8-agents-template</b><br><small>canonical — agents · skills · rules · scaffolds · setup skills</small></div></div>
+      <div class="repo"><span class="git">🔌</span><div><b>talentedgeai/infiniteleverage-plugin</b><br><small>Claude Code plugin — routing hints · version advisories · usage HUD</small></div></div>
+      <div class="repo"><span class="git">🔌</span><div><b>talentedgeai/infiniteleverage-8-plugin</b><br><small>8-agent plugin distribution for the Claude Team marketplace</small></div></div>
+    </div>
+    <p class="sub">Change the canonical repo → CI rebuilds the release → clients pull it with one command. Never edit agents on a client laptop.</p>
+  </section>
+
+  <!-- 12 — SETUP OVERVIEW -->
+  <section class="slide" data-bg="dark">
+    <div class="eyebrow">Getting Started</div>
+    <h2>Three bootstrap skills</h2>
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card"><div class="tag">First machine</div><h3>/infiniteleverage-init</h3><p>Full Mac Mini bootstrap: zero → live website, 8-agent team, scheduled content pipeline. Phase 1 (manual accounts) → Phase 2 (automated).</p></div>
+      <div class="card"><div class="tag">Add a laptop</div><h3>/infiniteleverage-onboard</h3><p>Connect a personal laptop to the existing team. Ends Phase 1 with a quick win — your live site running locally.</p></div>
+      <div class="card"><div class="tag">Stay in sync</div><h3>/infiniteleverage-patch</h3><p>Health-check the machine, then pull the latest agents &amp; skills from GitHub. Additive &amp; safe to re-run.</p></div>
+    </div>
+    <p class="sub">Plus <code>/infiniteleverage-project</code> to scaffold a new project, and <code>/infiniteleverage-help</code> for the full skill menu.</p>
+  </section>
+
+  <!-- 13 — SETUP STEPS -->
+  <section class="slide" data-bg="dark">
+    <div class="eyebrow">The Setup Path</div>
+    <h2>From zero to a shipping team</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><div><h3>Phase 1 — Prerequisites (Claude Chat)</h3><p>Create accounts &amp; keys: GitHub, Claude Pro, Vercel, Supabase, Gemini, Resend. Install Homebrew + git. Save a local credentials file — never committed.</p></div></div>
+      <div class="step"><div class="n">2</div><div><h3>Phase 2 — Automated setup (Claude Code)</h3><p>Claude installs the CLIs, writes permissions &amp; rules, connects Supabase MCP (one browser click), scaffolds the project, and deploys via <code>git push</code>.</p></div></div>
+      <div class="step"><div class="n">3</div><div><h3>Install the team</h3><p>All 8 agents are fetched from the canonical repo into <code>~/.claude/agents/</code>; hooks &amp; guardrails wired; scheduled routines registered.</p></div></div>
+      <div class="step"><div class="n">4</div><div><h3>Brief the PM &amp; go</h3><p>The Product Manager gathers business context, then you simply ask — the team plans, builds, tests, publishes, and nurtures.</p></div></div>
+    </div>
+  </section>
+
+  <!-- 14 — ONE COMMAND -->
+  <section class="slide" data-bg="dark">
+    <div class="eyebrow">In Practice</div>
+    <h2>Set up once, <span class="em">then just ask</span></h2>
+    <p class="lead">Paste one prompt into a fresh Claude Code session — it's additive and safe even on a configured machine.</p>
+    <div class="codeblock">
+<span class="c"># Sync this machine to the latest template</span>
+<span class="k">Run</span> infiniteleverage-patch to sync my machine with the latest template.
+
+<span class="c"># Register the plugin so every session gets routing + updates</span>
+<span class="k">claude</span> plugin marketplace add <span class="s">talentedgeai/infiniteleverage-plugin</span>
+
+<span class="c"># Then work by intent — agents route automatically</span>
+<span class="s">"write an epic for the onboarding flow"</span>   <span class="c">→ Product Manager</span>
+<span class="s">"add Stripe billing"</span>                       <span class="c">→ Developer · scaffold-payments</span>
+<span class="s">"draft a launch blog post"</span>                  <span class="c">→ Writer → Designer → Publisher</span>
+    </div>
+  </section>
+
+  <!-- 15 — OUTCOME (paper) -->
+  <section class="slide paper" data-bg="paper">
+    <div class="eyebrow">Expected Outcome</div>
+    <h2>What you get</h2>
+    <div class="grid g3" style="margin-top:18px">
+      <div class="card center"><div class="kpi">8</div><h3 style="margin-top:12px">Specialist agents</h3><p>A standing team that acts when asked.</p></div>
+      <div class="card center"><div class="kpi">1</div><h3 style="margin-top:12px">Live website</h3><p>Deployed on Vercel from day one.</p></div>
+      <div class="card center"><div class="kpi">∞</div><h3 style="margin-top:12px">Leverage</h3><p>Solo operator, full-team output.</p></div>
+    </div>
+    <ul class="clean" style="margin-top:28px">
+      <li>A live site, a planning + build + QA + deploy loop, and a content pipeline that runs on a schedule.</li>
+      <li>Guardrails that prevent the dangerous stuff — force-push, direct deploys, sending email without approval.</li>
+      <li>Every decision and handoff recorded in the repo, so any machine or session continues seamlessly.</li>
+    </ul>
+  </section>
+
+  <!-- 16 — CLOSE -->
+  <section class="slide center" data-bg="dark">
+    <div class="eyebrow">Get Started</div>
+    <h1>Your team is<br><span class="em">one prompt away.</span></h1>
+    <p class="lead">Run <code>/infiniteleverage-init</code> on a fresh Mac, <code>/infiniteleverage-onboard</code> on a laptop, or <code>/infiniteleverage-patch</code> to sync. Then point the Product Manager at your business and start asking.</p>
+    <div class="badgeRow" style="justify-content:center">
+      <div class="repo"><span class="git">📦</span><div><b>github.com/talentedgeai/infiniteleverage-8-agents-template</b></div></div>
+    </div>
+    <p class="sub center">Humans orchestrate. Agents act. Work outlives the operator.</p>
+  </section>
+
+</div>
+
+<div class="hud"><div class="dots" id="dots"></div></div>
+<div class="nav">
+  <button id="prev" aria-label="Previous">‹</button>
+  <button id="next" aria-label="Next">›</button>
+</div>
+<div class="hint">← → navigate · F fullscreen</div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  const dots=document.getElementById('dots');
+  const bar=document.getElementById('bar');
+  const cur=document.getElementById('cur');
+  document.getElementById('tot').textContent=slides.length;
+  let i=0;
+  slides.forEach((_,n)=>{const d=document.createElement('i');d.onclick=()=>go(n);dots.appendChild(d);});
+  const dotEls=[...dots.children];
+  function go(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,x)=>s.classList.toggle('active',x===i));
+    dotEls.forEach((d,x)=>d.classList.toggle('on',x===i));
+    bar.style.width=((i+1)/slides.length*100)+'%';
+    cur.textContent=i+1;
+  }
+  document.getElementById('next').onclick=()=>go(i+1);
+  document.getElementById('prev').onclick=()=>go(i-1);
+  document.addEventListener('keydown',e=>{
+    if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();go(i+1);}
+    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();go(i-1);}
+    else if(e.key==='Home')go(0);
+    else if(e.key==='End')go(slides.length-1);
+    else if(e.key.toLowerCase()==='f'){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+  });
+  let sx=0;
+  addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+  addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?i+1:i-1);},{passive:true});
+  go(0);
+</script>
+</body>
+</html>

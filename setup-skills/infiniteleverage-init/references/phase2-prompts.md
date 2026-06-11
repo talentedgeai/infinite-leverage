@@ -107,19 +107,20 @@ Write ~/.claude/rules/global-engineering.md with these exact contents:
 
 ---
 
-## Prompt 3 — Supabase MCP
-> **[Protocol 7]** Supabase is the data layer — contact forms, subscribers, CRM. The MCP lets Claude talk to it directly.
+## Prompt 3 — Supabase plugin (MCP)
+> **[Protocol 7]** Supabase is the data layer — contact forms, subscribers, CRM. The Supabase connection comes from the **official Claude Code Supabase plugin** (`plugin:supabase`), not the standalone Supabase CLI. Installing a plugin and clicking through OAuth are steps Claude Code cannot do on its own — Claude will pause and walk you through them.
 
 ```
-Set up the Supabase MCP server on this machine:
-1. Fetch the latest Supabase MCP setup documentation so you follow the current install method
-2. Add the MCP server to ~/.claude/settings.local.json
-3. Start the Supabase authentication flow and give me the browser URL to authorize
-4. After I tell you I've completed authorization, finish the auth flow
-5. Verify the connection by listing the Supabase projects on this account and confirming {project-slug} is present
+Connect this machine to Supabase using the official Claude Code Supabase plugin:
+1. You cannot install a plugin for me — tell me to install it myself, then pause. I will run `/plugin` in Claude Code, open the marketplace, install "supabase", and restart the session if prompted. Wait until I confirm the plugin is installed.
+2. Once I confirm the plugin is installed, start the Supabase authentication flow (mcp__supabase__authenticate) and give me the browser URL to authorize.
+3. After I tell you I've authorized in the browser, finish the auth flow (mcp__supabase__complete_authentication).
+4. Verify the connection by listing the Supabase projects on this account and confirming {project-slug} is present.
 ```
 
-> **Manual step**: Open the URL Claude outputs → click **Authorize** → tell Claude "done".
+> **Manual steps (only you can do these — Claude will prompt you):**
+> 1. Run `/plugin` in Claude Code → marketplace → install **supabase** → restart the session if prompted.
+> 2. Open the auth URL Claude outputs → click **Authorize** → tell Claude "done".
 >
 > Note: The Supabase project was already created during Phase 1 account setup. Do NOT create a new project here.
 

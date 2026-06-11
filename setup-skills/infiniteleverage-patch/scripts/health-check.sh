@@ -171,7 +171,7 @@ echo ""
 
 # ── 6. Required CLI tools ────────────────────────────────────────────────────
 echo "[ CLI Tools ]"
-CLI_TOOLS=(gh vercel supabase resend)
+CLI_TOOLS=(gh vercel resend)
 for cli in "${CLI_TOOLS[@]}"; do
   if command -v "$cli" &>/dev/null; then
     version=$("$cli" --version 2>/dev/null | head -1 || "$cli" -v 2>/dev/null | head -1 || echo "installed")
@@ -182,11 +182,11 @@ for cli in "${CLI_TOOLS[@]}"; do
 done
 echo ""
 
-# ── 7. Supabase MCP auth ──────────────────────────────────────────────────────
-echo "[ Supabase MCP ]"
+# ── 7. Supabase plugin (MCP) auth ─────────────────────────────────────────────
+echo "[ Supabase plugin (MCP) ]"
 SETTINGS="$CLAUDE_DIR/settings.local.json"
-if [ -f "$SETTINGS" ] && grep -q -i '"mcp"\|supabase\|MCP' "$SETTINGS" 2>/dev/null; then
-  check "MCP entry in settings.local.json" ok ""
+if [ -f "$SETTINGS" ] && grep -q -i 'supabase' "$SETTINGS" 2>/dev/null; then
+  check "Supabase MCP permissions present" ok ""
   # Check for auth tokens in .env that MCP needs
   if [ -f "$CLAUDE_DIR/.env" ]; then
     has_url=$(grep -c "^SUPABASE_URL=" "$CLAUDE_DIR/.env" 2>/dev/null || true)
@@ -200,7 +200,7 @@ if [ -f "$SETTINGS" ] && grep -q -i '"mcp"\|supabase\|MCP' "$SETTINGS" 2>/dev/nu
     check "MCP auth credentials" missing "~/.claude/.env not found"
   fi
 else
-  check "MCP entry in settings.local.json" missing "Supabase MCP not configured — run setup-permissions.py"
+  check "Supabase MCP permissions present" missing "Supabase plugin not set up — install plugin:supabase via /plugin, then run setup-permissions.py to add MCP permissions"
 fi
 echo ""
 
