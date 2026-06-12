@@ -15,7 +15,16 @@ Every project must have a `.env.example` at the repo root. Scaffold this file be
 # never hard-error in preview environments.
 # ─────────────────────────────────────────────────────────────────────────────
 
-# ── Supabase ─────────────────────────────────────────────────────────────────
+# ── Supabase (OPERATOR-ONLY) ──────────────────────────────────────────────────
+# IMPORTANT: Contributors who only push effort telemetry (session-telemetry-*)
+# do NOT need any Supabase keys. The telemetry flow uses `gh` (GitHub CLI) +
+# `git config user.email` only — no local secrets required.
+#
+# These keys are needed ONLY for:
+#   • Operators running the central Infinite Leverage app (Supabase MCP, admin UI)
+#   • CI/CD pipelines that deploy or migrate the Supabase project
+#
+# If you are a contributor (not an operator), leave these blank and skip this block.
 # Use new key naming (sb_publishable_* / sb_secret_*).
 # Do NOT use legacy ANON_KEY / SERVICE_ROLE_KEY env names.
 NEXT_PUBLIC_SUPABASE_URL=

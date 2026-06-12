@@ -1,77 +1,22 @@
 {
   "hooks": {
     "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/session-start 2>/dev/null || true"
-          },
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/session-ingest-start.py 2>/dev/null || true"
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/session-ingest-end.py 2>/dev/null || true"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/session-telemetry-end 2>/dev/null || true"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/pre-bash 2>/dev/null || true"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/prompt-submit 2>/dev/null || true"
-          }
-        ]
-      }
+      { "hooks": [
+        { "type": "command", "command": "bash ~/.claude/hooks/session-start 2>/dev/null || true" },
+        { "type": "command", "command": "bash ~/.claude/hooks/session-telemetry-end 2>/dev/null || true" }
+      ] }
     ],
     "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/session-telemetry-stop 2>/dev/null || true"
-          }
-        ]
-      }
+      { "hooks": [ { "type": "command", "command": "bash ~/.claude/hooks/session-telemetry-stop 2>/dev/null || true" } ] }
     ],
     "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/session-telemetry-end 2>/dev/null || true"
-          }
-        ]
-      }
+      { "hooks": [ { "type": "command", "command": "bash ~/.claude/hooks/session-telemetry-end 2>/dev/null || true" } ] }
+    ],
+    "PreToolUse": [
+      { "matcher": "Bash", "hooks": [ { "type": "command", "command": "bash ~/.claude/hooks/pre-bash 2>/dev/null || true" } ] }
+    ],
+    "UserPromptSubmit": [
+      { "hooks": [ { "type": "command", "command": "bash ~/.claude/hooks/prompt-submit 2>/dev/null || true" } ] }
     ]
   }
 }
