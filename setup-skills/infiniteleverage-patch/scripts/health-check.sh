@@ -123,41 +123,49 @@ ENV_FILE="$CLAUDE_DIR/.env"
 if [ ! -f "$ENV_FILE" ]; then
   check "~/.claude/.env" missing "not found — run Phase 2 Prompt 4"
 else
-  REQUIRED_KEYS=(
-    SUPABASE_URL SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY
-    GEMINI_API_KEY RESEND_API_KEY
-  )
+  # Contributor-required keys (effort tracking works via gh push — no DB creds needed)
+  CONTRIBUTOR_KEYS=(GEMINI_API_KEY RESEND_API_KEY)
+  # Operator-only keys — only needed to query the DB via the Supabase MCP
+  OPERATOR_KEYS=(SUPABASE_URL SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY)
   OPTIONAL_KEYS=(LARK_APP_ID LARK_APP_SECRET LARK_WEBHOOK_URL)
-  missing_keys=()
-  empty_keys=()
-  for key in "${REQUIRED_KEYS[@]}"; do
+
+  missing_contributor=()
+  empty_contributor=()
+  for key in "${CONTRIBUTOR_KEYS[@]}"; do
     line=$(grep "^${key}=" "$ENV_FILE" 2>/dev/null)
     if [ -z "$line" ]; then
-      missing_keys+=("$key")
+      missing_contributor+=("$key")
     else
       val="${line#*=}"
-      if [ -z "$val" ]; then
-        empty_keys+=("$key")
-      fi
+      [ -z "$val" ] && empty_contributor+=("$key")
     fi
   done
-  if [ ${#missing_keys[@]} -gt 0 ]; then
-    check "required keys present" missing "missing: ${missing_keys[*]}"
-  elif [ ${#empty_keys[@]} -gt 0 ]; then
-    check "required keys present" warn "empty values: ${empty_keys[*]}"
+  if [ ${#missing_contributor[@]} -gt 0 ]; then
+    check "contributor keys present" missing "missing: ${missing_contributor[*]}"
+  elif [ ${#empty_contributor[@]} -gt 0 ]; then
+    check "contributor keys present" warn "empty values: ${empty_contributor[*]}"
   else
-    check "required keys present and non-empty" ok ""
+    check "contributor keys present and non-empty" ok ""
   fi
+
+  # Supabase keys are operator-only — never flag as contributor failures
+  supabase_set=0
+  for key in "${OPERATOR_KEYS[@]}"; do
+    val=$(grep "^${key}=" "$ENV_FILE" 2>/dev/null | cut -d= -f2-)
+    [ -n "$val" ] && supabase_set=$((supabase_set + 1))
+  done
+  if [ "$supabase_set" -eq ${#OPERATOR_KEYS[@]} ]; then
+    check "Supabase creds (operator-only)" ok "configured"
+  else
+    # Neutral note — not a failure for contributors
+    printf "  ℹ️   %-45s %s\n" "Supabase creds (operator-only)" "not configured — only needed to query the DB via the Supabase MCP"
+  fi
+
   # Lark is optional — warn if partially configured (e.g. only one of three keys set)
   lark_set=0
-  lark_missing=0
   for key in "${OPTIONAL_KEYS[@]}"; do
     val=$(grep "^${key}=" "$ENV_FILE" 2>/dev/null | cut -d= -f2-)
-    if [ -n "$val" ]; then
-      lark_set=$((lark_set + 1))
-    else
-      lark_missing=$((lark_missing + 1))
-    fi
+    [ -n "$val" ] && lark_set=$((lark_set + 1))
   done
   if [ "$lark_set" -eq 3 ]; then
     check "Lark (optional)" ok "configured"
@@ -182,8 +190,8 @@ for cli in "${CLI_TOOLS[@]}"; do
 done
 echo ""
 
-# ── 7. Supabase plugin (MCP) auth ─────────────────────────────────────────────
-echo "[ Supabase plugin (MCP) ]"
+# ── 7. Supabase MCP (operator-only — not needed to contribute effort tracking) ─
+echo "[ Supabase MCP (operator-only — not needed to contribute effort tracking) ]"
 SETTINGS="$CLAUDE_DIR/settings.local.json"
 if [ -f "$SETTINGS" ] && grep -q -i 'supabase' "$SETTINGS" 2>/dev/null; then
   check "Supabase MCP permissions present" ok ""
@@ -194,13 +202,14 @@ if [ -f "$SETTINGS" ] && grep -q -i 'supabase' "$SETTINGS" 2>/dev/null; then
     if [ "$has_url" -gt 0 ] && [ "$has_key" -gt 0 ]; then
       check "MCP auth credentials (SUPABASE_URL + SERVICE_ROLE_KEY)" ok ""
     else
-      check "MCP auth credentials" missing "SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing from ~/.claude/.env"
+      # Not a contributor failure — print neutral info, not a ❌ MISSING
+      printf "  ℹ️   %-45s %s\n" "MCP auth credentials" "not configured — only needed if you query the DB via the Supabase MCP"
     fi
   else
-    check "MCP auth credentials" missing "~/.claude/.env not found"
+    printf "  ℹ️   %-45s %s\n" "MCP auth credentials" "~/.claude/.env not found — only needed if you query the DB via the Supabase MCP"
   fi
 else
-  check "Supabase MCP permissions present" missing "Supabase plugin not set up — install plugin:supabase via /plugin, then run setup-permissions.py to add MCP permissions"
+  printf "  ℹ️   %-45s %s\n" "Supabase MCP" "not configured — only needed if you query the DB via the Supabase MCP (install plugin:supabase to enable)"
 fi
 echo ""
 

@@ -65,6 +65,19 @@ if [[ -d "$PS_HOOKS/il_telemetry" ]]; then
   echo "  + installed telemetry hooks: il_telemetry/, session-telemetry-stop, session-telemetry-end"
 fi
 
+# ── Prune obsolete hooks (self-heal stale machines) ──────────────────────────
+# Add new names to OBSOLETE_HOOKS as old scripts are retired.
+
+OBSOLETE_HOOKS=(session-ingest-start.py session-ingest-end.py)
+
+for obs in "${OBSOLETE_HOOKS[@]}"; do
+  stale="$HOOKS_DEST/$obs"
+  if [[ -f "$stale" ]]; then
+    rm -f "$stale"
+    echo "  - pruned obsolete hook: $obs"
+  fi
+done
+
 # ── Wire into settings.local.json ────────────────────────────────────────────
 
 python3 - "$SETTINGS" "$HOOKS_DEST" <<'PYEOF'
@@ -122,3 +135,51 @@ if wired:
 else:
     print("  = hook entries already present in settings.local.json")
 PYEOF
+
+# ── De-register obsolete session-ingest entries from settings.local.json ─────
+python3 - "$SETTINGS" <<'PYEOF2'
+import sys, json, os
+
+settings_path = sys.argv[1]
+if not os.path.exists(settings_path):
+    sys.exit(0)
+
+with open(settings_path) as f:
+    try:
+        settings = json.load(f)
+    except json.JSONDecodeError:
+        print(f"  WARNING: {settings_path} is not valid JSON — cannot prune session-ingest entries")
+        sys.exit(0)
+
+hooks_cfg = settings.get("hooks", {})
+removed_events = []
+
+for event in list(hooks_cfg.keys()):
+    entries = hooks_cfg[event]
+    cleaned = []
+    for entry in entries:
+        filtered_hooks = [
+            h for h in entry.get("hooks", [])
+            if "session-ingest" not in h.get("command", "")
+        ]
+        if filtered_hooks:
+            entry = dict(entry)
+            entry["hooks"] = filtered_hooks
+            cleaned.append(entry)
+        # If entry had hooks but all were session-ingest, drop the whole entry
+    if len(cleaned) != len(entries):
+        removed_events.append(event)
+    if cleaned:
+        hooks_cfg[event] = cleaned
+    else:
+        # Drop now-empty event array
+        del hooks_cfg[event]
+
+if removed_events:
+    with open(settings_path, "w") as f:
+        json.dump(settings, f, indent=2)
+        f.write("\n")
+    print(f"  - de-registered session-ingest entries from: {', '.join(removed_events)}")
+else:
+    print("  = no session-ingest registrations found in settings.local.json")
+PYEOF2
