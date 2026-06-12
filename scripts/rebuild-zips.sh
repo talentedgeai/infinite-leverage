@@ -12,7 +12,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SKILLS_DIR="$REPO_ROOT/setup-skills"
 
-ALL_SKILLS=(infiniteleverage-init infiniteleverage-onboard infiniteleverage-patch infiniteleverage-project)
+ALL_SKILLS=(infiniteleverage-init infiniteleverage-onboard infiniteleverage-patch infiniteleverage-project infiniteleverage-validate)
 
 for skill in "${ALL_SKILLS[@]}"; do
   SKILL_DIR="$SKILLS_DIR/$skill"
