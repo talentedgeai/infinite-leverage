@@ -4,7 +4,7 @@ Read this file before editing `plugin-staging/hooks/session-start`, `install-hoo
 
 Before committing any hook change, confirm **all** of the following still hold (a rewrite must preserve every one):
 
-1. **Auto-update** — `session-start` Stage 2 still detects version-diff and applies (agents + skills + hooks via `install-hooks.sh`), with nudge fallback.
+1. **Auto-update** — `session-start` Stage 2 still applies (agents + skills + hooks via `install-hooks.sh`) with nudge fallback. It must (a) trigger **only when STRICTLY NEWER** (semver compare — never downgrade a machine that is ahead), and (b) read its remote version from the **GitHub Releases latest tag** — the *same* source `infiniteleverage-init` / `-patch` stamp `~/.claude/.infiniteleverage-version` from. Do NOT split the source (e.g. raw `VERSION` file vs Releases) — that drift causes phantom up/downgrade prompts.
 2. **Capture** — `Stop` → `session-telemetry-stop` → `il_telemetry.stop` writes the outbox.
 3. **Deliver** — `SessionEnd`/`SessionStart` → `session-telemetry-end` → `il_telemetry.flush` delivers via `gh` (no secrets).
 4. **Registration notice** — Stage 5b probes `/api/projects/status` and prompts when unregistered.
