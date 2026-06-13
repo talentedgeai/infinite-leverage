@@ -120,7 +120,7 @@ HOOK_DEFS = [
     ("UserPromptSubmit",  "prompt-submit",           ""),
     ("Stop",              "session-telemetry-stop",  ""),
     ("SessionEnd",        "session-telemetry-end",   ""),
-    ("SessionStart",      "session-telemetry-end",   ""),
+    ("SessionStart",      "session-start",            ""),
 ]
 
 wired = []
