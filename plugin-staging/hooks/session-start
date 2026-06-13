@@ -13,17 +13,41 @@ if [ ! -d "$AGENTS_DIR" ] || [ -z "$(ls -A "$AGENTS_DIR" 2>/dev/null)" ]; then
     echo "[Infinite Leverage] Agents not found. Run /infiniteleverage-init to set up your 8-agent team."
 fi
 
-# ── Stage 2: Version check ───────────────────────────────────────────────────
-# IL_TEMPLATE_REPO_URL is the raw VERSION file URL for the canonical template repo.
-# Update this constant when the org/repo slug changes.
-IL_TEMPLATE_REPO_URL="https://raw.githubusercontent.com/talentedgeai/infiniteleverage-8-agents-template/main/VERSION"
+# ── Stage 2: Auto-update (agents + skills + hooks) when a newer template version exists ──
+IL_TEMPLATE_REPO="https://github.com/talentedgeai/infiniteleverage-8-agents-template.git"
+# Single source of truth: the latest GitHub Release tag — the SAME source infiniteleverage-init / -patch
+# stamp ~/.claude/.infiniteleverage-version from. (The raw VERSION file is not maintained per release.)
+IL_RELEASES_API="https://api.github.com/repos/talentedgeai/infiniteleverage-8-agents-template/releases/latest"
 LOCAL_VERSION_FILE="$HOME/.claude/.infiniteleverage-version"
-
 if [ -f "$LOCAL_VERSION_FILE" ]; then
-    LOCAL_VERSION=$(cat "$LOCAL_VERSION_FILE" 2>/dev/null | tr -d '[:space:]')
-    REMOTE_VERSION=$(curl -sf --max-time 3 "$IL_TEMPLATE_REPO_URL" 2>/dev/null | tr -d '[:space:]')
-    if [ -n "$REMOTE_VERSION" ] && [ "$REMOTE_VERSION" != "$LOCAL_VERSION" ]; then
-        echo "[Infinite Leverage] Template v${REMOTE_VERSION} available (you have v${LOCAL_VERSION}). Run /infiniteleverage-patch to update."
+    local_v=$(tr -d '[:space:]' < "$LOCAL_VERSION_FILE" 2>/dev/null)
+    remote_v=$(curl -sf --max-time 3 -H "Accept: application/vnd.github.v3+json" "$IL_RELEASES_API" 2>/dev/null \
+        | python3 -c "import sys,json;print(json.load(sys.stdin).get('tag_name','').lstrip('v'))" 2>/dev/null | tr -d '[:space:]')
+    # Only auto-update when the template is STRICTLY NEWER — never downgrade a machine that is ahead.
+    _il_newer=$(awk -v r="$remote_v" -v l="$local_v" 'BEGIN{split(r,R,".");split(l,L,".");for(i=1;i<=3;i++){ri=R[i]+0;li=L[i]+0;if(ri>li){print 1;exit}if(ri<li){print 0;exit}}print 0}' 2>/dev/null)
+    if [ -n "$remote_v" ] && printf '%s' "$remote_v" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$' && [ "$_il_newer" = "1" ]; then
+        _il_tmp=$(mktemp -d 2>/dev/null)
+        if [ -n "$_il_tmp" ] && git clone --depth 1 --quiet "$IL_TEMPLATE_REPO" "$_il_tmp" 2>/dev/null; then
+            # agents (all 8)
+            [ -d "$_il_tmp/.claude/agents" ] && cp "$_il_tmp/.claude/agents/"*.md "$HOME/.claude/agents/" 2>/dev/null
+            # skills — refresh ONLY already-installed ones (never auto-install new)
+            if [ -d "$_il_tmp/.claude/skills" ] && [ -d "$HOME/.claude/skills" ]; then
+                for _s in "$_il_tmp/.claude/skills"/*/; do
+                    _n=$(basename "$_s")
+                    [ -d "$HOME/.claude/skills/$_n" ] && cp -r "$_s." "$HOME/.claude/skills/$_n/" 2>/dev/null
+                done
+            fi
+            # hooks — reuse the CANONICAL installer (il_telemetry + session-telemetry-* + wiring + prune)
+            if [ -f "$_il_tmp/setup-skills/infiniteleverage-patch/scripts/install-hooks.sh" ]; then
+                bash "$_il_tmp/setup-skills/infiniteleverage-patch/scripts/install-hooks.sh" "$_il_tmp" >/dev/null 2>&1 || true
+            fi
+            echo "$remote_v" > "$LOCAL_VERSION_FILE"
+            echo "[Infinite Leverage] Auto-updated v${local_v} → v${remote_v} (agents, skills, hooks)."
+            rm -rf "$_il_tmp" 2>/dev/null
+        else
+            [ -n "$_il_tmp" ] && rm -rf "$_il_tmp" 2>/dev/null
+            echo "[Infinite Leverage] Template v${remote_v} available (you have v${local_v}). Run /infiniteleverage-patch to update."
+        fi
     fi
 fi
 # Network failure or missing local version → silent pass. Never degrade the session.

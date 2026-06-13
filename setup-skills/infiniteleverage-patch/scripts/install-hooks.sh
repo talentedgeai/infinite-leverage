@@ -65,6 +65,23 @@ if [[ -d "$PS_HOOKS/il_telemetry" ]]; then
   echo "  + installed telemetry hooks: il_telemetry/, session-telemetry-stop, session-telemetry-end"
 fi
 
+# ── Core SessionStart hook (makes session-start self-updating) ────────────────
+# session-start lives in plugin-staging/hooks (not the top-level hooks/ dir), so the
+# file-loop above skips it. Copy it here so /infiniteleverage-patch delivers it AND the
+# auto-update (Stage 2 of session-start calls THIS script) can refresh session-start
+# itself. Write-then-atomic-mv: the auto-update runs WHILE ~/.claude/hooks/session-start
+# is executing — never overwrite it in place, or a half-written file could corrupt the run.
+if [[ -f "$PS_HOOKS/session-start" ]]; then
+  _ss_tmp="$HOOKS_DEST/.session-start.tmp.$$"
+  if cp "$PS_HOOKS/session-start" "$_ss_tmp" 2>/dev/null; then
+    chmod +x "$_ss_tmp"
+    mv -f "$_ss_tmp" "$HOOKS_DEST/session-start"
+    echo "  + installed core hook: session-start"
+  else
+    rm -f "$_ss_tmp" 2>/dev/null || true
+  fi
+fi
+
 # ── Prune obsolete hooks (self-heal stale machines) ──────────────────────────
 # Add new names to OBSOLETE_HOOKS as old scripts are retired.
 
