@@ -9,6 +9,7 @@ Before committing any hook change, confirm **all** of the following still hold (
 3. **Deliver** — `SessionEnd`/`SessionStart` → `session-telemetry-end` → `il_telemetry.flush` delivers via `gh` (no secrets).
 4. **Registration notice** — Stage 5b probes `/api/projects/status` and prompts when unregistered.
 5. **No obsolete hooks** — `session-ingest-*.py` are NOT present/registered; `install-hooks.sh` still **prunes** them.
+5b. **session-start self-delivery** — `install-hooks.sh` MUST copy `plugin-staging/hooks/session-start` → `~/.claude/hooks/session-start` via write-then-atomic-`mv` (never in place — the auto-update runs it while overwriting). Removing this breaks auto-delivery of all future `session-start` changes (patch + the auto-update both rely on it).
 6. **`hooks.json`** valid, single key per event, registers only the current path.
 7. **No DB creds on contributor machines** — hooks use only `gh`; never `SUPABASE_*`/`INGEST_SECRET`.
 
