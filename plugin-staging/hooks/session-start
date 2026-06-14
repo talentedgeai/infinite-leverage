@@ -17,12 +17,15 @@ fi
 # Never applies an update silently. Shows plain-English release notes and asks the user
 # to confirm via /infiniteleverage-patch. This respects any local customisations.
 #
-# What an update touches (be honest):
-#   REPLACED  — the 8 canonical agent .md files in ~/.claude/agents/
-#   REPLACED  — Infinite Leverage skill files you have installed
+# What /infiniteleverage-patch touches (accurate — verified against apply-patch.sh):
+#   REPLACED  — the 8 canonical IL agent .md files in ~/.claude/agents/
+#   REPLACED  — the 4 IL rule files: global-engineering, agent-routing, hooks-regression-check, lark-optional
+#   REPLACED  — installed IL skill files (only skills already present, never installs new ones)
 #   REPLACED  — effort-tracking hooks (session-start, session-telemetry-*, il_telemetry/, pre-bash, prompt-submit)
-#   UNCHANGED — your own CLAUDE.md, ~/.claude/rules/, permissions, model settings
-#   UNCHANGED — agents or skills you created yourself (not part of the IL template)
+#   UNCHANGED — agents you created yourself, AS LONG AS their filename differs from the 8 canonical names above
+#   UNCHANGED — rules you created yourself that are NOT named after the 4 IL rules above (e.g. context7.md)
+#   UNCHANGED — your project CLAUDE.md files (inject script not present; Phase 4 is a no-op)
+#   UNCHANGED — ~/.claude/settings.local.json beyond the "hooks" key (permissions, model, MCP untouched)
 #   UNCHANGED — any other files in ~/.claude/ not listed above
 IL_RELEASES_API="https://api.github.com/repos/talentedgeai/infiniteleverage-8-agents-template/releases/latest"
 LOCAL_VERSION_FILE="$HOME/.claude/.infiniteleverage-version"
@@ -54,14 +57,16 @@ print(summary[:400] if summary else 'See release notes for details.')
         echo ""
         echo "║"
         echo "║  What gets updated on your machine:"
-        echo "║    • The 8 Infinite Leverage agent definitions"
-        echo "║    • Installed Infinite Leverage skills"
+        echo "║    • The 8 IL agent definitions (developer, qa, devops, etc.)"
+        echo "║    • The 4 IL rule files (global-engineering, agent-routing, etc.)"
+        echo "║    • Installed IL skill files"
         echo "║    • Effort-tracking hooks"
         echo "║"
         echo "║  What is NEVER touched:"
-        echo "║    • Your own CLAUDE.md and rules"
+        echo "║    • Agents you named differently from the 8 above"
+        echo "║    • Rules you created yourself (e.g. context7.md)"
+        echo "║    • Your project CLAUDE.md files"
         echo "║    • Your permissions and model settings"
-        echo "║    • Agents or skills you created yourself"
         echo "║"
         echo "║  To apply:  run /infiniteleverage-patch"
         echo "║  To skip:   ignore this message"
