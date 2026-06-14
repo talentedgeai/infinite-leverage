@@ -272,11 +272,30 @@ else
   check "~/.claude/hooks/il_telemetry/ present" missing "update the plugin + re-run /infiniteleverage-patch"
 fi
 if [ -f "$SETTINGS" ]; then
+  # Check each event is wired AND points to the correct script (not just any script).
+  # SessionStart must → session-start; Stop → session-telemetry-stop; SessionEnd → session-telemetry-end
+  declare -A EXPECTED_HOOKS=(
+    ["Stop"]="session-telemetry-stop"
+    ["SessionEnd"]="session-telemetry-end"
+    ["SessionStart"]="session-start"
+  )
   for event in Stop SessionEnd SessionStart; do
-    if grep -q "$event" "$SETTINGS" 2>/dev/null; then
-      check "  $event hook wired in settings.local.json" ok ""
+    expected="${EXPECTED_HOOKS[$event]}"
+    if python3 -c "
+import json, sys
+s = json.load(open('$SETTINGS'))
+hooks = s.get('hooks', {})
+entries = hooks.get('$event', [])
+found = any(
+    '$expected' in h.get('command', '')
+    for entry in entries
+    for h in entry.get('hooks', [])
+)
+sys.exit(0 if found else 1)
+" 2>/dev/null; then
+      check "  $event → $expected" ok ""
     else
-      check "  $event hook wired in settings.local.json" missing "update the plugin + re-run /infiniteleverage-patch"
+      check "  $event → $expected" missing "wrong/missing script — re-run /infiniteleverage-patch"
     fi
   done
 fi
