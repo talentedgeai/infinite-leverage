@@ -1,2 +1,7 @@
 #!/usr/bin/env bash
-PYTHONPATH="$HOME/.claude/hooks" python3 -m il_telemetry.stop 2>/dev/null || true
+# Capture stdin once — it contains {cwd, session_id, transcript_path} from Claude Code.
+# Both stop and flush need cwd: stop uses it to set the working directory for context,
+# flush uses it to compute man-hour entries from git commit history.
+_IL_HOOK_DATA=$(cat)
+printf '%s' "$_IL_HOOK_DATA" | PYTHONPATH="$HOME/.claude/hooks" python3 -m il_telemetry.stop  2>/dev/null || true
+printf '%s' "$_IL_HOOK_DATA" | PYTHONPATH="$HOME/.claude/hooks" python3 -m il_telemetry.flush 2>/dev/null || true
