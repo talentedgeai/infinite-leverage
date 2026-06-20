@@ -1,5 +1,7 @@
 # Mac Mini — Phase 2: Claude Code Prompts
 
+> **Windows users:** run all of these inside the **WSL Ubuntu** shell (not PowerShell), where `claude` was installed per `references/windows-setup.md`. Every prompt below — `brew install`, `chmod`, the hooks — works verbatim in WSL.
+
 Open Terminal on the Mac Mini, then run: `claude`
 A prompt will appear — paste each numbered prompt below and press Enter. Wait for it to finish before running the next one.
 

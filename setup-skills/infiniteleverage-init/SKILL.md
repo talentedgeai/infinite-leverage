@@ -13,6 +13,14 @@ This setup is built on the **Infinite Leverage 18 Protocols** — the principles
 
 ---
 
+## On Windows? Set up WSL2 first
+
+This guide assumes macOS, but it runs on Windows too — via **WSL2**, a free, official Windows feature that gives you an Ubuntu (Linux) shell. The team's bash hooks (effort tracking + auto-update notices) only work in a Unix shell, so **do not use native Windows / PowerShell** for this setup.
+
+**Windows users:** read **`references/windows-setup.md`** first, turn on WSL2, install the Claude Desktop Windows app, then run every step in this guide inside the **Ubuntu (WSL)** window. Everything else works exactly as written.
+
+---
+
 ## Settings Safety Protocol
 
 Before writing any configuration file — `settings.local.json`, `CLAUDE.md`, `global-engineering.md`, `.env` — check what's already there and follow these three rules:
