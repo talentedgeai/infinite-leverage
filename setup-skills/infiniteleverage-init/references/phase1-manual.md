@@ -94,9 +94,13 @@ Go to `claude.ai/download` in Chrome → download the Mac app → drag it to `/A
 
 Once you see the Claude Code interface, leave it open — you'll use it to run Phase 2.
 
+> **Windows:** download the Windows app from `claude.com/download` (there's no "drag to /Applications" — just run the installer). You'll also install the Claude Code CLI **inside Ubuntu (WSL)** — see `references/windows-setup.md`, Step W3.
+
 ---
 
 ## 8 — Install Homebrew and git on Mac Mini
+
+> **Windows (WSL):** run this inside the **Ubuntu (WSL)** window, not PowerShell — see `references/windows-setup.md`. The same Homebrew command works on Linux; just follow the PATH lines the installer prints (they point to `~/.bashrc` and `/home/linuxbrew/.linuxbrew/...` instead of the Mac paths).
 
 **On the Mac Mini**: press `Cmd + Space`, type `Terminal`, press Enter. A black window with a prompt appears — that's the terminal.
 
