@@ -1,7 +1,7 @@
 ---
 name: infiniteleverage-project
-description: This skill should be used when the operator says "new project", "scaffold a project", "create infinite leverage project", "init new project", "start new client project", or "bootstrap project folder". Scaffolds a brand-new project directory from the canonical `templates/project-scaffold/` in `talentedgeai/infiniteleverage-8-agents-template`, substitutes placeholders, wires the 8-agent team into `.claude/`, initializes git, and prints next steps. All operations are inline — no bundled scripts.
-version: 2.2.0
+description: This skill should be used when the operator says "new project", "scaffold a project", "create infinite leverage project", "init new project", "start new client project", or "bootstrap project folder". Scaffolds a brand-new project directory from the canonical `templates/project-scaffold/` in `talentedgeai/infiniteleverage-8-agents-template`, substitutes placeholders, wires the 8-agent team into `.claude/`, seeds `docs/product/` (product.md, epics.md, epic-status.md) from any rich description the operator provides, seeds `docs/brand/` styling from a chosen or random getdesign.md reference, initializes git, and prints next steps. All operations are inline — no bundled scripts.
+version: 2.3.0
 ---
 
 # Infinite Leverage — New Project Scaffold
@@ -45,16 +45,24 @@ The operator wants a fresh project folder that follows the canonical Infinite Le
 | Owner name | `Dave Hajdu` | optional | |
 | Primary author for content | `Dave Hajdu` | optional | |
 | GitHub placement | personal vs org | **interactive** | resolved during Step 11 — never assume |
-| Planning / product attachments | PRD, brief, vision doc, transcripts, epic list | optional | any docs the operator pasted or attached in the chat invoking this skill. Used by Step 8.6 to populate `docs/product/`. |
+| Planning / product attachments | PRD, brief, vision doc, transcripts, epic list, **or a rich inline description of the product** | optional | anything the operator pasted or attached in the chat invoking this skill. Used by Step 8.6 to populate `docs/product/`. |
+| Desired styling / design reference | "make it like Linear", brand colors + fonts, an existing style guide, or nothing | optional | Used by Step 8.7 to fill `docs/brand/`. If absent, Step 8.7 pulls a random DESIGN.md from getdesign.md. |
 
-### Detecting planning attachments
+### Detecting planning attachments & styling
 
-Before running, scan the invoking message for product/planning material. Treat any of the following as a planning attachment:
+Before running, scan the invoking message for two kinds of material:
+
+**Product/planning material** → drives Step 8.6. Treat any of these as planning input:
 - Files dragged into the chat or referenced by path (`.md`, `.pdf`, `.docx`, `.txt`)
-- Long inline pastes describing the product, audience, problem, mechanism, success metrics, non-goals, epics, features, roadmap, or acceptance criteria
+- **A rich inline description** of the product — audience, problem, mechanism, success metrics, non-goals, epics, features, roadmap, or acceptance criteria. A few descriptive paragraphs counts; you do not need a formal PRD.
 - Links to Notion / Google Docs / Lark docs the operator wants Claude to read first
 
-If present, hold them in working memory and apply them in **Step 8.6** instead of leaving `docs/product/*.md` as empty placeholders. If absent, Step 8.6 is a no-op and the PM agent fills the files later via `pm-client-interview` / `pm-epic-writing`.
+If present, hold it in working memory and apply it in **Step 8.6** to fill `docs/product/*.md` accurately to our convention, instead of leaving empty placeholders. If absent, Step 8.6 is a no-op and the PM agent fills the files later via `pm-client-interview` / `pm-epic-writing`.
+
+**Styling material** → drives Step 8.7. Treat any of these as a styling preference:
+- A reference brand/site ("like Stripe / Linear / Vercel"), an explicit palette/fonts, a mood ("clean editorial", "playful", "brutalist"), or an attached style guide.
+
+If present, apply it in Step 8.7. **If absent, Step 8.7 picks a random DESIGN.md from https://getdesign.md/** and seeds the brand files from it — so a project is never left style-less.
 
 **Confirm with the operator before running step 1.** Print a dry-run preview:
 
@@ -66,7 +74,8 @@ About to scaffold:
   First date      : 2026-05-20
   First topic     : welcome-launch
   Next.js         : YES (App Router, TypeScript, Tailwind)        [mandatory]
-  Planning docs   : <N attachments detected> → will seed docs/product/   [auto, optional]
+  Planning docs   : <N attachments / rich description detected> → will seed docs/product/   [auto, optional]
+  Styling         : <"like Linear" | none → random from getdesign.md> → will seed docs/brand/   [auto]
   GitHub repo     : asked at the end as a tail question           [optional]
 Proceed? (y/N)
 ```
@@ -420,6 +429,57 @@ If Step 8.6 was skipped (no attachments), print:
 ℹ️  No planning attachments detected — docs/product/ left as placeholders. Invoke @product-manager → pm-client-interview to fill them.
 ```
 
+### Step 8.7 — Collect styling and seed `docs/brand/` (always runs)
+
+Every project gets a design direction before any UI is built — the designer, writer, and web-publisher agents all read `docs/brand/style-guide.md`. This step fills it from the operator's preference, or, if none was given, from a **random DESIGN.md on [getdesign.md](https://getdesign.md/)** (a collection of design-system analyses of well-known sites, made to drop into a project as a coding-agent design reference).
+
+#### 8.7a — Determine the design source
+
+| Situation | Action |
+|---|---|
+| Operator gave explicit styling (palette, fonts, mood, or an attached style guide) | Use it directly — skip getdesign.md. |
+| Operator named a reference brand ("like Stripe / Linear / Vercel") | Fetch that entry: `https://getdesign.md/<brand>/design-md`. |
+| **No styling provided** | **Pick a random entry from getdesign.md** (see 8.7b). |
+
+#### 8.7b — Pull a DESIGN.md from getdesign.md (when no explicit styling)
+
+getdesign.md is a client-rendered app; entries live at `https://getdesign.md/<brand>/design-md`. Fetch the chosen entry's rendered content using the **Claude in Chrome extension (MCP)** or **WebFetch / computer-use** (a plain `curl` returns an empty SPA shell — use a real renderer).
+
+To pick at random, choose one slug from the collection. A non-exhaustive list (browse `https://getdesign.md/` for the full set): `vercel`, `linear`, `stripe`, `resend`, `figma`, `framer`, `cursor`, `superhuman`, `cohere`, `clickhouse`, `sanity`, `lovable`, `cal`, `composio`, `discord`, `elevenlabs`, `airbnb`, `airtable`, `coinbase`, `claude`. Vary the choice per project (e.g. seed off the project slug) so different projects get different looks.
+
+```
+Using the Claude in Chrome extension / WebFetch, open https://getdesign.md/<chosen-brand>/design-md
+and read the full DESIGN.md analysis (palette, typography, spacing, mood, component patterns).
+```
+
+Drop the raw reference into the project verbatim so the coding agents can consult it:
+
+```bash
+mkdir -p "$TARGET/docs/brand"
+# Write the fetched DESIGN.md content to:
+#   $TARGET/docs/brand/DESIGN.md
+# Prepend one line of frontmatter noting the source URL and that it was an auto-pick.
+```
+
+> **Fallback — getdesign.md unreachable or rendering fails:** do NOT block the scaffold. Fall back to the built-in default (clean editorial: Inter, near-black ink `#0B1426` on `#F8FAFC`, single blue accent `#2563EB`, generous spacing) and note in the file that it's a fallback the operator can replace later.
+
+#### 8.7c — Synthesize `docs/brand/style-guide.md`
+
+Translate the chosen source (operator preference OR the fetched DESIGN.md) into the canonical brand file at `$TARGET/docs/brand/style-guide.md`, filling the existing template sections — **Color palette** (real hex values), **Typography** (heading/body/mono fonts + line-height), and **Visual style** (mood, image style, reference aesthetics). Substitute `{Project Name}` with `$PROJECT_NAME`. Leave **Voice and tone** / **Vocabulary** / **Content formats** for the PM/writer interview unless the planning docs from Step 8.6 already specify them — in which case fill them too.
+
+Rules:
+- Use **concrete values**, not placeholders — real hex codes and named Google Fonts the designer can use immediately.
+- Keep the template's H2 headings intact (the designer/writer agents key on them).
+- Never invent a brand voice the operator didn't express — that's `Visual style` only here; voice stays an open question for the PM interview.
+
+#### 8.7d — Print what was applied
+
+```
+✅ docs/brand/style-guide.md — palette + typography + visual style filled
+✅ docs/brand/DESIGN.md       — reference: <source>  (e.g. "getdesign.md/linear — random auto-pick" | "operator: like Stripe" | "built-in fallback")
+   Voice/tone left for the PM interview (pm-client-interview) unless planning docs specified it.
+```
+
 ### Step 9 — Scaffold Next.js into `website/` (mandatory)
 
 This always runs — every Infinite Leverage project ships a Next.js app at `website/`.
@@ -461,8 +521,9 @@ Next steps locally:
 4. Open the repo in Claude Code
 5. Invoke @product-manager — if docs/product/ was seeded by Step 8.6, run pm-grill-with-docs to validate; otherwise run pm-client-interview to fill product.md
 6. Invoke pm-epic-writing for each feature idea — creates/refines epics.md, epic-status.md, .specify/ specs
-7. Rename PH- placeholders deliberately as you start real work
-8. Read FOLDER-STRUCTURE.md once — canonical layout spec
+7. Review docs/brand/style-guide.md (seeded by Step 8.7) — adjust palette/fonts, then fill voice/tone in pm-client-interview
+8. Rename PH- placeholders deliberately as you start real work
+9. Read FOLDER-STRUCTURE.md once — canonical layout spec
 ```
 
 ### Step 12 — Tail-end question: push to GitHub now? (interactive, optional)
@@ -628,7 +689,8 @@ On any error, print the error output and tell the operator they can retry by re-
 - Configure Supabase / Vercel / Resend / Brevo — those are done in `infiniteleverage-init` Phase 2
 - Link the repo to Vercel for auto-deploy — printed as a next-step for the operator (`vercel link`)
 - Generate any content — that's the writer agent
-- Write product.md / epics.md content **from scratch** — that's `pm-documentation` via the PM agent. Step 8.6 only seeds these files when the operator hands over planning attachments at invocation time; otherwise they stay as placeholders.
+- Write product.md / epics.md content **from scratch** — that's `pm-documentation` via the PM agent. Step 8.6 only seeds these files when the operator hands over planning attachments (or a rich inline description) at invocation time; otherwise they stay as placeholders.
+- Define the brand **voice/tone** — Step 8.7 seeds only the *visual* side (palette, typography, visual style) of `docs/brand/style-guide.md`. Voice, vocabulary, and content formats stay for `pm-client-interview` unless planning docs already specify them.
 - Skip Next.js scaffolding — that step is mandatory
 - Push to GitHub silently — the GitHub repo creation+push is asked as a tail-end question and skipped if the operator declines. The skill prints the exact command they can run later.
 
