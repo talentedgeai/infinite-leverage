@@ -79,14 +79,14 @@ The Writer picks the oldest unwritten topic automatically on schedule.
 Then inject the canonical Agent Delegation section into ~/.claude/CLAUDE.md so the laptop knows how to auto-route requests to the 8 agents:
 
 ```bash
-bash ~/.claude/skills/infiniteleverage-onboard/scripts/inject-agent-delegation.sh \
+bash ~/.claude/skills/infiniteleverage-patch/scripts/inject-agent-delegation.sh \
   ~/.claude/CLAUDE.md
 ```
 
 After cloning the existing project repo (later prompt), repeat for the project's CLAUDE.md:
 
 ```bash
-bash ~/.claude/skills/infiniteleverage-onboard/scripts/inject-agent-delegation.sh \
+bash ~/.claude/skills/infiniteleverage-patch/scripts/inject-agent-delegation.sh \
   ~/code-projects/{project-slug}/CLAUDE.md
 ```
 

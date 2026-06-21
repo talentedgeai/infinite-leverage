@@ -90,7 +90,7 @@ python3 "$HOME/.claude/hooks/usage-context.py" 2>/dev/null || true
 # Warn once (never block) if Claude session telemetry can't be delivered:
 # no gh auth, or no git email to attribute the effort to.
 if ! command -v gh >/dev/null 2>&1 || ! gh auth status >/dev/null 2>&1 || [ -z "$(git config user.email 2>/dev/null)" ]; then
-    echo "[telemetry] not configured — effort not tracked; run /infiniteleverage-onboard"
+    echo "[telemetry] not configured — effort not tracked; run /infiniteleverage-patch"
 fi
 
 # ── Stage 5b: Registration notice ────────────────────────────────────────────

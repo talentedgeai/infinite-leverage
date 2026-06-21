@@ -14,8 +14,7 @@ On every session start, `hooks/session-start` runs four stages:
 
 | Skill | Trigger |
 |---|---|
-| `/infiniteleverage-init` | First-time Mac Mini setup — zero to live site + 8 agents |
-| `/infiniteleverage-onboard` | Client onboarding on a new machine |
+| `/infiniteleverage-init` | Stand up a machine — Mode A (first-ever: zero to live site + 8 agents) or Mode B (additional machine onboarding to the existing team). Asks which at the start. |
 | `/infiniteleverage-patch` | Pull latest agent definitions from canonical template repo |
 | `/infiniteleverage-project` | Scaffold a new project for an existing operator |
 

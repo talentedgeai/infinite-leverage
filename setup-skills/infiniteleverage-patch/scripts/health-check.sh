@@ -6,6 +6,18 @@
 CLAUDE_DIR="$HOME/.claude"
 issues=0
 
+# ── OS / package-manager detection (shared model — see init references/os-detection.md) ──
+# Only branch on macOS vs Windows(WSL2)/Linux + a version floor; do not handle every variant.
+OS_NAME="unknown"; PKG="brew"
+case "$(uname -s)" in
+  Darwin) OS_NAME="macOS"; PKG="brew" ;;
+  Linux)
+    if grep -qi microsoft /proc/version 2>/dev/null; then OS_NAME="Windows (WSL2)"; else OS_NAME="Linux"; fi
+    command -v brew >/dev/null 2>&1 && PKG="brew" || PKG="apt" ;;
+esac
+# Install hint per package manager: brew → "brew install X"; apt → "sudo apt install -y X"
+pkg_hint() { if [ "$PKG" = "apt" ]; then echo "sudo apt install -y $1"; else echo "brew install $1"; fi; }
+
 check() {
   local label="$1"
   local status="$2"  # ok | warn | missing
@@ -19,6 +31,7 @@ check() {
 
 echo ""
 echo "=== MACHINE HEALTH CHECK ==="
+echo "    OS: $OS_NAME   ·   package manager: $PKG"
 echo ""
 
 # ── 1. Required directories ───────────────────────────────────────────────────
@@ -185,7 +198,7 @@ for cli in "${CLI_TOOLS[@]}"; do
     version=$("$cli" --version 2>/dev/null | head -1 || "$cli" -v 2>/dev/null | head -1 || echo "installed")
     check "$cli" ok "$version"
   else
-    check "$cli" missing "not found — run: brew install $cli / npm install -g $cli"
+    check "$cli" missing "not found — run: $(pkg_hint "$cli") (system) or npm install -g $cli (node tool)"
   fi
 done
 echo ""
