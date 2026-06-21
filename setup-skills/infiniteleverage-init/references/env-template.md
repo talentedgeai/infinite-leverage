@@ -4,6 +4,13 @@ Every project must have a `.env.example` at the repo root. Scaffold this file be
 
 **Rule**: If `.env.example` does not exist at project root, create it before starting any implementation. If it exists but is missing keys the current task introduces, add those keys with empty values and a one-line comment explaining each — on the same commit as the code that reads them.
 
+> **Collection order — just-in-time (do NOT front-load every key).** Setup collects credentials only when the step that uses them runs, via `scripts/collect-credentials.py` (merge-safe):
+> - **Core (Phase 2a — needed for the first deploy):** Supabase keys (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`) + `NEXT_PUBLIC_SITE_URL`.
+> - **Deferred (Phase 2b / feature-time):** `GEMINI_API_KEY` — only when image generation is built. `RESEND_API_KEY` / `RESEND_FROM_EMAIL` — only when email is built (don't make anyone buy/verify a throwaway email domain just to deploy a page).
+> - **Optional:** Lark keys — all three or none.
+>
+> `.env.example` still lists every key (with empty values) so the contract is documented; *collection* is what's deferred, not declaration.
+
 ---
 
 ```bash

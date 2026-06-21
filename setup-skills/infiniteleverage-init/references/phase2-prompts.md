@@ -1,56 +1,58 @@
-# Mac Mini — Phase 2: Claude Code Prompts
+# Phase 2: Claude Code Prompts (Mode A — First Setup)
 
-> **Windows users:** run all of these inside the **WSL Ubuntu** shell (not PowerShell), where `claude` was installed per `references/windows-setup.md`. Every prompt below — `brew install`, `chmod`, the hooks — works verbatim in WSL.
+These run inside **Claude Code Desktop** (no terminal `claude` CLI needed). **Windows users:** anything that shells out runs in the **WSL2 Ubuntu** shell, not PowerShell — see `references/os-detection.md`.
 
-Open Terminal on the Mac Mini, then run: `claude`
-A prompt will appear — paste each numbered prompt below and press Enter. Wait for it to finish before running the next one.
+## Run as TWO PARALLEL SESSIONS
+
+When you first open Claude Code, **open a second session/tab** and split the work:
+
+| Session | Track | Prompts | You |
+|---|---|---|---|
+| **Session B** | **2b — autonomous** | the **2b kickoff** (covers Prompts 6, 8, 10) | paste it, then leave it — it installs the agent team, global skills, hooks, and schedules on its own |
+| **Session A** | **2a — interactive** | **1 → 2 → 3 → 4 → 5 → 7**, then **Finalize** | run these yourself; you'll click through a couple of browser steps and watch the site go live |
+
+**Why parallel:** 2b has no dependency on the live site, so it runs unattended while you drive 2a. The **one** join point is the agent-team dashboard — it needs both the live site *and* the installed agents, so it's built in the **2a Finalize step**, not in 2b.
+
+**Order within Session A:** run prompts in sequence, waiting for each to finish. **Skip Prompt 6, 8, 9, 10 in Session A** — 6/8/10 belong to the 2b kickoff (Session B); 9 is folded into Finalize.
+
+> **Zero-state rule (Session A / 2a):** 2a must not depend on the **global 8-agent install or routing rules** — those are 2b's job and may not exist yet. The one exception: Prompt 4 **writes its own local `developer.md` inline** (from `mac-mini-agents.md`) and uses it to build the first page — that's self-provisioned, so it's allowed. 2a writes that file into the **project** dir (`~/code-projects/{project-slug}/.claude/agents/`); 2b writes the full set into the **agents repo** + `~/.claude/agents/` — different locations, so the two sessions never fight over the same file.
+
+> **Env collection — automate first (both tracks). [P8]** Wherever a step needs an API key, Claude tries to fetch it ITSELF — using the **Claude in Chrome extension (MCP)** or **computer-use** to open the relevant dashboard (Supabase, later Gemini/Resend) and copy the value, then writing it via `scripts/collect-credentials.py`. Claude asks you to do it manually **only when blocked** — login it can't pass, 2FA, CAPTCHA/Arkose, or billing/plan selection — naming the exact value and where to find it.
 
 ---
 
-## Prompt 1 — Install tools + global permissions
+## Prompt 1 — Install tools + global permissions  ·  [2a — Session A]
 
 ```
-Set up the Mac Mini tools and Claude Code configuration:
+Set up the machine tools and Claude Code configuration:
 
-1. Install remaining tools:
-   brew install gh node jq ffmpeg
-   npm install -g vercel @anthropic-ai/claude-code resend ccusage
+1. Install required tools (use the package manager for this OS — brew on macOS, apt in WSL2):
+   brew install gh node jq ffmpeg          # macOS  (WSL2: sudo apt install -y gh nodejs jq ffmpeg)
+   npm install -g vercel ccusage
 
-   Verify all CLIs:
-   gh --version && node --version && jq --version && vercel --version && claude --version && resend --version
+   Verify:
+   gh --version && node --version && jq --version && vercel --version
+   # NOTE: do NOT install the Claude CLI or Resend here.
+   #   • Claude runs in Desktop already — the CLI is an optional end-of-setup extra.
+   #   • Resend is collected at feature-time (when the email feature is built), not now.
 
-2. Authenticate GitHub CLI:
-   gh auth login
-   # → GitHub.com, HTTPS, Login with browser
-   gh auth status
+2. Authenticate GitHub CLI (skip if `gh auth status` already authenticated from Phase 1):
+   gh auth status || gh auth login   # GitHub.com → HTTPS → Login with browser
 
 3. Authenticate Vercel CLI:
    vercel login
-   # → select "Continue with GitHub" → browser opens → authorize → return to terminal
-   vercel whoami   # confirm your username appears
+   # → "Continue with GitHub" → browser → authorize → return to terminal
+   vercel whoami
 
-4. Authenticate Resend CLI:
-   resend login
-   # → browser opens → sign in to resend.com → authorize → return to terminal
-   # If resend login is not available, authenticate via API key instead:
-   #   export RESEND_API_KEY={from-credentials-file}
-   #   resend domains list   # confirm the client domain appears as verified
-   # Save the API key to ~/.zshrc or ~/.bash_profile so it persists across sessions:
-   #   echo 'export RESEND_API_KEY={from-credentials-file}' >> ~/.zshrc
-
-5. Authenticate Claude Code (opens browser):
-   claude
-   # Complete OAuth in browser, then type /exit
-
-6. Create global directories:
+4. Create global directories:
    mkdir -p ~/.claude/agents ~/.claude/skills ~/.claude/rules
 
-7. Run scripts/setup-permissions.py from this skill folder to write ~/.claude/settings.local.json
+5. Run scripts/setup-permissions.py from this skill folder to write ~/.claude/settings.local.json
    (adds Bash(*), WebFetch, Skill(*), Supabase MCP permissions without overwriting existing content)
 
-8. Print ~/.claude/settings.local.json to confirm.
+6. Print ~/.claude/settings.local.json to confirm.
 
-9. Install usage hooks (token tracking + active hours):
+7. Install usage hooks (token tracking + active hours):
    mkdir -p ~/.claude/hooks
    gh repo clone talentedgeai/infiniteleverage-8-agents-template /tmp/il-template --depth 1
    cp /tmp/il-template/hooks/usage-context.py ~/.claude/hooks/usage-context.py
@@ -65,7 +67,7 @@ Set up the Mac Mini tools and Claude Code configuration:
 
 ---
 
-## Prompt 2 — Global engineering rules
+## Prompt 2 — Global engineering rules  ·  [2a — Session A]
 > **[Protocol 3]** The stack is Claude + GitHub + Vercel + Supabase. These rules enforce how that stack is used safely.
 
 ```
@@ -109,7 +111,7 @@ Write ~/.claude/rules/global-engineering.md with these exact contents:
 
 ---
 
-## Prompt 3 — Supabase plugin (MCP)
+## Prompt 3 — Supabase plugin (MCP)  ·  [2a — Session A]
 > **[Protocol 7]** Supabase is the data layer — contact forms, subscribers, CRM. The Supabase connection comes from the **official Claude Code Supabase plugin** (`plugin:supabase`), not the standalone Supabase CLI. Installing a plugin and clicking through OAuth are steps Claude Code cannot do on its own — Claude will pause and walk you through them.
 
 ```
@@ -128,7 +130,7 @@ Connect this machine to Supabase using the official Claude Code Supabase plugin:
 
 ---
 
-## Prompt 4 — Project scaffold
+## Prompt 4 — Project scaffold  ·  [2a — Session A]
 > **[Protocol 4]** Agents are folders, not magic — every context file lives at an explicit path. **[Protocol 8]** The design system (`docs/brand/`) is written before any component ever gets built.
 
 ```
@@ -314,29 +316,71 @@ Open http://localhost:3000, confirm the client name and branding appear, then Ct
 
 ---
 
-## Prompt 5 — Write credentials to .env.local
+## Prompt 5 — Collect core credentials into .env.local (automated)  ·  [2a — Session A]
+
+End of the deploy path — collect ONLY the keys the first deploy needs (**core/Supabase**). **Automate first, ask only when blocked.** Gemini/Resend stay deferred to feature-time.
 
 ```
-Write the following to ~/code-projects/{project-slug}/website/.env.local
-(replace each placeholder from the credentials file):
+Goal: write the CORE Supabase keys into ~/code-projects/{project-slug}/website/.env.local.
+Confirm .env.local is gitignored first. Use the merge-safe collector (never clobbers existing values).
 
-NEXT_PUBLIC_SUPABASE_URL={from-credentials-file}
-NEXT_PUBLIC_SUPABASE_ANON_KEY={from-credentials-file}
-SUPABASE_SERVICE_ROLE_KEY={from-credentials-file}
-GEMINI_API_KEY={from-credentials-file}
-RESEND_API_KEY={from-credentials-file}
-# Lark is optional — only add these if the client collected Lark credentials in Phase 1
-# If LARK_WEBHOOK_URL is blank, leave these lines out entirely
-LARK_APP_ID={from-credentials-file-or-leave-out}
-LARK_APP_SECRET={from-credentials-file-or-leave-out}
-LARK_WEBHOOK_URL={from-credentials-file-or-leave-out}
+1. See what's missing:
+   cd ~/code-projects/{project-slug}/website
+   python3 ~/.claude/skills/infiniteleverage-init/scripts/collect-credentials.py --target .env.local --check core
 
-Confirm .env.local is in .gitignore before writing. Do not commit this file.
+2. For each missing key, GET IT YOURSELF before asking the user:
+   - Use the Claude in Chrome extension (MCP) or computer-use to open the Supabase dashboard
+     → project {project-slug} → Project Settings → API → copy:
+        Project URL            → NEXT_PUBLIC_SUPABASE_URL
+        publishable / anon key → NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        secret / service key   → SUPABASE_SECRET_KEY
+   - Write each as you retrieve it:
+       python3 ~/.claude/skills/infiniteleverage-init/scripts/collect-credentials.py --target .env.local \
+         --set NEXT_PUBLIC_SUPABASE_URL=... NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=... SUPABASE_SECRET_KEY=...
+
+3. Ask the user to fetch a value MANUALLY only if you genuinely can't — not logged in, 2FA,
+   CAPTCHA, or the page won't load. Name the exact field and where it is. Don't ask for keys you
+   were able to read yourself.
+
+4. Also set NEXT_PUBLIC_SITE_URL=http://localhost:3000 for local dev.
+
+DEFERRED — do NOT add now (collected the same automated way at feature-time):
+  • GEMINI_API_KEY  → when image generation is built
+  • RESEND_API_KEY / RESEND_FROM_EMAIL → when the email feature is built
+  • LARK_* (optional) → all three or none, only if the client uses Lark
+
+Re-run --check core; all three present → proceed to Prompt 7. Never commit .env.local.
 ```
+
+> **Key names:** use the new Supabase naming (`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`) per `references/env-template.md` — not legacy `ANON_KEY` / `SERVICE_ROLE_KEY`.
 
 ---
 
-## Prompt 6 — Global skills
+## ═══ 2b KICKOFF — paste this in Session B, then leave it running ═══
+
+This launches the **autonomous** track. It has no dependency on the live site, so it runs unattended while you drive 2a in Session A.
+
+```
+You are running the Infinite Leverage "2b" autonomous setup track in this session, in parallel
+with the interactive "2a" track running in another session. Do all of the following without
+waiting on the other session, then report a completion summary. Do NOT build the agent-team
+dashboard (it needs the live site — the 2a session builds it at its Finalize step).
+
+Run these in order:
+  1. Prompt 6  — install global skills
+  2. Prompt 8  — fetch + write all 8 agent definitions
+  3. Prompt 10 — install agents globally to ~/.claude/agents/ + install/wire hooks + register the 10 schedules
+
+If a step needs an API key, collect it automatically (Claude in Chrome / computer-use) and only
+ask the user if blocked. When finished, print: agent count in ~/.claude/agents/, the installed
+skills, and the registered routine IDs — so the 2a Finalize step can verify you're done.
+```
+
+Prompts 6, 8, and 10 below are the bodies this kickoff runs. (In Session A, skip them.)
+
+---
+
+## Prompt 6 — Global skills  ·  [2b — Session B]
 
 ```
 Install three global skills to ~/.claude/skills/:
@@ -365,7 +409,7 @@ Steps: (1) ask: skill name, trigger phrases, purpose (2) create skill-name/ dire
 
 ---
 
-## Prompt 7 — Push to GitHub and connect Vercel
+## Prompt 7 — Push to GitHub and connect Vercel  ·  [2a — Session A]
 > **[Protocol 5]** GitHub is version control for all code and context. **[Protocol 6]** Vercel deploys only via `git push` — never `vercel deploy` directly.
 
 ```
@@ -385,22 +429,23 @@ Deploy the project:
    c. Under "Configure Project", expand "Build and Output Settings"
    d. Find the "Root Directory" field → type: website
       (This tells Vercel your Next.js app is in the website/ folder, not the repo root)
-   e. Click "Environment Variables" → add: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
+   e. Click "Environment Variables" → add the CORE Supabase keys: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
    f. Click "Deploy" — wait for green checkmark
-   Tell me "deployed" when Vercel shows the green success screen.
+   Tell me "deployed" when Vercel shows the green success screen. 🎉 This is the Phase 2a win.
 
 3. After I confirm the site is deployed:
    a. Link this local directory to the Vercel project:
       vercel link --project {project-slug} --yes
 
-   b. Add env vars via Vercel CLI (source from credentials file):
-      vercel env add SUPABASE_SERVICE_ROLE_KEY production
-      vercel env add GEMINI_API_KEY production
-      vercel env add RESEND_API_KEY production
-      # Lark is optional — only run these if LARK credentials were provided in Phase 1
-      # vercel env add LARK_APP_ID production
-      # vercel env add LARK_APP_SECRET production
-      # vercel env add LARK_WEBHOOK_URL production
+   b. Add the CORE secret env var via Vercel CLI:
+      vercel env add SUPABASE_SECRET_KEY production
+      # DEFERRED to feature-time (Phase 2b) — add only when that feature is built:
+      #   vercel env add GEMINI_API_KEY production    # when image generation ships
+      #   vercel env add RESEND_API_KEY production     # when email ships
+      # Lark is optional — only run these if LARK credentials were provided:
+      #   vercel env add LARK_APP_ID production
+      #   vercel env add LARK_APP_SECRET production
+      #   vercel env add LARK_WEBHOOK_URL production
 
    c. Verify deployment and show status:
       vercel ls
@@ -414,7 +459,7 @@ Deploy the project:
 
 ---
 
-## Prompt 8 — Agent team: repo + definitions
+## Prompt 8 — Agent team: repo + definitions  ·  [2b — Session B]
 > **[Protocol 1]** Agents act when asked — you are the orchestrator. **[Protocol 4]** Agents are folders with explicit context, not opaque magic. **[Protocol 13]** These 8 roles are fixed — don't improvise new ones.
 
 ```
@@ -447,11 +492,13 @@ Never create a second agents repo. Never create a per-project agents repo.
    ls ~/.claude/skills/infiniteleverage-init/references/mac-mini-agents.md
    If not found, stop and report the missing file path — do not proceed.
 
-   Write the remaining 7 agent definition files to .claude/agents/ using the definitions in
+   Write ALL 8 agent definition files to the agents repo's .claude/agents/ using the definitions in
    ~/.claude/skills/infiniteleverage-init/references/mac-mini-agents.md as the base.
-   (developer.md was already written in Prompt 4 — do not overwrite it.)
+   (This runs autonomously in the 2b session — do NOT assume the 2a session wrote anything.
+   The 2a Prompt-4 developer.md lives in the PROJECT dir, a different location; write a fresh
+   developer.md here in the agents repo too so 2b is fully self-contained.)
 
-   Agents to write now: product-manager, qa, devops, writer, designer, web-publisher, email-marketer
+   Agents to write now (all 8): developer, product-manager, qa, devops, writer, designer, web-publisher, email-marketer
 
    Apply the updated rules across all agents:
    - Product Manager: Dan Shipper product thinking, hypothesis-based epics, user story format; auto-approve only high-priority + low-risk items after 2h; backlog everything else; all approval decisions written directly to project-status.html
@@ -580,7 +627,22 @@ Never create a second agents repo. Never create a per-project agents repo.
 
 ---
 
-## Prompt 9 — Agent team dashboard
+## Prompt 9 — 2a FINALIZE / JOIN: verify 2b, build dashboard, write HANDOFF  ·  [2a — Session A, after HTTP 200]
+
+This is the **single join point** between the two parallel tracks. Run it in Session A **only after the site returns HTTP 200** (Prompt 7). It first confirms the autonomous 2b track actually finished, then builds the dashboard (which needs both the live site and the installed agents) and writes the handoff.
+
+```
+FINALIZE — run after the site is live (HTTP 200).
+
+1. Verify the 2b autonomous track completed:
+   - ls ~/.claude/agents/*.md | wc -l        # expect 8
+   - confirm the 10 routines are registered (https://claude.ai/code/routines or the 2b summary)
+   - confirm global skills exist: ls ~/.claude/skills/{daily-checkin,create-local-routine,create-remote-routine}
+   If anything is missing, finish it here (re-run the relevant part of Prompt 6/8/10) before continuing.
+   Report what you found and fixed.
+
+2. Then build the agent team dashboard (needs the live site + the 8 agents):
+```
 
 ```
 Generate an HTML file at ~/{clientslug}-agents/team-dashboard.html that gives the client
@@ -651,9 +713,25 @@ Open team-dashboard.html in the browser and confirm it renders correctly.
 Tell me: "Dashboard ready — open ~/{clientslug}-agents/team-dashboard.html"
 ```
 
+```
+3. Confirm production health, then write HANDOFF.md (this is the last step):
+   curl -I https://{project-slug}.vercel.app          # HTTP 200
+   vercel ls                                          # recent deployments + status
+   vercel env ls production                           # core env vars present
+
+   Write HANDOFF.md at ~/{clientslug}-agents/HANDOFF.md
+   # [Protocol 17] Context handoff — how the client picks up without Dave present
+   # [Protocol 18] Work outlives the operator — agents repo + sync means any machine rebuilds from GitHub
+   Include: all 8 agents with trigger phrases, content pipeline schedule, sync instructions,
+   live URL, repo URL, the first-actions guide, and the 10 routine IDs from ~/.claude/.il-2b-routines.txt.
+   Manage routines at: https://claude.ai/code/routines
+```
+
+Setup complete — proceed to **Phase 3** in the SKILL (stamp version + register plugin).
+
 ---
 
-## Prompt 10 — Install agents globally + register schedules
+## Prompt 10 — Install agents globally + register schedules  ·  [2b — Session B]
 
 ```
 1. Install all 8 agents and skills globally:
@@ -692,24 +770,16 @@ Tell me: "Dashboard ready — open ~/{clientslug}-agents/team-dashboard.html"
    web-publisher-weekly → cron_expression: "3 2 * * 3"      (Wednesdays 9:03 AM Asia/Saigon)
    email-marketer-weekly → cron_expression: "3 3 * * 4"     (Thursdays 10:03 AM Asia/Saigon)
 
-   Save all 10 routine IDs — record them in HANDOFF.md under "Scheduled routine IDs".
-   Routines are persistent — no expiry, no re-registration needed. Manage at: https://claude.ai/code/routines
+   Save all 10 routine IDs to ~/.claude/.il-2b-routines.txt (one "name: id" per line) so the
+   2a Finalize step can fold them into HANDOFF.md. Routines are persistent — no expiry, no
+   re-registration needed. Manage at: https://claude.ai/code/routines
 
-4. Run verification:
+4. Verify the autonomous track (NO live-site checks — those belong to the 2a Finalize step):
    ls ~/.claude/agents/           # all 8 present
    ls ~/.claude/scheduled-tasks/  # all 8 task folders present
    gh repo view {clientslug}-agents
-   curl -I https://{project-slug}.vercel.app  # HTTP 200
 
-   Vercel project health check:
-   vercel ls                                     # list recent deployments + status
-   vercel inspect https://{project-slug}.vercel.app  # deployment details + build info
-   vercel env ls production                      # confirm all env vars present
-
-5. Write HANDOFF.md at ~/{clientslug}-agents/HANDOFF.md
-   # [Protocol 17] Context handoff — this document is how the client picks up without Dave present
-   # [Protocol 18] Work outlives the operator — agents repo + sync-agents means any machine can be set up from GitHub
-   Include: all 8 agents with trigger phrases, content pipeline schedule, sync instructions,
-   live URL, repo URL, first-actions guide for the client, and all 10 RemoteTrigger routine IDs.
-   Manage routines at: https://claude.ai/code/routines
+5. Report completion so the 2a session can verify:
+   Print the agent count, the installed global skills, and the 10 routine IDs.
+   # HANDOFF.md is written by the 2a Finalize step (Prompt 9) — it has the live URL. Do not write it here.
 ```

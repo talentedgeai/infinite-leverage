@@ -12,7 +12,11 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SKILLS_DIR="$REPO_ROOT/setup-skills"
 
-ALL_SKILLS=(infiniteleverage-init infiniteleverage-onboard infiniteleverage-patch infiniteleverage-project infiniteleverage-validate)
+# infiniteleverage-onboard was merged into infiniteleverage-init (Mode B) — no longer built.
+ALL_SKILLS=(infiniteleverage-init infiniteleverage-patch infiniteleverage-project infiniteleverage-validate)
+
+# Remove the orphaned onboard zip if a previous build left one behind.
+rm -f "$SKILLS_DIR/infiniteleverage-onboard.zip"
 
 for skill in "${ALL_SKILLS[@]}"; do
   SKILL_DIR="$SKILLS_DIR/$skill"
@@ -43,6 +47,18 @@ if [ -d "$PLUGIN_REPO" ]; then
       rm -rf "$DEST"
       cp -r "$SRC" "$DEST"
       echo "   Synced: $skill"
+    fi
+  done
+  # Prune IL setup skills that were removed from ALL_SKILLS (e.g. infiniteleverage-onboard,
+  # merged into init). Only touches our own infiniteleverage-* dirs — never unrelated skills.
+  for existing in "$PLUGIN_SKILLS_DIR"/infiniteleverage-*; do
+    [ -d "$existing" ] || continue
+    name="$(basename "$existing")"
+    keep=0
+    for skill in "${ALL_SKILLS[@]}"; do [ "$name" = "$skill" ] && keep=1 && break; done
+    if [ "$keep" -eq 0 ]; then
+      rm -rf "$existing"
+      echo "   Pruned (no longer built): $name"
     fi
   done
   echo "   Plugin skills sync complete."

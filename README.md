@@ -56,16 +56,11 @@ Universal agent definition templates and bootstrap skills for the Infinite Lever
     └── global-engineering.md  ← Shared engineering guardrails
 
 setup-skills/                  ← Bootstrap skills (outside .claude, for release zips)
-├── infiniteleverage-init/     ← Full Mac Mini setup
+├── infiniteleverage-init/     ← Machine setup — Mode A (first-ever) + Mode B (additional machine)
 │   ├── SKILL.md
 │   ├── agents/                ← Bundled copy (synced from .claude/agents/)
-│   ├── references/
-│   └── scripts/
-├── infiniteleverage-onboard/  ← Client laptop setup
-│   ├── SKILL.md
-│   ├── agents/
-│   ├── references/
-│   └── scripts/
+│   ├── references/            ← incl. os-detection, cloud-track-codespaces, pre-retreat-readiness, mode-b-*
+│   └── scripts/               ← incl. collect-credentials.py, setup-permissions.py
 └── infiniteleverage-patch/    ← Machine sync & agent update
     ├── SKILL.md
     ├── agents/
@@ -104,7 +99,7 @@ scripts/
 ```bash
 # Manual rebuild (local only — CI handles releases):
 ./scripts/rebuild-zips.sh
-# Output: setup-skills/infiniteleverage-{init,onboard,patch,project}.zip
+# Output: setup-skills/infiniteleverage-{init,patch,project,validate}.zip
 ```
 
 ## Releases

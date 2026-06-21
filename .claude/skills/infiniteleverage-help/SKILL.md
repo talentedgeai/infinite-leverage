@@ -13,8 +13,7 @@ Print the following menu verbatim, then offer to invoke any skill the user point
 
 | Skill | Trigger | Produces |
 |-------|---------|---------|
-| `infiniteleverage-init` | "set up a new machine", "bootstrap from scratch", "I just got a new Mac Mini" | Full Mac Mini bootstrap: website + 8 agents + schedules |
-| `infiniteleverage-onboard` | "connect my laptop", "add my personal machine", "onboard a new computer" | Laptop connected to existing AI team |
+| `infiniteleverage-init` | "set up a new machine", "bootstrap from scratch", "connect my laptop", "add my personal machine", "onboard a new computer" | Stand up a machine — Mode A (first-ever: website + 8 agents + schedules) or Mode B (additional machine connected to the existing team). Asks which at the start. |
 | `infiniteleverage-patch` | "update my agents", "sync to latest", "my skills are out of date" | Health check + agents/skills/hooks synced to latest |
 | `infiniteleverage-project` | "new project", "scaffold a project", "start a new client project" | New project directory scaffolded with 8-agent team wired in |
 | `infiniteleverage-help` | "what can I do", "show the menu", "what skills are available" | This menu |
