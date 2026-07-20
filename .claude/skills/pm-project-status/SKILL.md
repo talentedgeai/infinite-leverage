@@ -1,7 +1,7 @@
 ---
 name: pm-project-status
 description: >-
-  Builds and updates the project status dashboard — a single HTML page showing which features are planned, in progress, and shipped. Includes a build log, key metrics, and links to all important docs. The operator uses this to understand where the project stands at a glance.
+  Builds and updates the project status dashboard — a single HTML page showing which features are planned, in progress, and shipped, plus a PDF companion regenerated on every update. Includes a build log, key metrics, and links to all important docs. The operator uses this to understand where the project stands at a glance.
 ---
 
 # PM: Project Status Dashboard
@@ -83,6 +83,20 @@ y[series][day] = 100 × raw[series][day] / max(raw[series] over window)
 - Add a **reading-guide paragraph** below the chart converting the most important percent back to absolute units (e.g. "Team hours hit peak 23.7 h on 5/29, a 2.2× increase over the 5/26 trough at 7.1 h").
 
 See `docs/assessments/team-hours-methodology.md §5.5` for the full spec and Appendix A (small-multiples alternative, deprecated).
+
+## PDF Companion (generate every time)
+
+Every time `docs/project-status.html` is created or updated, immediately regenerate `docs/project-status.pdf` next to it (same basename) as a single continuous page — not a print-paginated document.
+
+1. Use headless Chromium via Playwright. If not installed, `npx playwright install chromium`. Write a throwaway Node script in a temp dir — never add Playwright to the project's `package.json`.
+2. Load the HTML as a `file://` URL, viewport width 1280px. Wait for `networkidle` and `document.fonts.ready`.
+3. Inject `html,body{height:auto!important;overflow:visible!important;}` to release any fixed-height/`overflow:hidden` shell so all content is visible and measurable.
+4. Measure `document.documentElement.scrollHeight`.
+5. Render exactly ONE page: `width: 1280px`, `height: <measured>px`, `printBackground: true`, zero margins — no pagination or sheet breaks.
+6. Save as `docs/project-status.pdf`.
+7. If the file exceeds ~10MB, warn the operator (GitHub won't render it inline above that) and offer a full-page PNG (`fullPage: true` screenshot) as a fallback instead.
+8. Sanity-check the render — if the flatten broke the layout (overlapping/clipped/collapsed content), fall back to a tall fixed viewport height and note that in the commit.
+9. Commit the PDF in the same commit as the HTML change. Delete the temp script/dir when done.
 
 ## Theming
 Use CSS variables:
