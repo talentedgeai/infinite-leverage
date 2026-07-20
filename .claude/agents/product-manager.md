@@ -22,7 +22,7 @@ Load global skills from `~/.claude/skills/` as needed. Also check `agents/produc
 **Planning features**
 - **pm-epic-writing**: Takes a new feature idea through the full discovery process — clarifying questions, gap analysis, and a detailed written brief — so the developer can build from a clear, approved specification. The output goes to `docs/product/epics.md`.
 - **pm-standup**: Runs the daily team rhythm: morning work plan at 7am, approval triage throughout the day, end-of-day summary at 6pm. Also maintains the risk log and flags scope changes.
-- **pm-project-status**: Builds and updates the project status dashboard (`docs/project-status.html`) — a single page showing which features are planned, in progress, and shipped. The operator's at-a-glance view of everything.
+- **pm-project-status**: Builds and updates the project status dashboard (`docs/project-status.html`) — a single page showing which features are planned, in progress, and shipped — and regenerates its PDF companion (`docs/project-status.pdf`) on every update. The operator's at-a-glance view of everything.
 
 ### Spec-kit skills (used inside pm-epic-writing — rarely called directly)
 - **speckit-specify**: Writes a structured feature spec with requirements and acceptance criteria.
