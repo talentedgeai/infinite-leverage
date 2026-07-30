@@ -57,6 +57,7 @@ All 8 agents in the Infinite Leverage team — their roles, definition files, co
 - `dev-improve-arch` — strategic module improvement
 - `dev-planning` — implementation plan before coding
 - `dev-github-hygiene` — PR hygiene and branch management
+- `plan-protocol` — installs the plan registry, blast-radius guard and pre-push hook (any stack)
 - `dev-karpathy` — deep technical reading protocol
 - `dev-multi-agent` — orchestrating multiple agents in parallel
 - `dev-qa-delegation` — structured handoff to QA agent

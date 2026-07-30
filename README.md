@@ -78,7 +78,7 @@ scripts/
 | Agent | Skills (`.claude/skills/`) |
 |-------|---------------------------|
 | product-manager | `pm-client-interview`, `pm-documentation`, `pm-project-status`, `pm-standup`, `pm-epic-writing`, `pm-constitution-sync` |
-| developer | `dev-planning`, `dev-feature-plan`, `dev-brainstorm`, `dev-zoom-out`, `dev-karpathy`, `dev-tdd`, `dev-prototype`, `dev-improve-arch`, `dev-multi-agent`, `dev-github-hygiene`, `dev-diagnose`, `dev-grill`, `dev-qa-delegation`, `dev-handoff` |
+| developer | `dev-planning`, `dev-feature-plan`, `dev-brainstorm`, `dev-zoom-out`, `dev-karpathy`, `dev-tdd`, `dev-prototype`, `dev-improve-arch`, `dev-multi-agent`, `dev-github-hygiene`, `dev-diagnose`, `dev-grill`, `dev-qa-delegation`, `dev-handoff`, `plan-protocol` |
 | qa | `qa-triage`, `qa-best-practices`, `qa-planning`, `qa-documentation` |
 | devops | `devops-ops`, `devops-setup-pre-commit`, `devops-cicd`, `devops-git-guardrails` |
 
