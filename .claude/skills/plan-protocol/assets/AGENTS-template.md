@@ -51,32 +51,81 @@ do not talk yourself into "this is basically a typo".
 
 ## WRITE — starting new work
 
-1. Run SYNC first.
-2. Create `.specify/features/<slug>/` with at minimum `meta.yaml` + `spec.md`.
-3. `meta.yaml` is flat YAML, validated by `plan.mjs check`:
+### 1. ELICIT — ask the human, before writing a single line of the plan
 
-   ```yaml
-   slug: 001-example-feature        # must equal the dir name
-   title: Example feature
-   component: platform              # one of config.json's `components`
-   status: planned                  # planned | in-progress | blocked | shipped | superseded
-   owner: your-name/claude-code     # person/runtime — required once status is active
-   branch: feat/001-example         # required once in-progress
-   touches: [src/lib/example]       # required once in-progress
-   migration: '010'                 # only if you will add a numbered migration
-   updated: 2026-01-01
-   ```
+**Never author a plan from inference.** A plan is a decision about someone else's project:
+what gets built, what does not, and what it may touch. Deciding that from a ticket, a chat
+transcript, or your own judgment is making the call on their behalf and calling it process.
+If you cannot **quote** what was asked, you do not have a plan yet — you have a guess with
+a slug.
 
-   `owner` is `<person>/<runtime>`: at several agents per human, "sam" does not say which
-   session holds the claim, and `sam/claude-code` and `sam/cursor` will overwrite each
-   other.
+Ask at least these, and wait for answers:
 
-4. `plan.mjs index`, then `plan.mjs submit` — the **fast lane**: for a plan-only diff it
-   validates, pushes, opens the PR, and merges it. Plans need visibility, not review — the
-   registry *is* the review surface, and a plan queued behind review is a plan people start
-   coding without. Code PRs keep human review.
+| Ask | Because |
+|---|---|
+| **The problem, in your words** — what is wrong or missing today? | Goes in `ask:` verbatim. A paraphrase is already your interpretation. |
+| **What does done look like?** | Becomes the success criteria. Without it you will decide when to stop. |
+| **What is explicitly out?** | The scope you *would* have invented. Cheapest question here. |
+| **Which shared surfaces may this touch?** | Becomes `touches` and any hot zone. Under-claim and the gate blocks you; over-claim and you collide with everyone. |
+| **How does this sequence against what is already in flight?** | The registry shows what is running; only the human can rank it. |
 
-   20 lines is a fine plan. Do not gold-plate the spec before registering the work.
+One round is usually enough. Open questions that do not change the shape of the work go in
+the spec as open questions — do not stall on them.
+
+**No human available** (a cron run, a batch job, an autonomous sweep)? Register the plan as
+`status: planned` with no approval fields. That is a **proposal**: visible in the registry,
+costing nothing, and it grants **no lease** — `guard` will refuse to license code against it
+until somebody agrees. Proposing work is always allowed. Starting it is not.
+
+### 2. Run SYNC
+
+```bash
+node .specify/extensions/plan-protocol/plan.mjs sync
+```
+
+### 3. Write the plan
+
+Create `.specify/features/<slug>/` with at minimum `meta.yaml` + `spec.md`. Flat YAML,
+validated by `plan.mjs check`:
+
+```yaml
+slug: 001-example-feature        # must equal the dir name
+title: Example feature
+component: platform              # one of config.json's `components`
+status: planned                  # planned | in-progress | blocked | shipped | superseded
+owner: your-name/claude-code     # person/runtime — required once status is active
+branch: feat/001-example         # required once in-progress
+approved_by: sam                 # a PERSON, never a runtime — required once in-progress
+approved_on: 2026-01-01          # required once in-progress
+ask: the library page is slow on mobile and nobody can tell which module is next
+touches: [src/lib/example]       # required once in-progress
+migration: '010'                 # only if you will add a numbered migration
+updated: 2026-01-01
+```
+
+`owner` is `<person>/<runtime>`: at several agents per human, "sam" does not say which
+session holds the claim, and `sam/claude-code` and `sam/cursor` will overwrite each other.
+
+`ask` is **the human's own words**, one line, trimmed but not paraphrased. It is the field
+that catches invented scope: anyone can compare the ask against what the spec grew into.
+Rewriting it in your own voice defeats the point, and a plan whose `ask` cannot be quoted
+was not asked for.
+
+`approved_by` is a person. A runtime cannot consent on a human's behalf, and an agent
+filling in its own name is the exact failure this field exists to make visible.
+
+### 4. Register and submit
+
+`plan.mjs index`, then `plan.mjs submit` — the **fast lane**: for a plan-only diff it
+validates, pushes, opens the PR, and merges it.
+
+**Plan PRs need no review; plan *contents* need consent.** Those are different things, and
+conflating them turns "the registry is the review surface" into licence to skip the human
+entirely. Consent happens in step 1, in conversation, before anything is written — so by
+the time the PR exists there is nothing left to review, and queueing it behind approval
+would only teach people to start coding before the plan lands. Code PRs keep human review.
+
+20 lines is a fine plan. Do not gold-plate the spec before registering the work.
 
 ## UPDATE — while working
 
@@ -119,6 +168,15 @@ zone: it is the one file that can switch enforcement off.
 
 ## Enforcement
 
+- **No consent, no lease.** `guard` refuses to honour a plan's `touches` unless
+  `approved_by` is recorded, so forgetting to ask a human fails the gate instead of shipping
+  an assumption. This holds for `planned` proposals too — otherwise "propose it yourself,
+  then build it" would still be a compliant path. Plans already in flight when the rule
+  landed belong in `approvalExempt`; that list only shrinks.
+  It is not tamper-proof, and is not meant to be: an agent can type a name it never asked,
+  exactly as it can declare `touches` it does not honour. What enforcement buys is that the
+  claim is **visible in the diff and in the registry**, so skipping the human becomes an
+  explicit false statement rather than silence.
 - The project's gate runs `check` then `guard` first, cheapest-first.
 - **`.githooks/pre-push`** runs `guard` and refuses direct pushes to `main`. Committed to
   the repo, activated per clone by `core.hooksPath=.githooks`, and it invokes `node`

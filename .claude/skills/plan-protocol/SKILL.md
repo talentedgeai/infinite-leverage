@@ -127,6 +127,16 @@ Where a `prepare` script exists, `npm install` does this too.
 
 ## Guardrails
 
+- **Never author a plan from inference.** Ask the human first — the problem in their words,
+  what done looks like, what is explicitly out, which shared surfaces it may touch, how it
+  sequences against work in flight — then record `approved_by`, `approved_on`, and `ask`
+  (their words, quoted, one line). `guard` grants **no lease** without them, so an
+  unasked-for plan licenses no code. No human reachable? Register `status: planned` as a
+  proposal: visible, costs nothing, licenses nothing.
+- Never fill in `approved_by` with your own name or a runtime. That converts a missing
+  conversation into a false statement, which is worse than the blocked gate.
+- Never add a slug to `approvalExempt` to get moving; it exists solely to protect work that
+  was already in flight when the rule landed, and the list only shrinks.
 - Never widen `exempt` to silence the guard, and never exempt the engine's own directory —
   it is the one file that can switch enforcement off, so it belongs in `hotZones`.
 - Never add engine paths to the `submit` fast lane: that lane auto-merges without review.

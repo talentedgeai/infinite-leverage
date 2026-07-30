@@ -14,12 +14,15 @@ import {
   checkCoverage,
   daysSince,
   detectHotZones,
+  bootstrapPlan,
   findConflicts,
   metaFromFields,
   parseFlatYaml,
   pathWithin,
   planForBranch,
+  planGrantsLease,
   render,
+  submitBody,
   touchesOverlap,
 } from './plan.mjs'
 
@@ -41,6 +44,9 @@ const meta = (over = {}) => ({
   updated: '2026-07-30',
   owner: 'someone/claude-code',
   branch: 'feat/x',
+  approvedBy: 'khoa',
+  approvedOn: '2026-07-30',
+  ask: 'do the thing',
   touches: [],
   ...over,
 })
@@ -273,6 +279,102 @@ describe('planForBranch', () => {
   })
 })
 
+describe('bootstrapPlan', () => {
+  const cfg = { ...DEFAULT_CONFIG, requireApproval: true, approvalExempt: [] }
+  const args = { branch: 'chore/install', onMain: false, owner: 'Khoa/agent', approver: 'Khoa', date: '2026-07-31' }
+
+  // Regression: adding the consent fields once dropped the `branch:` line, so
+  // every fresh install wrote a meta.yaml that failed its own validation.
+  // Validate the generated file rather than eyeballing the template.
+  const parseAndValidate = (yaml) =>
+    metaFromFields(parseFlatYaml(yaml, 'm'), '000-plan-protocol', 'm', cfg)
+
+  test('what init writes passes the validation init then runs', () => {
+    assert.deepEqual(parseAndValidate(bootstrapPlan(cfg, args)).errors, [])
+  })
+
+  test('records its own consent — running the installer is the consent', () => {
+    const { meta: m } = parseAndValidate(bootstrapPlan(cfg, args))
+    assert.equal(m.approvedBy, 'Khoa')
+    assert.equal(m.approvedOn, '2026-07-31')
+    assert.match(m.ask, /install the plan protocol/)
+    assert.equal(m.branch, 'chore/install')
+  })
+
+  test('on the base branch it is a proposal with no branch claim', () => {
+    const { meta: m, errors } = parseAndValidate(bootstrapPlan(cfg, { ...args, onMain: true }))
+    assert.equal(m.status, 'planned')
+    assert.equal(m.branch, undefined)
+    assert.deepEqual(errors, [])
+  })
+})
+
+describe('consent — a plan a human never agreed to', () => {
+  // 050: the protocol's WRITE step had no human in it, so a plan assembled
+  // purely from inference was fully compliant. These pin the fix shut.
+  const strict = { ...config, requireApproval: true, approvalExempt: [] }
+  const fields = {
+    slug: 'd',
+    title: 'T',
+    component: 'learner',
+    status: 'in-progress',
+    updated: '2026-07-30',
+    owner: 'someone/claude-code',
+    branch: 'feat/d',
+    touches: ['src/lib/x'],
+  }
+
+  test('in-progress without approval fails validation, naming all three fields', () => {
+    const errors = metaFromFields(fields, 'd', 'f', strict).errors.join('\n')
+    assert.match(errors, /requires "approved_by"/)
+    assert.match(errors, /requires "ask"/)
+    assert.match(errors, /requires "approved_on"/)
+  })
+
+  test('a fully consented in-progress plan validates', () => {
+    const ok = { ...fields, approved_by: 'khoa', approved_on: '2026-07-30', ask: 'their words' }
+    assert.deepEqual(metaFromFields(ok, 'd', 'f', strict).errors, [])
+  })
+
+  test('approved_on must be a date', () => {
+    const bad = { ...fields, approved_by: 'khoa', approved_on: 'yesterday', ask: 'w' }
+    assert.match(metaFromFields(bad, 'd', 'f', strict).errors.join(), /"approved_on" must be YYYY-MM-DD/)
+  })
+
+  test('a proposal (planned) needs no approval — that is how an agent suggests work', () => {
+    const proposal = { ...fields, status: 'planned', branch: undefined, touches: undefined }
+    assert.deepEqual(metaFromFields(proposal, 'd', 'f', strict).errors, [])
+  })
+
+  test('but an unapproved proposal grants NO lease, so propose-then-build is not a loophole', () => {
+    assert.equal(planGrantsLease(meta({ status: 'planned', approvedBy: undefined }), strict), false)
+    assert.equal(planGrantsLease(meta({ approvedBy: undefined }), strict), false)
+    assert.equal(planGrantsLease(meta({ approvedBy: 'khoa' }), strict), true)
+  })
+
+  test('grandfathered slugs keep their lease, so a new rule cannot break work in flight', () => {
+    const grandfathered = { ...strict, approvalExempt: ['044-in-flight'] }
+    const m = meta({ slug: '044-in-flight', approvedBy: undefined })
+    assert.equal(planGrantsLease(m, grandfathered), true)
+    assert.deepEqual(
+      metaFromFields({ ...fields, slug: '044-in-flight' }, '044-in-flight', 'f', grandfathered).errors,
+      []
+    )
+  })
+
+  test('requireApproval: false leaves older installs alone', () => {
+    const lax = { ...strict, requireApproval: false }
+    assert.equal(planGrantsLease(meta({ approvedBy: undefined }), lax), true)
+    assert.deepEqual(metaFromFields(fields, 'd', 'f', lax).errors, [])
+  })
+
+  test('the registry shows who approved each active plan', () => {
+    const out = render([meta({ slug: 'a-live', approvedBy: 'khoa' })], config)
+    assert.match(out, /\| Approved \|/)
+    assert.match(out, /\| khoa \|/)
+  })
+})
+
 describe('daysSince', () => {
   test('computes whole days and tolerates garbage', () => {
     assert.equal(daysSince('2026-07-20', new Date('2026-07-30T12:00:00Z')), 10)
@@ -317,5 +419,41 @@ describe('render', () => {
 
   test('says so when nothing is active', () => {
     assert.match(render([meta({ status: 'shipped' })], config), /_No active plans registered\._/)
+  })
+})
+
+describe('submitBody', () => {
+  // Two regressions in one line. It interpolated an undefined `planRoot` —
+  // a ReferenceError thrown AFTER `git push` had already succeeded, leaving an
+  // orphan branch and no PR — and it described the diff as the plans dir
+  // "only", which was never true: every plan PR also carries the regenerated
+  // registry. Unreachable from a test while it lived inline between two
+  // shell-outs.
+  const lane = [DEFAULT_CONFIG.plansDir, DEFAULT_CONFIG.registryFile]
+
+  test('names every path the lane allows, not just the plans dir', () => {
+    assert.equal(
+      submitBody(lane),
+      'Plan-only PR via `plan.mjs submit` (AGENTS.md fast lane). Diff is limited to ' +
+        '`.specify/features` + `.specify/ACTIVE.md`; check + sync passed.'
+    )
+  })
+
+  test('does not claim the plans dir is the whole diff', () => {
+    const body = submitBody(lane)
+    // Scoped to the "Diff is …" clause on purpose: the body opens with
+    // "Plan-only PR", so a bare `-only` substring check matches that instead.
+    assert.doesNotMatch(body, /Diff is [^;]*-only/)
+    assert.ok(body.includes(DEFAULT_CONFIG.registryFile), 'the registry is always in a plan diff too')
+  })
+
+  test('tracks the lane, so a third permitted path needs no edit here', () => {
+    assert.match(submitBody(['a/plans', 'a/ACTIVE.md', 'a/extra']), /`a\/plans` \+ `a\/ACTIVE\.md` \+ `a\/extra`/)
+  })
+
+  test('never emits an undefined segment', () => {
+    for (const l of [['a'], ['a', 'b'], lane]) {
+      assert.ok(!submitBody(l).includes('undefined'), `undefined leaked for ${l.join()}`)
+    }
   })
 })

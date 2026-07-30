@@ -60,9 +60,18 @@ export const DEFAULT_CONFIG = {
   trivialFixMaxFiles: 3,
   staleWarnDays: 7,
   claimExpiryDays: 14,
+  // A plan may not license code until a human has agreed to it: `approved_by`,
+  // `approved_on` and `ask` are required once status means code is happening,
+  // and `guard` grants no lease without them. `approvalExempt` grandfathers
+  // plans that were already in flight when this rule landed — nothing here
+  // rewrites another owner's meta.yaml.
+  requireApproval: true,
+  approvalExempt: [],
   components: ['learner', 'manager', 'admin', 'platform'],
   statuses: ['planned', 'in-progress', 'blocked', 'shipped', 'superseded'],
   activeStatuses: ['planned', 'in-progress', 'blocked'],
+  // The statuses that mean code is being written, hence need consent on file.
+  codeStatuses: ['in-progress', 'blocked'],
   verifyCmd: null,
   verifyCwd: '.',
   projectName: null,
@@ -135,6 +144,9 @@ export function metaFromFields(fields, dir, rel, config = DEFAULT_CONFIG) {
     branch: get('branch'),
     touches: Array.isArray(fields.touches) ? fields.touches.map(normalizePath) : undefined,
     migration: get('migration'),
+    approvedBy: get('approved_by'),
+    approvedOn: get('approved_on'),
+    ask: get('ask'),
     note: get('note'),
   }
 
@@ -147,10 +159,25 @@ export function metaFromFields(fields, dir, rel, config = DEFAULT_CONFIG) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(meta.updated)) errors.push(`${rel} — "updated" must be YYYY-MM-DD`)
   if (config.activeStatuses.includes(meta.status) && !meta.owner)
     errors.push(`${rel} — active status "${meta.status}" requires "owner"`)
-  if (['in-progress', 'blocked'].includes(meta.status)) {
+  if (config.codeStatuses.includes(meta.status)) {
     if (!meta.branch) errors.push(`${rel} — status "${meta.status}" requires "branch"`)
     if (!meta.touches?.length)
       errors.push(`${rel} — status "${meta.status}" requires a non-empty "touches" list`)
+    if (config.requireApproval && !config.approvalExempt.includes(meta.slug)) {
+      // Consent, not paperwork: status "in-progress" means code is being
+      // written, and a plan nobody agreed to must not license that.
+      if (!meta.approvedBy)
+        errors.push(
+          `${rel} — status "${meta.status}" requires "approved_by": ask the human before writing the plan (AGENTS.md, WRITE step 1)`
+        )
+      if (!meta.ask)
+        errors.push(
+          `${rel} — status "${meta.status}" requires "ask": the human's own words, one line, trimmed but not paraphrased`
+        )
+      if (meta.approvedOn && !/^\d{4}-\d{2}-\d{2}$/.test(meta.approvedOn))
+        errors.push(`${rel} — "approved_on" must be YYYY-MM-DD`)
+      else if (!meta.approvedOn) errors.push(`${rel} — status "${meta.status}" requires "approved_on"`)
+    }
   }
   return { meta, errors }
 }
@@ -259,6 +286,16 @@ export function planForBranch(metas, branch, config = DEFAULT_CONFIG) {
   return owned.find((m) => config.activeStatuses.includes(m.status)) ?? owned[0]
 }
 
+// A plan licenses code only once a human has agreed to it. Applies whatever the
+// status: a `planned` proposal may legitimately carry no approval, and must
+// therefore grant no lease either — otherwise "propose it yourself, then build
+// it" is still a compliant path, which is the hole this closes.
+export function planGrantsLease(meta, config = DEFAULT_CONFIG) {
+  if (!config.requireApproval) return true
+  if (config.approvalExempt.includes(meta.slug)) return true
+  return Boolean(meta.approvedBy)
+}
+
 export function daysSince(dateStr, now = new Date()) {
   const then = new Date(`${dateStr}T00:00:00Z`).getTime()
   if (Number.isNaN(then)) return 0
@@ -310,15 +347,20 @@ export function render(metas, config = DEFAULT_CONFIG) {
   if (active.length === 0) {
     lines.push('_No active plans registered._', '')
   } else {
+    // `Approved` is a column so an unapproved plan is obvious at a glance:
+    // a plan nobody agreed to grants no lease, and the registry should say so
+    // rather than making a reader open every meta.yaml to find out.
     lines.push(
-      '| Slug | Title | Status | Owner | Component | Branch | Touches | Updated |',
-      '|---|---|---|---|---|---|---|---|'
+      '| Slug | Title | Status | Owner | Approved | Component | Branch | Touches | Updated |',
+      '|---|---|---|---|---|---|---|---|---|'
     )
     for (const m of active)
       lines.push(
-        `| ${m.slug} | ${m.title} | ${m.status} | ${cell(m.owner)} | ${m.component} | ${cell(
-          m.branch
-        )} | ${m.touches?.length ? m.touches.map((t) => `\`${t}\``).join('<br>') : '—'} | ${m.updated} |`
+        `| ${m.slug} | ${m.title} | ${m.status} | ${cell(m.owner)} | ${cell(m.approvedBy)} | ${
+          m.component
+        } | ${cell(m.branch)} | ${
+          m.touches?.length ? m.touches.map((t) => `\`${t}\``).join('<br>') : '—'
+        } | ${m.updated} |`
       )
     lines.push('')
   }
@@ -436,6 +478,21 @@ function verbGuard(root, config) {
     )
   }
 
+  if (!planGrantsLease(mine, config))
+    fail(`${mine.slug} has no recorded consent, so it licenses no code.`, [
+      '',
+      `  Plan: ${config.plansDir}/${mine.slug}/meta.yaml`,
+      '',
+      'Ask the human what they actually want built — the problem in their words, what done',
+      'looks like, what is explicitly out of scope — then record it:',
+      '',
+      '  approved_by: <person>',
+      `  approved_on: ${today()}`,
+      '  ask: <their own words, one line, trimmed but not paraphrased>',
+      '',
+      'A plan assembled from inference is a decision made on their behalf (AGENTS.md, WRITE).',
+    ])
+
   const cov = checkCoverage(changed, mine.touches ?? [], config)
   const problems = cov.uncovered.length + cov.hotZoneViolations.length
   if (problems === 0)
@@ -530,6 +587,28 @@ function runInherit(cmd, args, cwd) {
   return r.status ?? 1
 }
 
+/**
+ * Body for the plan-only PR the fast lane opens.
+ *
+ * Takes the same `laneAllows` array the diff check is made against, so the
+ * body states exactly what was enforced and cannot drift from it — add a
+ * third permitted path and this updates itself.
+ *
+ * Two bugs lived in this one line. It interpolated an undefined `planRoot`,
+ * throwing a `ReferenceError` *after* `git push` had already succeeded — so
+ * it read as a push failure and left an orphan branch with no PR. And it
+ * called the diff the plans dir "only", which was never true: `plans:index`
+ * regenerates the registry and AGENTS.md says to commit both, so every plan
+ * PR carries `ACTIVE.md` too.
+ *
+ * Both survived because the string was built inline between two shell-outs,
+ * where no test could reach it. Exported and pure, it is reachable.
+ */
+export function submitBody(laneAllows) {
+  const paths = laneAllows.map((p) => `\`${p}\``).join(' + ')
+  return `Plan-only PR via \`plan.mjs submit\` (AGENTS.md fast lane). Diff is limited to ${paths}; check + sync passed.`
+}
+
 function verbSubmit(root, config) {
   const branch = currentBranch(root)
   if (config.mainBranches.includes(branch)) fail('run submit from a plan branch, not the base branch.')
@@ -561,14 +640,29 @@ function verbSubmit(root, config) {
 
   const title = git(root, ['log', '-1', '--pretty=%s'])
   if (runInherit('git', ['push', '-u', 'origin', branch], root) !== 0) fail('push failed.')
-  const body = `Plan-only PR via \`plan.mjs submit\` (AGENTS.md fast lane). Diff is \`${planRoot}/\`-only; check + sync passed.`
+  const body = submitBody(laneAllows)
   if (
     runInherit('gh', ['pr', 'create', '--base', 'main', '--title', title, '--body', body], root) !== 0
   )
     fail('gh pr create failed — is the GitHub CLI installed and authenticated?')
-  if (runInherit('gh', ['pr', 'merge', '--squash', '--delete-branch'], root) !== 0)
-    fail('gh pr merge failed.')
+  if (runInherit('gh', ['pr', 'merge', '--squash'], root) !== 0) fail('gh pr merge failed.')
+
+  // Delete the remote ref ourselves instead of passing `--delete-branch`.
+  // That flag also switches the LOCAL checkout to the base branch, which
+  // fails outright when `main` is checked out in another worktree — and it
+  // fails *after* the merge has landed, so the lane exited 1 on work it had
+  // already completed. An operator reading "gh pr merge failed" retries
+  // against an already-merged PR; worse, once every run ends red, nobody
+  // reads the red. Best-effort by design: the merge is the outcome.
+  //
+  // The local branch is left alone on purpose — submit runs from it, so
+  // deleting it would require moving the checkout, which is the behaviour
+  // being removed.
+  if (runInherit('git', ['push', 'origin', '--delete', branch], root) !== 0)
+    say(`plan-protocol submit: merged, but origin/${branch} could not be deleted — remove it by hand.`)
+
   say('\nplan-protocol submit: plan merged — the registry is live for every agent.')
+  say(`Local branch ${branch} is still checked out; switch away and delete it when convenient.`)
 }
 
 function verbPremerge(root, config) {
@@ -675,7 +769,7 @@ function today(now = new Date()) {
 // without a plan the first guard run after `init` fails on the protocol's own
 // files. Registering a plan for it makes the install self-consistent from the
 // first command — and leaves a worked meta.yaml in the repo as the example.
-export function bootstrapPlan(config, { branch, onMain, owner, date }) {
+export function bootstrapPlan(config, { branch, onMain, owner, approver, date }) {
   const component = config.components.includes('platform') ? 'platform' : config.components[0]
   const lines = [
     'slug: 000-plan-protocol',
@@ -684,6 +778,11 @@ export function bootstrapPlan(config, { branch, onMain, owner, date }) {
     `status: ${onMain ? 'planned' : 'in-progress'}`,
     `owner: ${owner}`,
     ...(onMain ? [] : [`branch: ${branch}`]),
+    // Running the installer IS the consent for installing it, so record that
+    // plainly rather than leaving the field blank for the guard to reject.
+    `approved_by: ${approver}`,
+    `approved_on: ${date}`,
+    'ask: install the plan protocol in this repository',
     'touches: [.specify/extensions/plan-protocol, .githooks, AGENTS.md, CLAUDE.md]',
     `updated: ${date}`,
     'note: installed by the plan-protocol skill — set owner to <person>/<runtime>',
@@ -747,6 +846,7 @@ function verbInit(root, config) {
           branch,
           onMain,
           owner: `${(owner.ok && owner.out) || 'unassigned'}/agent`,
+          approver: (owner.ok && owner.out) || 'unassigned',
           date: today(),
         })
       )

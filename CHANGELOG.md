@@ -6,6 +6,29 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [1.9.0] — 2026-07-31
+
+### Added
+- **Consent is now part of the Plan Protocol.** `ELICIT` is the first step of `WRITE`, above SYNC: ask the human the problem in their own words, what done looks like, what is explicitly out of scope, which shared surfaces it may touch, and how it sequences against work in flight. A five-question table, because a checklist is executable and an adjective is not
+- **`meta.yaml` gains `approved_by`, `approved_on` and `ask`**, required once status is `in-progress` or `blocked`. `ask` holds the human's own words, one line, trimmed but not paraphrased — it is what lets a reader compare what was asked against what the spec grew into. `approved_by` is a person; a runtime cannot consent on a human's behalf
+- **`guard` refuses the lease from an unapproved plan** — no `approved_by` means its `touches` grant nothing, so forgetting to ask fails the gate instead of shipping an assumption. This holds for `planned` proposals too, or "propose it yourself, then build it" stays a compliant path
+- **Proposals stay free.** A cron run or autonomous sweep with nobody to ask registers `status: planned` with no approval fields: visible in the registry, costs nothing, licenses nothing. Proposing work is always allowed; starting it is not
+- **`requireApproval` and `approvalExempt`** in `config.json` — the exemption list grandfathers plans already in flight when the rule lands, because introducing a rule by breaking someone's in-flight work is not acceptable. It only shrinks
+- **An `Approved` column in the generated registry**, so an unapproved plan is visible without opening every `meta.yaml`
+
+### Changed
+- **`init` records its own consent** — `approved_by` from `git config user.name`, `ask: install the plan protocol`. Running the installer *is* the consent for installing it, and saying so beats leaving a blank the guard will reject
+- **"Plans need visibility, not review" is now scoped to PR mechanics, where it is true.** Read as a claim about authority it said nobody need agree to a plan's contents before code starts, which is precisely the failure this release fixes. Consent belongs at authoring time; review still does not belong at merge time, so the fast lane is unchanged
+
+### Fixed
+- **`bootstrapPlan` dropped the `branch:` line** when the consent fields were added, so a fresh `init` wrote a `meta.yaml` that failed the validation `init` runs seconds later. Caught by the engine's own suite; there is now a test that parses and validates what the generator emits rather than eyeballing the template
+
+### Notes
+- Not tamper-proof, and the protocol says so: an agent can type a name it never asked, exactly as it can declare `touches` it does not honour. Enforcement makes the claim visible in the diff and the registry, so skipping the human becomes an explicit false statement rather than silence — the same bargain `touches` already makes
+- Upgrading an existing install: copy the newer `assets/plan.mjs`, add `requireApproval: true` to `config.json`, and list any currently in-progress plans in `approvalExempt` so their owners' gates stay green
+
+---
+
 ## [1.8.0] — 2026-07-30
 
 ### Added
