@@ -27,6 +27,7 @@ Load global skills from `~/.claude/skills/` as needed. Also check `agents/develo
 - **dev-improve-arch**: Refactors a messy or overly complicated section of the codebase with an explicit before/after plan — requires approval before touching anything.
 - **dev-multi-agent**: Breaks a large task into independent pieces and works on multiple parts simultaneously, then brings the results together. Dramatically speeds up big features.
 - **dev-github-hygiene**: Ensures every change follows clean practices — proper branches, clear commit messages, and up-to-date documentation. Keeps the repository organized.
+- **plan-protocol**: Installs and diagnoses the Plan Protocol — the plan registry, the blast-radius guard, and the pre-push hook that stops undeclared mega-PRs. Works in any stack; the engine has no dependencies. Use when setting up a new project or when scope enforcement is not firing.
 
 **Scaffold skills** — stamp production-ready feature baselines into any Next.js + Supabase project. Each skill asks a few customisation questions, creates all necessary files, and leaves `TODO:` markers for project-specific overrides. Invoke with the trigger phrases below or directly by skill name.
 

@@ -6,6 +6,21 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [1.8.0] — 2026-07-30
+
+### Added
+- **plan-protocol skill** — installs, upgrades and diagnoses the Plan Protocol in any repository: a plan registry, a blast-radius guard that fails any change outside a plan's declared `touches`, and a committed pre-push hook. Answers the "20 people and 4 agent runtimes on one machine" problem, where undeclared mega-PRs and semantic (not textual) conflicts are the real failure modes
+- **`assets/plan.mjs`** — the engine, as a single dependency-free file (`node:` builtins only). No `tsx`, no build step, no `npm install`, and **no `package.json` required anywhere** — so it installs into a Rails, Django or static client project as readily as a Next one. Verbs: `index · check · sync · guard · submit · premerge · init · doctor`
+- **`assets/plan.test.mjs`** — 30 tests on `node:test` (builtin), so a project verifies the protocol with plain `node --test` and no test framework
+- **`assets/AGENTS-template.md`** — the protocol document, project-agnostic. `init` copies it to the repo root as `AGENTS.md`, the cross-tool standard Codex, Cursor and Windsurf read natively. Copying a fixed asset rather than writing prose per project is what keeps the protocol identical everywhere
+- **Per-project policy in `config.json`** — `hotZones`, `exempt`, `plansDir`, `baseRef`, `verifyCmd` and the rest are data, not code. `init` infers hot zones from the tree (migrations dirs, shared component dirs, lockfiles, CI config). Hot zones differ between two Next apps, never mind across stacks, so a generic engine plus per-project policy is the only shape that ports
+
+### Notes
+- The skill **installs** enforcement and is never the enforcement itself. Skills only fire in Claude Code; the teeth are a git hook plus the engine, both committed, so they bind every runtime — including ones that never read `CLAUDE.md`
+- Two failure modes the skill's `doctor` exists to catch, because both look exactly like working enforcement: git **silently ignores a non-executable hook**, and enforcement is **not retroactive** — `core.hooksPath` is per-clone config while the hook file is per-branch content, so a branch cut before install is unguarded until it merges the base branch
+
+---
+
 ## [1.3.1] — 2026-05-21
 
 ### Added
