@@ -5,8 +5,7 @@ Just-in-time, merge-safe credential collector for Infinite Leverage setup.
 Replaces the unintuitive "go grab these keys and paste them into a file" wall of
 text. Claude collects each value conversationally (only when the step that needs
 it runs), then calls this script to write it. Keys are grouped so we ask ONLY for
-what the current step needs — core accounts first, Gemini/Resend deferred until the
-feature that uses them is built.
+what the current step needs.
 
 Two modes:
 
@@ -24,24 +23,21 @@ Target defaults to ~/.claude/.env. Pass --target for a project .env.local.
 
 Examples:
   collect-credentials.py --check core
-  collect-credentials.py --set GEMINI_API_KEY=ya29...
-  collect-credentials.py --target website/.env.local --set RESEND_API_KEY=re_...
+  collect-credentials.py --set SUPABASE_SECRET_KEY=sb_secret_...
+  collect-credentials.py --target website/.env.local --set NEXT_PUBLIC_SUPABASE_URL=https://...
 """
 import argparse
 import os
 import sys
 
 # Key groups, ordered by WHEN they are needed in the flow.
-# core = needed to stand up the first project. gemini/resend = deferred to feature time.
+# core = needed to stand up the first project.
 GROUPS = {
     "core": [
         "NEXT_PUBLIC_SUPABASE_URL",
         "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
         "SUPABASE_SECRET_KEY",
     ],
-    "gemini": ["GEMINI_API_KEY"],          # deferred — only when image generation is built
-    "resend": ["RESEND_API_KEY", "RESEND_FROM_EMAIL"],  # deferred — only when email is built
-    "lark": ["LARK_APP_ID", "LARK_APP_SECRET", "LARK_WEBHOOK_URL"],  # optional
     # operator-only Supabase admin/MCP keys (legacy names) — usually not on contributor machines
     "supabase-admin": ["SUPABASE_URL", "SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"],
 }

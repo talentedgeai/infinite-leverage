@@ -1,7 +1,7 @@
 ---
 name: dev-github-hygiene
 description: >-
-  Ensures every change follows clean practices: proper branches, clear commit messages, a maintained .env.example file so environment setup is always documented, and engineering notes for each change. Use at the start of any feature to keep the repository organized and auditable.
+  Ensures every change follows clean practices: proper branches, clear commit messages, documented env vars in .env.local (never create .env.example files), and engineering notes for each change. Use at the start of any feature to keep the repository organized and auditable.
 ---
 
 # Developer: GitHub Hygiene
@@ -24,10 +24,11 @@ description: >-
 - Base branch is `main`
 - Squash merge to main. Delete branch after merge.
 
-## .env.example Management
-Before touching any file, verify `.env.example` exists at project root:
-- If missing: create from `~/.claude/skills/infiniteleverage-init/references/env-template.md`
-- If present but the task introduces new env vars: add keys (empty value + comment) to `.env.example`, stage the file, include in task's commit
+## .env.local Management
+`website/.env.local` (gitignored) is the ONLY env file. Never create a `.env.example` — it confuses agents and users.
+- If the task introduces new env vars: add them to `.env.local` with a one-line comment saying what they're for and where the value comes from
+- Collect real values just-in-time via `~/.claude/skills/infiniteleverage-init/scripts/collect-credentials.py` (merge-safe)
+- Never commit `.env.local` or any file containing real values
 
 ## Engineering Doc Scaffolding
 For each task, create:

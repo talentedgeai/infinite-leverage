@@ -1,90 +1,31 @@
-# .env.example — Bootstrap Template
+# .env.local — Environment Variable Contract
 
-Every project must have a `.env.example` at the repo root. Scaffold this file before writing any code that reads environment variables. Values must be empty — never commit real secrets.
+`website/.env.local` (gitignored) is the **only** env file a project has. There is no `.env.example` — that pattern confuses agents and users. Keys are documented by one-line comments inside `.env.local` itself, and this file is the canonical reference for what exists and when it's collected.
 
-**Rule**: If `.env.example` does not exist at project root, create it before starting any implementation. If it exists but is missing keys the current task introduces, add those keys with empty values and a one-line comment explaining each — on the same commit as the code that reads them.
+**Rules:**
 
-> **Collection order — just-in-time (do NOT front-load every key).** Setup collects credentials only when the step that uses them runs, via `scripts/collect-credentials.py` (merge-safe):
-> - **Core (Phase 2a — needed for the first deploy):** Supabase keys (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`) + `NEXT_PUBLIC_SITE_URL`.
-> - **Deferred (Phase 2b / feature-time):** `GEMINI_API_KEY` — only when image generation is built. `RESEND_API_KEY` / `RESEND_FROM_EMAIL` — only when email is built (don't make anyone buy/verify a throwaway email domain just to deploy a page).
-> - **Optional:** Lark keys — all three or none.
->
-> `.env.example` still lists every key (with empty values) so the contract is documented; *collection* is what's deferred, not declaration.
+1. **Never create a `.env.example`** (or `.env.sample`, `.env.template`, …). If one appears in a repo, delete it and fold any documented keys into this contract.
+2. **Every new env var introduced in code must be added to `.env.local`** as part of the same task — with a one-line comment saying what it's for and where the value comes from.
+3. **Never commit** `.env.local`, `.env.production`, or any file containing real values.
+4. **Collect values just-in-time** via `scripts/collect-credentials.py` (merge-safe — never clobbers existing values): setup collects only what the current step needs; feature keys (Stripe, Sentry, …) are collected when the feature is built, never during setup.
+5. **Production values** go into Vercel via `vercel env add` — mirror every server-side key there when the feature ships.
 
----
+## Key contract
 
 ```bash
-# ─────────────────────────────────────────────────────────────────────────────
-# {Project Name} — environment variables
-#
-# Copy to .env.local for local development. All secrets stay server-side
-# unless prefixed NEXT_PUBLIC_. Missing optional keys must silently no-op —
-# never hard-error in preview environments.
-# ─────────────────────────────────────────────────────────────────────────────
-
-# ── Supabase (OPERATOR-ONLY) ──────────────────────────────────────────────────
-# IMPORTANT: Contributors who only push effort telemetry (session-telemetry-*)
-# do NOT need any Supabase keys. The telemetry flow uses `gh` (GitHub CLI) +
-# `git config user.email` only — no local secrets required.
-#
-# These keys are needed ONLY for:
-#   • Operators running the central Infinite Leverage app (Supabase MCP, admin UI)
-#   • CI/CD pipelines that deploy or migrate the Supabase project
-#
-# If you are a contributor (not an operator), leave these blank and skip this block.
+# ── Supabase (core — collected during setup, Phase 2a) ───────────────────────
 # Use new key naming (sb_publishable_* / sb_secret_*).
 # Do NOT use legacy ANON_KEY / SERVICE_ROLE_KEY env names.
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 SUPABASE_SECRET_KEY=
 
-# ── Site ─────────────────────────────────────────────────────────────────────
-# Used for absolute URLs (auth callbacks, emails, Stripe redirects).
+# ── Site (core) ──────────────────────────────────────────────────────────────
+# Used for absolute URLs (auth callbacks, redirects).
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
-
-# ── Anthropic (Claude API) ───────────────────────────────────────────────────
-ANTHROPIC_API_KEY=
-
-# ── Resend (transactional email) ─────────────────────────────────────────────
-# Welcome email silently no-ops if RESEND_API_KEY is absent — intentional.
-RESEND_API_KEY=
-RESEND_FROM_EMAIL=
-
-# ── Lark (internal notifications — OPTIONAL) ─────────────────────────────────
-# Leave blank to disable Lark. All agents check for LARK_WEBHOOK_URL before
-# sending — notifications are silently skipped if these values are absent.
-LARK_APP_ID=
-LARK_APP_SECRET=
-LARK_WEBHOOK_URL=
-
-# ── Gemini (image generation) ────────────────────────────────────────────────
-GEMINI_API_KEY=
-
-# ── Stripe (payments — uncomment when payment feature is built) ───────────────
-# STRIPE_WEBHOOK_SECRET is from the dashboard webhook config, not the API key.
-# Webhook route reads raw body for signature verification — do not add body
-# parsers in front of /api/stripe/webhook.
-# STRIPE_SECRET_KEY=
-# STRIPE_WEBHOOK_SECRET=
-# NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
-# STRIPE_PRICE_MONTHLY=
-# STRIPE_PRICE_ANNUAL=
-
-# ── Sentry (error monitoring — uncomment when monitoring is set up) ───────────
-# DSN is safe to expose; auth token is build-time only for source maps.
-# NEXT_PUBLIC_SENTRY_DSN=
-# SENTRY_AUTH_TOKEN=
 ```
 
----
-
-## Rules for maintaining .env.example
-
-1. **Every new env var added in code must be added here on the same commit** — empty value, one-line comment.
-2. **Never commit `.env.local`, `.env.production`, or any file with real values** — these are in `.gitignore`.
-3. **Optional vars go commented out** (prefixed `#`) so the file runs with just core vars.
-4. **Section headers** — group by service. New services get a new `# ── Service ──` block.
-5. **`NEXT_PUBLIC_` prefix** — only for values safe to expose in the browser bundle.
+Feature-time keys (added to `.env.local` by the task that introduces them, never earlier) follow the same pattern: `NEXT_PUBLIC_` prefix only for values safe to expose in the browser bundle; missing optional keys must silently no-op — never hard-error in preview environments.
 
 ## Claude session telemetry (Stream A) — prerequisites
 

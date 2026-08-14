@@ -2,7 +2,7 @@
 
 The retreat's energy stays high when setup "just works." The way to get there is to find the broken machines **before** the day, not during it. This is mostly process the operator runs ahead of time; the skill supports it via the Smart-Start scan.
 
-> **Scope note:** This is the *registration prework* approach (Quan/Khoa). We do **not** pre-create or own clients' GitHub/Vercel/Resend accounts — each person owns their own. The FunCAPTCHA notes below are troubleshooting for *their* signup, not an account-pooling scheme.
+> **Scope note:** This is the *registration prework* approach (Quan/Khoa). We do **not** pre-create or own clients' GitHub/Vercel accounts — each person owns their own. The FunCAPTCHA notes below are troubleshooting for *their* signup, not an account-pooling scheme.
 
 ---
 

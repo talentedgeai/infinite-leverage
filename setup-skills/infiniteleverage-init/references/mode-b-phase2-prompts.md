@@ -57,9 +57,8 @@ All product docs live under docs/product/:
 Never use Thesis, Bundle, Mechanism, Success criterion, Hypothesis, Acceptance criteria, or Priority signal in epics.md.
 
 ## Environment variables
-- Every project must have a `.env.example` at the repo root with all required vars listed (empty values, one-line comments).
-- If `.env.example` does not exist when starting implementation, create it first.
-- Every new env var introduced in code must be added to `.env.example` on the same commit.
+- `website/.env.local` (gitignored) is the ONLY env file. Never create a `.env.example`.
+- Every new env var introduced in code must be added to `.env.local` with a one-line comment (what it's for, where the value comes from) as part of the same task.
 - Never commit `.env.local`, `.env.production`, or any file containing real secrets.
 
 ## Engineering rules
@@ -138,11 +137,6 @@ Write ~/.claude/.env with these values from the credentials file Dave transferre
 SUPABASE_URL={from-credentials-file}
 SUPABASE_ANON_KEY={from-credentials-file}
 SUPABASE_SERVICE_ROLE_KEY={from-credentials-file}
-GEMINI_API_KEY={from-credentials-file}
-RESEND_API_KEY={from-credentials-file}
-LARK_APP_ID={from-credentials-file}
-LARK_APP_SECRET={from-credentials-file}
-LARK_WEBHOOK_URL={from-credentials-file}
 
 Replace each placeholder with the actual value from the credentials file.
 ```
