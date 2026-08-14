@@ -45,7 +45,7 @@ Leave Desktop open — you'll paste the Phase 2 prompts into it. **You do not ne
 
 ## 4 — Create the three core accounts (and git identity)
 
-Create these under the operator email. **Only these three** — no Gemini, Resend, or Lark in Phase 1.
+Create these under the operator email. **Only these three.**
 
 - **GitHub:** `github.com` → Sign up → username `{clientslug}` → verify email. (If GitHub's CAPTCHA blocks signup, see the FunCAPTCHA workarounds in `references/pre-retreat-readiness.md`.)
 - **Vercel:** `vercel.com` → **Sign up with GitHub** (links both accounts). **[P6]**
@@ -59,7 +59,7 @@ gh auth status         # confirm authenticated
 git config --global user.email "{firstname}@{clientdomain}.com"
 ```
 
-> **Deferred to Phase 2 (do NOT do now):** Gemini API key, Resend API key + domain DNS, Lark bot, and the Supabase API keys themselves. Phase 2 collects all of these — Claude retrieves most automatically via the Claude-in-Chrome extension / computer-use, asking you only when it hits a login wall, 2FA, CAPTCHA, or billing screen.
+> **Deferred to Phase 2 (do NOT do now):** the Supabase API keys themselves. Phase 2 collects them — Claude retrieves most automatically via the Claude-in-Chrome extension / computer-use, asking you only when it hits a login wall, 2FA, CAPTCHA, or billing screen.
 
 ---
 

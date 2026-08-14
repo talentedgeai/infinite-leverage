@@ -17,7 +17,7 @@ When you first open Claude Code, **open a second session/tab** and split the wor
 
 > **Zero-state rule (Session A / 2a):** 2a must not depend on the **global 8-agent install or routing rules** — those are 2b's job and may not exist yet. The one exception: Prompt 4 **writes its own local `developer.md` inline** (from `mac-mini-agents.md`) and uses it to build the first page — that's self-provisioned, so it's allowed. 2a writes that file into the **project** dir (`~/code-projects/{project-slug}/.claude/agents/`); 2b writes the full set into the **agents repo** + `~/.claude/agents/` — different locations, so the two sessions never fight over the same file.
 
-> **Env collection — automate first (both tracks). [P8]** Wherever a step needs an API key, Claude tries to fetch it ITSELF — using the **Claude in Chrome extension (MCP)** or **computer-use** to open the relevant dashboard (Supabase, later Gemini/Resend) and copy the value, then writing it via `scripts/collect-credentials.py`. Claude asks you to do it manually **only when blocked** — login it can't pass, 2FA, CAPTCHA/Arkose, or billing/plan selection — naming the exact value and where to find it.
+> **Env collection — automate first (both tracks). [P8]** Wherever a step needs an API key, Claude tries to fetch it ITSELF — using the **Claude in Chrome extension (MCP)** or **computer-use** to open the relevant dashboard (Supabase) and copy the value, then writing it via `scripts/collect-credentials.py`. Claude asks you to do it manually **only when blocked** — login it can't pass, 2FA, CAPTCHA/Arkose, or billing/plan selection — naming the exact value and where to find it.
 
 ---
 
@@ -32,9 +32,8 @@ Set up the machine tools and Claude Code configuration:
 
    Verify:
    gh --version && node --version && jq --version && vercel --version
-   # NOTE: do NOT install the Claude CLI or Resend here.
+   # NOTE: do NOT install the Claude CLI here.
    #   • Claude runs in Desktop already — the CLI is an optional end-of-setup extra.
-   #   • Resend is collected at feature-time (when the email feature is built), not now.
 
 2. Authenticate GitHub CLI (skip if `gh auth status` already authenticated from Phase 1):
    gh auth status || gh auth login   # GitHub.com → HTTPS → Login with browser
@@ -95,11 +94,9 @@ Write ~/.claude/rules/global-engineering.md with these exact contents:
 - Never include secrets in code, comments, or commit messages.
 
 ## Environment variables
-- Every project must have a `.env.example` at the repo root with all required and optional vars listed (empty values, one-line comments).
-- Use `references/env-template.md` from the infiniteleverage-init skill as the starting template.
-- If `.env.example` does not exist when starting implementation work, create it first.
-- Every new env var introduced in code must be added to `.env.example` on the same commit.
-- Optional vars (Stripe, Sentry) go commented out with a `#` prefix.
+- `website/.env.local` (gitignored) is the ONLY env file. Never create a `.env.example`.
+- Every new env var introduced in code must be added to `.env.local` with a one-line comment (what it's for, where the value comes from) as part of the same task.
+- See `references/env-template.md` from the infiniteleverage-init skill for the key contract.
 
 ## Approvals
 - Social posts → draft for approval first.
@@ -292,7 +289,7 @@ Form fields:
 Form state: on submit, show an inline 'Message sent — we'll be in touch soon.' success message.
 The form must be built as a Server Action stub:
 - Create website/src/app/actions/contact.ts with a `submitContact` Server Action that currently
-  only returns { success: true } — add a TODO comment marking where Supabase insert + Resend email go.
+  only returns { success: true } — add a TODO comment marking where the Supabase insert goes.
 - The form component uses useActionState (React 19) to handle pending/success/error states.
 - No API route needed yet — the stub is wired to the Server Action, not a fetch call.
 - Add data-testid attributes: 'contact-name', 'contact-email', 'contact-message', 'contact-submit',
@@ -318,13 +315,13 @@ Open http://localhost:3000, confirm the client name and branding appear, then Ct
 
 ## Prompt 5 — Collect core credentials into .env.local (automated)  ·  [2a — Session A]
 
-End of the deploy path — collect ONLY the keys the first deploy needs (**core/Supabase**). **Automate first, ask only when blocked.** Gemini/Resend stay deferred to feature-time.
+End of the deploy path — collect ONLY the keys the first deploy needs (**core/Supabase**). **Automate first, ask only when blocked.**
 
 ```
 Goal: write the CORE Supabase keys into ~/code-projects/{project-slug}/website/.env.local.
 Confirm .env.local is gitignored first. Use the merge-safe collector (never clobbers existing values).
 
-1. See what's missing:
+1. See what's missing (the collector creates .env.local if it doesn't exist yet):
    cd ~/code-projects/{project-slug}/website
    python3 ~/.claude/skills/infiniteleverage-init/scripts/collect-credentials.py --target .env.local --check core
 
@@ -343,11 +340,6 @@ Confirm .env.local is gitignored first. Use the merge-safe collector (never clob
    were able to read yourself.
 
 4. Also set NEXT_PUBLIC_SITE_URL=http://localhost:3000 for local dev.
-
-DEFERRED — do NOT add now (collected the same automated way at feature-time):
-  • GEMINI_API_KEY  → when image generation is built
-  • RESEND_API_KEY / RESEND_FROM_EMAIL → when the email feature is built
-  • LARK_* (optional) → all three or none, only if the client uses Lark
 
 Re-run --check core; all three present → proceed to Prompt 7. Never commit .env.local.
 ```
@@ -439,13 +431,6 @@ Deploy the project:
 
    b. Add the CORE secret env var via Vercel CLI:
       vercel env add SUPABASE_SECRET_KEY production
-      # DEFERRED to feature-time (Phase 2b) — add only when that feature is built:
-      #   vercel env add GEMINI_API_KEY production    # when image generation ships
-      #   vercel env add RESEND_API_KEY production     # when email ships
-      # Lark is optional — only run these if LARK credentials were provided:
-      #   vercel env add LARK_APP_ID production
-      #   vercel env add LARK_APP_SECRET production
-      #   vercel env add LARK_WEBHOOK_URL production
 
    c. Verify deployment and show status:
       vercel ls

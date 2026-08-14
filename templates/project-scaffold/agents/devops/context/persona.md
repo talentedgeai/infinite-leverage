@@ -8,7 +8,7 @@ Fill this in after the CI/CD pipeline is set up and the deployment target is con
 
 ## Project-specific rules
 <!-- What devops must always do for this project -->
-- (e.g. Always verify Vercel environment variables match `.env.example` before deploying)
+- (e.g. Always verify Vercel environment variables match `website/.env.local` before deploying)
 - (e.g. Always notify the operator before rotating any API key)
 
 <!-- What devops must never do for this project -->
@@ -24,6 +24,5 @@ Fill this in after the CI/CD pipeline is set up and the deployment target is con
 
 ## Environment variables
 <!-- List required env vars and where they live -->
-- See `.env.example` for the full list
+- See `website/.env.local` (gitignored) — the ONLY env file; keys documented by inline comments
 - Production secrets: Vercel dashboard → Environment Variables
-- Local dev: `.env.local` (gitignored)

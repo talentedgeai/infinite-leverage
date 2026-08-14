@@ -40,6 +40,6 @@ Before creating any file, you MUST:
 1. Identify which top-level slot it belongs in (`docs/`, `content/`, `agents/`, `website/`, etc.)
 2. Use the canonical subpath and filename conventions
 3. NEVER invent new top-level folders
-4. NEVER rename fixed files: `product.md`, `epics.md`, `epic-status.md`, `project-status.html`, `CLAUDE.md`, `README.md`, `.env.example`, `.gitignore`
+4. NEVER rename fixed files: `product.md`, `epics.md`, `epic-status.md`, `project-status.html`, `CLAUDE.md`, `README.md`, `.gitignore`
 
 If you're unsure where something belongs, ask the PM agent.

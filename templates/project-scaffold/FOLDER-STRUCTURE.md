@@ -14,7 +14,6 @@ These files have hard-coded names that skills and agents reference by path:
 | `docs/project-status.html` | PM agent | `pm-project-status` skill |
 | `CLAUDE.md` | All agents | Manual / `/init` |
 | `README.md` | Developer agent | Manual |
-| `.env.example` | Developer agent | `dev-github-hygiene` skill |
 | `.gitignore` | Developer agent | Manual |
 | `docs/brand/style-guide.md` | All agents | Manual (PM-guided during setup) |
 | `context/general-project-agent-context/publish-log.md` | web-publisher | Append-only |
@@ -129,7 +128,6 @@ These files have hard-coded names that skills and agents reference by path:
 │
 ├── CLAUDE.md                                   [FIXED]
 ├── README.md                                   [FIXED]
-├── .env.example                                [FIXED]
 └── .gitignore                                  [FIXED]
 ```
 

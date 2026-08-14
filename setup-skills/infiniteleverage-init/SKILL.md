@@ -146,7 +146,7 @@ rm -rf /tmp/il-template
 **Fixed files that must NOT be renamed:**
 - `docs/product/product.md`, `epics.md`, `epic-status.md`, `01-product-timeline.md`
 - `docs/project-status.html`
-- `CLAUDE.md`, `README.md`, `.env.example`, `.gitignore`
+- `CLAUDE.md`, `README.md`, `.gitignore`
 
 The PM agent and developer agent both reference this structure on every action — read `FOLDER-STRUCTURE.md` before creating any new file.
 
@@ -196,7 +196,6 @@ PHASE 2 — Claude Code: run 2a and 2b as TWO PARALLEL SESSIONS
          ├── Verify 2b finished: 8 agents present + 10 schedules registered
          │     → if incomplete, report what's missing and finish it
          ├── Agent team dashboard (needs live site + agents) — built NOW
-         ├── Feature-time keys deferred: Gemini (image gen), Resend (email)
          └── [P17] HANDOFF.md written for client
 ```
 
@@ -232,17 +231,17 @@ Phase 2 runs as **two concurrent Claude Code sessions**. When the user first ope
 - **2a (interactive, you watch):** deps → permissions → Supabase plugin/OAuth → scaffold → env collection → deploy → HTTP 200. Self-contained prompts; a 2a prompt never invokes an `@agent` (those belong to 2b).
 - **2b (autonomous, unattended):** fetch + install all 8 agents, global skills, hooks, register the 10 schedules. **No dashboard** (it needs the live site — built at the 2a finalize step).
 
-**Env collection — automate first, ask only when blocked. [P8]** In Phase 2, Claude collects keys *itself* wherever it can — driving the browser via the **Claude in Chrome extension (MCP)** or **computer-use** to open the Supabase / (later) Gemini / Resend dashboards and copy the values, writing each through the merge-safe collector:
+**Env collection — automate first, ask only when blocked. [P8]** In Phase 2, Claude collects keys *itself* wherever it can — driving the browser via the **Claude in Chrome extension (MCP)** or **computer-use** to open the Supabase dashboard and copy the values, writing each through the merge-safe collector:
 ```bash
 python3 scripts/collect-credentials.py --check core      # see what's still missing
 python3 scripts/collect-credentials.py --set NEXT_PUBLIC_SUPABASE_URL=... SUPABASE_SECRET_KEY=...
 ```
-Claude escalates to a **manual ask only when it genuinely can't proceed** — login walls it can't pass, 2FA, CAPTCHA/Arkose, billing/plan selection. When it asks, it names the exact value and where to find it. Gemini/Resend stay deferred to feature-time (collected the same automated way when their feature is built).
+Claude escalates to a **manual ask only when it genuinely can't proceed** — login walls it can't pass, 2FA, CAPTCHA/Arkose, billing/plan selection. When it asks, it names the exact value and where to find it.
 
 **Decision points:**
 - Supabase plugin + OAuth (2a): Claude can't install a plugin or complete OAuth itself. (1) `/plugin` → marketplace → install **supabase** → restart if prompted. (2) open the auth URL → Authorize → tell Claude "done". **[P7]**
 - Vercel import (2a): one browser action (import repo at vercel.com/new, Root Directory = website/). **[P6]**
-- No approved plan when Developer runs: stop, notify via Lark (if configured) or log to HANDOFF.md. **[P1]**
+- No approved plan when Developer runs: stop and log to HANDOFF.md. **[P1]**
 
 **Phase 2a is complete when:** `curl -I https://{project-slug}.vercel.app` returns HTTP 200 — 🎉 the win.
 
@@ -287,16 +286,15 @@ Stopped partway through? Here's where to pick up — no restarting needed.
 - [ ] GitHub `{clientslug}` created and verified
 - [ ] Vercel linked to GitHub
 - [ ] Supabase project created, database password saved
-- [ ] **Deferred — do NOT collect in Phase 1:** Gemini (image gen), Resend + DNS (email), Lark (optional). Collected just-in-time when their feature is built.
 
 ### Phase 2a — Claude Code (interactive)
-- [ ] gh, node, jq, ffmpeg, vercel CLI installed and authenticated *(Claude CLI optional — see end of skill; Resend CLI deferred to feature-time)*
+- [ ] gh, node, jq, ffmpeg, vercel CLI installed and authenticated *(Claude CLI optional — see end of skill)*
 - [ ] `~/.claude/settings.local.json` with `Bash(*)` + `acceptEdits`
 - [ ] `~/.claude/rules/global-engineering.md` written
 - [ ] Supabase plugin (`plugin:supabase`) installed via `/plugin` + MCP authenticated **[P7]**
 - [ ] Project scaffolded at `~/code-projects/{project-slug}/` with context folders + `website/` **[P4]**
 - [ ] `.specify/` initialized in project root (done by `infiniteleverage-project` Step 8.5 — verify with `ls .specify/`)
-- [ ] `.env.local` written with **core** keys (Supabase) — collected automatically where possible; Gemini/Resend deferred
+- [ ] `website/.env.local` written with **core** keys (Supabase) — collected automatically where possible; it is the ONLY env file (no `.env.example`)
 - [ ] GitHub repo created, pushed, Vercel project imported (Root Directory=website set in dashboard) **[P5][P6]**
 - [ ] `vercel link` run, core env vars added via `vercel env`, deployment verified (`vercel ls`)
 - [ ] Site live on Vercel (HTTP 200) 🎉
@@ -343,7 +341,7 @@ Full step-by-step: **`references/mode-b-phase1-manual.md`**.
 
 ### Phase 2 (Claude Code) — config + agents (no infra creation)
 - Global dirs + permissions (`scripts/setup-permissions.py`), `~/.claude/CLAUDE.md`, `global-engineering.md`.
-- Credentials into `~/.claude/.env` with `scripts/collect-credentials.py` (merge-safe; Gemini/Resend still deferred until needed).
+- Credentials into `~/.claude/.env` with `scripts/collect-credentials.py` (merge-safe).
 - Supabase plugin (MCP) install + auth — same two manual steps as Mode A.
 - Fetch all 8 agents from the canonical repo → `~/.claude/agents/`; install hooks; test agents respond.
 - **Effort-tracking registration** for the cloned repo (register or write the skip marker), then the 5-check validation.
@@ -434,7 +432,7 @@ Skip without consequence if the user only works in Desktop. If they install it, 
 - **`references/pre-retreat-readiness.md`** — Catch sub-floor machines at registration; prework + loaners + GitHub-signup troubleshooting
 
 **Mode A — First Setup**
-- **`references/phase1-manual.md`** — Minimal Phase 1: machine check, Claude Code early, core accounts (GitHub/Vercel/Supabase). Gemini/Resend deferred.
+- **`references/phase1-manual.md`** — Minimal Phase 1: machine check, Claude Code early, core accounts (GitHub/Vercel/Supabase).
 - **`references/phase2-prompts.md`** — Phase 2a (deps + first deploy = the win) then 2b (agents + schedules). Self-contained prompts for a zero-state machine.
 
 **Mode B — Additional Machine**
@@ -443,6 +441,6 @@ Skip without consequence if the user only works in Desktop. If they install it, 
 - **`references/first-actions.md`** — Client-facing guide: 8 agents, daily workflow, content pipeline, updating agents
 
 **Shared**
-- **`references/env-template.md`** — `.env.example` contract + just-in-time collection order
-- **`scripts/collect-credentials.py`** — Merge-safe, just-in-time credential writer (`--check <group>` / `--set KEY=VAL`); groups: core, gemini, resend, lark, supabase-admin
+- **`references/env-template.md`** — `.env.local` contract + just-in-time collection order (no `.env.example` — ever)
+- **`scripts/collect-credentials.py`** — Merge-safe, just-in-time credential writer (`--check <group>` / `--set KEY=VAL`); groups: core, supabase-admin
 - **`scripts/setup-permissions.py`** — Writes `~/.claude/settings.local.json` without overwriting existing content

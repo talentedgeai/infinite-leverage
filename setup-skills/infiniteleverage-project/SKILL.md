@@ -516,7 +516,7 @@ At this point the project is fully scaffolded **locally** — Next.js is in plac
 
 Next steps locally:
 1. cd $TARGET
-2. cp .env.example .env.local and fill in real keys
+2. Write website/.env.local with the core Supabase keys (collect-credentials.py --target website/.env.local --check core)
 3. cd website && npm run dev   # verify the app starts
 4. Open the repo in Claude Code
 5. Invoke @product-manager — if docs/product/ was seeded by Step 8.6, run pm-grill-with-docs to validate; otherwise run pm-client-interview to fill product.md

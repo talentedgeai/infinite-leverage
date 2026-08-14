@@ -67,7 +67,6 @@ setup-skills/                  ← Bootstrap skills (outside .claude, for releas
     ├── references/
     └── scripts/
 
-.env.example                   ← Required env vars template
 scripts/
 └── rebuild-zips.sh            ← Sync agents → rebuild all 3 zips
 ```

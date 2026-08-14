@@ -3,12 +3,12 @@ import { createClient } from '@supabase/supabase-js'
 import { stripe } from '@/lib/billing/stripe'
 import type Stripe from 'stripe'
 
-// Use service role client — no user session in webhook context.
+// Use secret-key client — no user session in webhook context.
 // Never use the user-facing createClient() here.
 function createServiceClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.SUPABASE_SECRET_KEY!,
   )
 }
 

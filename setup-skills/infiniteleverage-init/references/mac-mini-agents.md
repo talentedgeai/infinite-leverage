@@ -325,9 +325,8 @@ When you feel pulled toward a complex solution, ask: what is the simplest versio
 3. **Sync with main before touching any file**:
    - `git checkout main && git pull origin main`
    - `git checkout -b feat/[task-slug]` (kebab-case, derived from the plan item name)
-4. **Verify `.env.example` exists** at project root:
-   - If missing: create it now using `~/.claude/skills/infiniteleverage-init/references/env-template.md` as the template before touching any other file.
-   - If present but the current task introduces new env vars: add those keys (empty value + comment) to `.env.example` now, stage the file, and include it in the task's commit.
+4. **Env vars live in `website/.env.local` only** (gitignored — never create a `.env.example`):
+   - If the current task introduces new env vars: add them to `.env.local` now with a one-line comment (what it's for, where the value comes from). Collect real values via `collect-credentials.py`.
 
 5. **Open the engineering doc folder** for this task:
    - Path: `docs/engineering/changes/YYYY-MM/YYYY-MM-DD-{task-slug}/`
@@ -874,24 +873,6 @@ EOF
 
 ---
 
-## Step 3b — Set up Resend for the Email Marketer agent
-
-Resend handles all transactional email for the Email Marketer agent — welcome emails, sequences, and one-off sends. The API key and domain were already generated in P0. Wire them into the project now.
-
-### Add Resend credentials to the project `.env`
-```bash
-echo "RESEND_API_KEY={from-credentials-file}" >> ~/code-projects/{project-slug}/.env.local
-echo "RESEND_DOMAIN={clientdomain}.com" >> ~/code-projects/{project-slug}/.env.local
-```
-
-> **Note:** Never commit `.env.local` to the repo. Confirm it is in `.gitignore` before proceeding.
-
----
-
-> **Brevo upgrade path**: Resend is the right tool for transactional email (sequences, welcome flows). When the stakeholder is ready to run marketing campaigns — audience segmentation, open/click analytics, bulk newsletter sends — migrate to Brevo. The Email Marketer agent will prompt the stakeholder when Brevo becomes the better fit (typically at ~500+ subscribers or when they ask for campaign features). Brevo setup follows the same DNS pattern as Resend — DKIM/SPF records added in the same Vercel DNS panel, no new DNS provider needed.
-
----
-
 ## Step 3c — Bootstrap the email sequence (email-index.md)
 
 The Email Marketer agent will not send anything if `agents/email-marketer/context/email-index.md` is missing or empty — it stops and asks the user to define the sequence first. Create it now with at least a Stage 0 welcome email before the agent goes live.
@@ -1246,7 +1227,6 @@ Store it securely — do not commit it to any repository.
 - [ ] sync-agents skill installed globally
 - [ ] All 8 agents installed to `~/.claude/agents/`
 - [ ] Global CLAUDE.md updated with agents repo pointer
-- [ ] `RESEND_API_KEY` and `RESEND_DOMAIN` written to `.env.local`
 - [ ] `agents/email-marketer/context/email-index.md` created with at least Stage 0
 - [ ] 8 RemoteTrigger schedules registered (4 PM + 3 content + 1 Email Marketer)
 - [ ] All verification checks passed
