@@ -1,448 +1,339 @@
 ---
 name: infiniteleverage-init
-description: Stand up an Infinite Leverage machine — first-ever setup (zero to live website, 8-agent team, schedules) or an additional machine connecting to an existing team. Handles macOS and Windows (WSL2), with a cloud track for old hardware.
+description: Set up the Infinite Leverage stack on any machine — one guided flow from a signed-in Claude Desktop to a live site, an 8-agent team, and a Claude that works autonomously (SQL, PRs, deploys). Handles macOS, Windows (WSL2), corporate machines (cloud track), fresh installs, reuse of a previous stack, and additional machines. Every human step is called out with its reason and verified.
 ---
 
-# Infinite Leverage — Machine Setup
+# Infinite Leverage — Stack Setup
 
-## Welcome
+## Read me first (instructions to Claude)
 
-You're about to set up a fully autonomous AI marketing and development team. By the end of this you'll have a live website, 8 specialist agents, and a content pipeline that runs itself Monday–Wednesday every week. Let's go! 🚀
+You are running the Infinite Leverage stack setup. The person in front of you may be completely non-technical. Your job:
 
-This setup is built on the **Infinite Leverage 18 Protocols** — the principles that make an AI team actually work in practice. You'll see them called out **[Protocol N]** at the exact moment each one becomes relevant so you understand *why* you're doing what you're doing, not just *what* to do.
+- **Do every step a computer can do yourself.** Installing, configuring, writing files, running commands, copying values, verifying. If you find yourself about to ask the human to paste SQL, run a command, or click a deploy button, stop: that is either a step you should do, or a gate below that you should present properly.
+- **The human does only the gates.** Each gate in this guide has three parts, always delivered together: **what to do** (numbered clicks), **why it's yours** (one sentence), and **verify** (a real check you run after they say done; never trust "done" without it).
+- **Plain English, one step at a time.** No jargon, no code shown unless asked. Say what you're doing and what just succeeded.
+- **Never delete anything.** Not files, not folders, not repos, not cloud projects. Archiving (renaming into an archive folder) is the strongest action you may take, and only in the fresh-start fork.
+- **Secrets live in `website/.env.local` and Vercel's environment settings. Nowhere else.** Never in CLAUDE.md, never in git, never echoed into chat.
 
 ---
 
-## Step 0 — Which setup is this?
+## The end state: the autonomy contract
 
-Ask the user one question before anything else:
+Setup is done when Claude on this machine holds these standing powers, proven by the graduation lap in Stage F, not merely installed:
 
-> **"Is this your very first Infinite Leverage setup, or have you done this before and are now setting up another machine?"**
-
-The answer decides the whole flow — because the real difference isn't the hardware, it's **whether the shared infrastructure (accounts, GitHub repo, live site) already exists.**
-
-| Answer | Mode | What it means |
+| After setup, Claude does this alone | Because of | The one human grant |
 |---|---|---|
-| "First time — nothing exists yet" | **Mode A — First Setup** | Create accounts + infrastructure, deploy a live site, build all 8 agents + schedules. Full bootstrap. |
-| "Done it before — new machine" | **Mode B — Additional Machine** | Infra already exists. Connect this machine: clone the live project (see it run locally), pull the 8 agents, sync config. No account/infra creation, no schedule re-registration. |
+| Runs any SQL: creates tables, applies migrations, seeds and queries data | The Supabase connection (MCP), plus the service key in `.env.local` for the app itself | One Authorize click on the Supabase consent screen (Gate 4) |
+| Branches, commits, pushes, opens PRs, merges PRs | The GitHub CLI signed in as the operator | One browser sign-in for `gh auth login` (Gate 2) |
+| Deploys by pushing, then watches the build and confirms the live site | The git-push-to-Vercel pipeline, plus the Vercel CLI (read-only) for status and logs | One Vercel sign-in (Gate 3) plus the one-time repo import click (Gate 5) |
+| Edits files and runs commands without per-step permission prompts | Claude Code's permission settings on this machine | One deliberate choice at Gate 0 |
+| Sends email from code (from Build 2 onward) | The Resend key in `.env.local` | Deferred: the operator mints the key when the email feature is built |
 
-- **Mode A** → follow Phase 1 → Phase 2a → Phase 2b below.
-- **Mode B** → skip to the **Mode B — Additional Machine** section near the end; it reuses the same building blocks without recreating infrastructure.
-
-> Mode B replaces the old separate `infiniteleverage-onboard` skill. If something points you there, use Mode B here instead.
+Nothing on this list is granted twice, and nothing outside it is needed to run the workshop builds. A build block that stalls asking for a credential means a grant above is missing; the graduation lap exists to catch that here, not there.
 
 ---
 
-## Check your machine first (both modes)
+## The manual moments, and why
 
-Before any install, confirm the machine is supported. Read **`references/os-detection.md`** and run its Step 1 detection snippet. It covers **macOS and Windows (WSL2)** in one place and gives a plain-English verdict:
+Two different reasons a step belongs to the human. Keep them distinct when you explain.
 
-- ✅ **Supported** → continue with local setup (Track A, below).
-- ⚠️ **Borderline** → upgrade the one named tool, then continue.
-- ☁️ **Use the cloud track** → the machine is below the version floor or can't run WSL2. Switch to **`references/cloud-track-codespaces.md`** (Track B) instead of fighting the hardware.
+**Claude cannot, by rule and by design:**
 
-**On Windows:** you must work inside the **Ubuntu (WSL2)** shell — native Windows/PowerShell silently breaks the bash hooks. `references/os-detection.md` links to `references/windows-setup.md` for the one-time WSL2 turn-on.
+| Moment | Why (say it in these terms) |
+|---|---|
+| Creating accounts (GitHub, Vercel, Supabase, later Resend) | Sites require a human to accept their terms, pass the robot check, and verify an email. The accounts must belong to you, not to an AI session. |
+| Typing any password, anywhere | Claude never sees or handles passwords, full stop. |
+| Entering 2FA codes | The code goes to your phone; that's the entire point of 2FA. |
+| Buying a domain or choosing a paid plan | Spending your money is always your decision and your click. |
 
-> Running a retreat? See **`references/pre-retreat-readiness.md`** — catch sub-floor machines at registration and route them to a loaner or the cloud track *before* the day.
+**Claude technically could, but should not, so the human does it deliberately:**
+
+| Moment | Why it stays human |
+|---|---|
+| The permission setting (Gate 0) | This one choice defines how much the AI may do unsupervised on this machine. It is made knowingly, once, by the operator, never defaulted by a script. |
+| The Authorize clicks on consent screens (GitHub, Vercel, Supabase) | Each click is a standing grant of access to your code, deployments, or data. The click is the contract; consenting on your own behalf is not delegable. |
+| Minting API keys | Creating a credential decides its blast radius. The operator creates it while Claude watches; Claude carries it into `.env.local` and nowhere else. |
+| Approving DNS records | Standing changes to your domain sit behind your registrar login and outlive any session. |
+
+---
+
+## Step 0 — Triage: three checks before anything
+
+Run these in order, before installing or explaining anything.
+
+### Check 1 — Where am I running?
+
+Try to run a trivial command (`echo ok`). If you can run commands, continue here. If you cannot (this guide was pasted into a chat with no computer access), treat this machine as one that can't be set up directly and follow **`references/cloud-track-codespaces.md`** with the user in their browser. Do not attempt any local step from a chat surface.
+
+### Check 2 — What machine is this?
+
+Detect, don't ask. Run the detection snippet from **`references/os-detection.md`** yourself, silently, and act on the verdict:
+
+- **macOS at or above the floor** → local setup, continue.
+- **Windows** → ask exactly one question first: *"Is this your own computer, or one your company manages?"*
+  - **Own machine** → the Ubuntu (WSL2) path. If WSL2 is already present (`wsl.exe --status` succeeds from the Windows side, or you're already inside Ubuntu), continue. If not, run the Windows gates (W1–W3 below).
+  - **Company-managed** → do not attempt any local install, not even WSL2. Check the browser can reach claude.ai and github.com. Reachable → cloud track (`references/cloud-track-codespaces.md`). Blocked → stop and say plainly: *"This machine's restrictions mean it can't run the setup. You'll need a loaner or a personal machine — your company's IT policy is the blocker, not anything we did."*
+- **Below the version floor** (old macOS, Windows that can't run WSL2) → cloud track. Don't fight the machine.
+- **Native Windows shell with WSL2 available but unused** → never offer native as an option. Say: *"Claude Code runs on native Windows, but the Infinite Leverage team system around it is built on a Unix shell, so on Windows the team runs inside Ubuntu — a free Windows feature. It's a one-time ten-minute setup."* Then run gates W1–W3.
+
+### Check 3 — What's already here?
+
+Scan for evidence before asking anything:
+
+```bash
+ls ~/.claude/agents/ 2>/dev/null | wc -l                    # 8 = team installed
+cat ~/.claude/.infiniteleverage-version 2>/dev/null          # version stamp
+ls ~/code-projects/ 2>/dev/null                              # project folders
+grep -l "Project Catalog" ~/code-projects/*/CLAUDE.md 2>/dev/null   # catalog projects
+gh auth status 2>&1 | head -2; vercel whoami 2>&1 | head -1  # standing grants
+```
+
+Classify into one of five states and follow its path. Present what you found in plain English first ("I found a working setup from June: 8 agents, a project called X, and a live site at Y"), then ask only the question that state requires.
+
+| Evidence found | State | Path |
+|---|---|---|
+| Nothing | **Clean machine** | Run the full flow, Stage A onward |
+| Some pieces, incomplete (tools but no agents, folder but no repo, repo but no live site) | **Half-finished** | Resume: report what's done and what's next, continue from the first failing check. Redo nothing that verifies. |
+| Everything verifies | **Working stack** | Ask: *"Keep building on this, or start a new project alongside it?"* Keep → verify each stage's checks, repair only failures, then run `/infiniteleverage-patch` to bring it current, then jump to Stage D if they want a new project wired, or finish. |
+| Everything verifies, user wants to start over | **Fresh alongside** | Archive the old project folder to `~/code-projects/archive/<slug>-<date>/` (rename, never delete). Leave every cloud resource untouched and say so: *"Your old project is archived at this path. Nothing was deleted; the old site stays live until you take it down yourself."* Then run the flow; the machine layer (Stage C) will verify and skip. |
+| Nothing local, but the user says the team already exists on another machine | **Additional machine (Mode B)** | See the Mode B section near the end. No infrastructure creation, no schedule registration. |
+
+Reuse is not a second procedure: because every stage below ends in a verify, running this same flow on a non-empty machine naturally skips what passes and repairs what fails.
 
 ---
 
 ## Settings Safety Protocol
 
-Before writing any configuration file — `settings.local.json`, `CLAUDE.md`, `global-engineering.md`, `.env` — check what's already there and follow these three rules:
+Before writing any configuration file — `settings.local.json`, `CLAUDE.md` (global or project), `global-engineering.md`, `.env` — check what's already there:
 
 | Scenario | Action |
 |---|---|
-| File exists with compatible content (e.g. `settings.local.json` with different permissions, `CLAUDE.md` with custom sections already present) | **Merge** — add what's missing without removing what's already there |
-| File exists and is a complete previous version of this template | **Upgrade** — replace the whole file with the latest version |
-| File exists with content that conflicts with the template's intended pattern | **Try to resolve** — preserve the user's value and intent while satisfying the template requirement. If you can't resolve cleanly without losing something, ask the user before touching the file |
+| File exists with compatible content | **Merge** — add what's missing without removing what's there |
+| File exists and is a complete previous version of this template | **Upgrade** — replace with the latest version |
+| File exists with conflicting content | **Resolve** — preserve the user's value and intent while satisfying the template. If you can't do both, ask, in plain language, offering: keep theirs, use the template's, or combine |
 
-**When asking about a conflict, use plain language — no JSON keys, no file paths, no technical jargon:**
-- Say what the setting *does*, not what it's called
-- Offer a simple choice: keep theirs, use the template's, or combine both
+This protocol explicitly covers the **project CLAUDE.md**: if the project folder already contains a catalog CLAUDE.md written by the product-plan interview (Block I of the workshop), the scaffold's CLAUDE.md content is merged *into* it. The interview's catalog and rules are never overwritten; scaffold sections are added. The interview file wins on conflict.
 
-> **Example:** "Your Claude Code is already set to ask permission before running shell commands. The team setup works best with shell commands allowed automatically. Would you like to switch to automatic, keep the ask-first behaviour, or handle them separately?"
-
-> **Example:** "You already have a global Claude instruction file with some notes in it. We'd like to add the 8-agent team routing table. Should we add it at the end, or would you like to look at the additions first?"
+When asking about a conflict, plain language only — say what the setting does, not what it's called.
 
 ---
 
-## Smart Start — Find Out Where You Are
+## Canonical source
 
-Not sure if you've already done some of this? Don't guess. Run this first in Claude Code (or Claude chat):
-
-> **"I'm setting up Infinite Leverage. First run the OS detection from `references/os-detection.md` and give me the supported/borderline/cloud verdict. Then scan my environment: brew/apt, git --version, gh --version, node --version, vercel --version, claude --version, ls ~/.claude/agents/, ls ~/code-projects/. Then a friendly summary: am I doing a first-time setup or an additional machine, what's already done, what's next, and which prompt to resume from."**
-
-Claude will give you a personalised status report — the machine verdict first, then no redoing steps you've already done, no guessing what's missing. (This is also exactly what a prework attendee pastes back — see `references/pre-retreat-readiness.md`.)
-
-**First time here?** Start at Phase 1 below — everything is waiting for you.
-**Returning mid-way?** Run the smart start above — it'll tell you exactly where to jump back in.
-
----
-
-## What You're Building
-
-| Track | The Principles |
-|-------|---------------|
-| 🧠 Mindset | Humans orchestrate; agents act when asked **[P1]** · AI is the new CMS **[P2]** · Stack = Claude + GitHub + Vercel + Supabase **[P3]** · Agents are folders, not magic **[P4]** |
-| 🏗 Infrastructure | GitHub for all code and context **[P5]** · Vercel deploys only via `git push` — never `vercel deploy` directly **[P6]** · Supabase for data and subscribers **[P7]** |
-| 🔨 Building | Design system written before any component **[P8]** · Concrete step-by-step workflows **[P9]** · PM schedules auto-run via CronCreate (local, durable) **[P10]** · Skills for admin so humans never escalate for small things **[P11]** |
-| 👥 Team & Ops | DevOps escalates to a human engineer when needed **[P12]** · 8 fixed agent roles — no improvising **[P13]** · PM plans epics with acceptance criteria **[P14]** · PM reads git history before every task **[P15]** |
-| ♻️ Continuity | QA knows exactly what AI can and cannot test **[P16]** · Context handed off via BRIDGE.md and memory system **[P17]** · Work outlives the operator — universal agent templates on GitHub **[P18]** |
-
----
-
-## Canonical Source — Read This First
-
-**ALL of the following live in ONE repo — the single source of truth:**
+Everything lives in one repo — the single source of truth:
 
 > https://github.com/talentedgeai/infiniteleverage-8-agents-template
 
-| What | Where in the canonical repo |
+| What | Where |
 |---|---|
 | 8 agent definitions | `.claude/agents/*.md` |
 | Global skills | `.claude/skills/*/SKILL.md` |
 | Engineering rules | `.claude/rules/global-engineering.md` |
-| Project folder scaffold | `templates/project-scaffold/` |
-| Folder structure spec | `templates/project-scaffold/FOLDER-STRUCTURE.md` |
-| AGENT-DELEGATION block content | `scripts/inject-agent-delegation.sh` |
-| Bootstrap skills (init/patch/project) | `setup-skills/` |
+| Project scaffold | `templates/project-scaffold/` (spec: `FOLDER-STRUCTURE.md`) |
+| This skill, its prompt, and references | `setup-skills/infiniteleverage-init/` |
 
-**Rules — these are non-negotiable:**
+Rules, non-negotiable:
 
-1. **Never hand-edit agents, skills, or scaffold files on the client machine.** Any change must be made in the canonical repo first, committed, and pulled by the patch skill.
-2. **Never invent new agent behavior in CLAUDE.md.** The AGENT-DELEGATION block is generated from `scripts/inject-agent-delegation.sh` — edit that script in the repo, not the CLAUDE.md on disk.
-3. **When in doubt, fetch fresh** with `gh repo clone --depth 1 talentedgeai/infiniteleverage-8-agents-template /tmp/il-template`.
-4. The bundled copy inside this skill's zip is a **fallback** for offline use only. If GitHub is reachable, always prefer the live repo.
-
-```bash
-# Fetch canonical agents and hooks at any time:
-gh repo clone talentedgeai/infiniteleverage-8-agents-template /tmp/il-agents
-cp /tmp/il-agents/.claude/agents/*.md ~/.claude/agents/
-bash ~/.claude/skills/infiniteleverage-patch/scripts/install-hooks.sh /tmp/il-agents
-rm -rf /tmp/il-agents
-```
+1. **Never hand-edit agents, skills, or scaffold files on a client machine.** Changes go to the canonical repo by PR, get released, and reach machines via `/infiniteleverage-patch`.
+2. **The plugin (`talentedgeai/infiniteleverage-plugin`) carries no skills.** It is a runtime shim: session advisory, routing hints, telemetry hooks. If you find skill files inside an installed copy of it, they are from an old version; the local `~/.claude/skills/` copies installed by this flow are the ones that count.
+3. **Consume `stable`, not `main`.** When fetching anything from the canonical repo at runtime, use the `stable` branch — it moves only at releases.
+4. When in doubt, fetch fresh: `gh repo clone --depth 1 -b stable talentedgeai/infiniteleverage-8-agents-template /tmp/il-template`
 
 ---
 
-## Project Scaffold
+## The flow
 
-Every project follows the canonical folder structure defined in `templates/project-scaffold/` of this repo. The authoritative spec is `templates/project-scaffold/FOLDER-STRUCTURE.md`.
+Stages A through F, in order, in one session. Each stage ends with its verify; a verified stage is never redone.
 
-**During Phase 2a — Prompt 4 (project scaffold)**, Claude (Session A — it provisions a local `developer.md` inline first, per the zero-state rule) MUST:
+### Gate 0 — The permission decision (before Stage A)
+
+The one trust choice, made first because it changes how everything else runs.
+
+- **Your turn:** decide whether Claude may run commands and edit files on this machine without asking permission for each step. The team setup is built for "yes" — that's what makes the day flow. Say yes, no, or ask questions first.
+- **Why it's yours:** this one choice defines how much the AI may do unsupervised on your machine. It has to be made knowingly, by you, once — never defaulted by a script.
+- **Claude then:** on yes, write the permission settings via `scripts/setup-permissions.py` (merge-safe). On no, continue anyway — everything still works, they'll just click approve a lot; note it and move on.
+- **Verify:** the settings file contains the expected entries; state the outcome in one sentence.
+
+### Stage A — Tools (Claude does all of it)
+
+Install what's missing: package manager (Homebrew on macOS, apt or Homebrew-on-Linux inside Ubuntu), then `git`, `gh`, `node` (20+), `jq`, and the Vercel CLI. On Windows, everything installs inside Ubuntu, never via winget (winget is only for the Claude Desktop app itself).
+
+**Verify:** each of `git --version`, `gh --version`, `node --version`, `jq --version`, `vercel --version` succeeds and meets the floor in `references/os-detection.md`.
+
+### Stage B — Accounts and sign-ins (Gates 1–3)
+
+**Gate 1 — the three accounts.**
+- **Your turn:** create accounts you don't already have, at github.com, vercel.com (choose "sign up with GitHub"), and supabase.com (same). Claude gives one link at a time and waits.
+- **Why it's yours:** terms of service, robot checks, and email verification require a human, and the accounts must belong to you.
+- **Verify:** you can log into each site. (The CLI-level checks come with the next two gates.)
+
+**Gate 2 — GitHub sign-in.**
+- **Your turn:** Claude runs `gh auth login` and hands you the one-time code and browser page; you sign in and approve.
+- **Why it's yours:** the password and the approval are yours; the approval decides what the tool may do to your repos. Claude never sees the password — GitHub hands the tool a scoped token.
+- **Verify:** `gh auth status` shows the right account. Also set `git config --global user.email` to the operator email — effort tracking attributes work by it.
+
+**Gate 3 — Vercel sign-in.**
+- **Your turn:** Claude runs `vercel login`; you click the confirmation email or browser prompt.
+- **Why it's yours:** same as Gate 2 — it's your account's consent screen.
+- **Verify:** `vercel whoami` returns the account.
+
+If a 2FA code is asked anywhere: that's yours too (it goes to your phone), then Claude retries the blocked check.
+
+### Stage C — The team (machine layer, once per machine)
+
+Claude does all of it. Skipped entirely when Check 3 verified a working team.
 
 ```bash
-# Fetch the canonical scaffold into the new project
-gh repo clone talentedgeai/infiniteleverage-8-agents-template /tmp/il-template
-cp -r /tmp/il-template/templates/project-scaffold/. ~/code-projects/{project-slug}/
+gh repo clone --depth 1 -b stable talentedgeai/infiniteleverage-8-agents-template /tmp/il-template
+cp /tmp/il-template/.claude/agents/*.md ~/.claude/agents/
+# global skills, rules, hooks — via the patch skill's installer so wiring is identical to updates:
+cp -r /tmp/il-template/setup-skills/infiniteleverage-patch ~/.claude/skills/
+bash ~/.claude/skills/infiniteleverage-patch/scripts/install-hooks.sh /tmp/il-template
 rm -rf /tmp/il-template
-
-# Then rename placeholders:
-#   - All `PH-` prefixed files → real names from the project intake
-#   - YYYY-MM-DD → real first publish date
-#   - {Project Name} / {project-slug} → real values
 ```
 
-**Fixed files that must NOT be renamed:**
-- `docs/product/product.md`, `epics.md`, `epic-status.md`, `01-product-timeline.md`
-- `docs/project-status.html`
-- `CLAUDE.md`, `README.md`, `.env.example`, `.gitignore`
+**Verify:** `ls ~/.claude/agents/` shows all 8; the hook wiring check (each event maps to its expected script) passes; `~/.claude/rules/global-engineering.md` exists.
 
-The PM agent and developer agent both reference this structure on every action — read `FOLDER-STRUCTURE.md` before creating any new file.
+### Stage D — Project wiring (project and cloud layers)
 
----
+**D1 — The folder.** If the product-plan interview already created `~/code-projects/<slug>/` with a catalog CLAUDE.md, use it — that folder is the project. If not (standalone use of this skill), ask for the business name, make the slug, create the folder, and proceed; the catalog can be added later by the interview.
 
-## Phase Structure (Mode A — First Setup)
+**D2 — The scaffold.** Merge `templates/project-scaffold/` into the project folder per the Settings Safety Protocol (the interview's CLAUDE.md and Working Files are preserved; `website/` and the scaffold structure are added). Rename `PH-` placeholders per `FOLDER-STRUCTURE.md`.
 
-The order is deliberate: **reach a live site fast (the win), and build the agent team in parallel.** Phase 1 is minimal — Claude **Desktop** + core accounts, no keys. Phase 2 then runs as **two concurrent Claude Code sessions**: **2a** is the interactive track the user watches; **2b** is an autonomous track that runs unattended. **All credential collection happens in Phase 2** and Claude collects keys itself where it can (Claude-in-Chrome / computer-use), asking the user only when blocked.
+**D3 — Git and GitHub.** `git init`, first commit, `gh repo create` under the operator's account, push. **Verify:** the repo page exists and shows the push.
 
-```
-PHASE 1 — Claude Chat / Desktop (manual, minimal — NO keys)
-  Get Desktop ready + core accounts — human does this
-  ├── Check the machine: references/os-detection.md (supported / borderline / cloud)
-  ├── Install Git + package manager (Homebrew on macOS / apt in WSL2)
-  ├── Install Claude Code Desktop (signed in with Claude Pro) ← Phase 2 prompts run HERE
-  ├── [P5][P6][P7] Core accounts only: GitHub, Vercel, Supabase (+ Git identity for effort tracking)
-  ├── NO API keys here — all env collection happens in Phase 2 (automated where possible)
-  └── (Claude CLI is NOT needed yet — optional install at the very end of this skill)
-      │
-      └─ Desktop signed in + GitHub/Vercel/Supabase exist ──►
+**Gate 4 — Supabase connection.**
+- **Your turn (two clicks):** first, in Claude Code run `/plugin`, choose the marketplace, install **supabase**, restart if prompted. Second, Claude starts the authentication and gives you a link; click **Authorize**.
+- **Why it's yours:** installing a plugin and clicking a consent screen are standing grants of access to your database. The click is the contract. After this one click, Claude runs all SQL itself — you will never paste SQL into a dashboard.
+- **Verify:** the Supabase tools respond (list the project, confirm the URL). Then Claude creates the Supabase project if none exists for this slug, or connects to the existing one.
 
-PHASE 2 — Claude Code: run 2a and 2b as TWO PARALLEL SESSIONS
-  On first opening Code, start 2b in one session (let it run), then run 2a in another.
+**D4 — Keys.** Claude collects the Supabase URL and keys into `website/.env.local` via `scripts/collect-credentials.py` (merge-safe), driving the browser itself where it can with you logged in, asking only when blocked by a login, 2FA, or robot check — and then naming the exact value and where to find it. The same values go into Vercel's environment via `vercel env`. **`.env.local` and Vercel env are the only two places any key ever lives.** Gemini and Resend are deliberately not collected now; they arrive with their features.
 
-  ┌─ PHASE 2a — INTERACTIVE (user watches + interacts) ──────────────────┐
-  │  Shortest path to a live site — the win                             │
-  │  ├── Tool install: gh, node, jq, ffmpeg, vercel CLI + auth          │
-  │  ├── [P3] Global permissions + engineering rules                    │
-  │  ├── [P7] Supabase plugin (MCP): /plugin install + OAuth (manual)   │
-  │  ├── [P4][P8][P9] Project scaffold: Next.js 16 in website/          │
-  │  ├── ENV (core/Supabase): Claude auto-fetches via Chrome MCP /      │
-  │  │     computer-use → collect-credentials.py; asks only if blocked  │
-  │  ├── [P5][P6] Deploy: git push → GitHub → Vercel CI/CD              │
-  │  └── 🎉 Site live (HTTP 200) — the dopamine hit                     │
-  └──────────────────────────────────────────────────────────────────┘
+**Gate 5 — Vercel import.**
+- **Your turn (one click):** open vercel.com/new, import the repo just created, set **Root Directory = `website`**, deploy.
+- **Why it's yours:** it sits behind your Vercel login and confirms a deployment running under your account.
+- **Verify:** `vercel ls` shows the project; then Claude runs `vercel link`.
 
-  ┌─ PHASE 2b — AUTONOMOUS (unattended, no live-site dependency) ────────┐
-  │  The team — runs on its own while the user drives 2a                │
-  │  ├── [P13][P1] Fetch + install all 8 agents from canonical repo     │
-  │  ├── [P16] QA · [P12] DevOps · [P15] PM definitions                 │
-  │  ├── Global skills [P11] + hooks (pre-bash, prompt-submit)          │
-  │  └── [P10] Register the 10 RemoteTrigger routines                   │
-  │     (NO dashboard here — it needs the live site; built at 2a finalize)│
-  └──────────────────────────────────────────────────────────────────┘
-      │
-      └─ 2a FINALIZE / JOIN (after HTTP 200, in the 2a session):
-         ├── Verify 2b finished: 8 agents present + 10 schedules registered
-         │     → if incomplete, report what's missing and finish it
-         ├── Agent team dashboard (needs live site + agents) — built NOW
-         ├── Feature-time keys deferred: Gemini (image gen), Resend (email)
-         └── [P17] HANDOFF.md written for client
-```
+### Stage E — Deploy
 
-> **Mode B (Additional Machine)** has its own shorter flow — see the dedicated section below. It does not recreate any of Phase 1's infrastructure.
+Claude pushes; the pipeline builds. **Verify:** `curl -I https://<slug>.vercel.app` returns HTTP 200. Tell the user their site is live and show them the URL — this is the win. (Deploys happen only ever via `git push`; never `vercel deploy`.)
+
+### Stage F — The graduation lap, then finalize
+
+Before declaring the stack done, prove the autonomy contract end to end, alone:
+
+1. **Data lap:** through the Supabase connection, create a scratch table, confirm it exists, remove it. No dashboard, no pasted SQL.
+2. **Ship lap:** create a branch, make a trivial change (a line in the README), open a PR, merge it, watch the Vercel build go green with the CLI, confirm the live site updated.
+
+If either lap fails, name the missing grant right now and fix it — this is the moment to discover it, not Build 1.
+
+Then finalize:
+
+- **Fill the catalog.** If the project CLAUDE.md has a Stack section with `[pending]` lines, fill each with its real value — statuses and URLs, never a secret:
+  The **Core stack** section, which is the only section that gates Build 1:
+  - `IL skill installed` → done, with the version
+  - `GitHub repo` → owner/name
+  - `Vercel project` → the project name
+  - `Site live at` → the public URL that returned HTTP 200
+  - `Supabase project` → the project name
+  - `Supabase URL` → the real URL (a URL is not a secret)
+  - `Supabase keys` → write exactly: `stored in website/.env.local, never written here`. Never the value. This rule applies to any line naming a key, on any project, forever.
+
+  The **Email and domain** section is not yours to fill. Leave every line reading `[deferred to Build 2]`. Those lines are deliberately not `[pending]`, so Build 1 is never blocked by things it does not use.
+- **Stamp the version:** fetch the latest release tag of the canonical repo into `~/.claude/.infiniteleverage-version`.
+- **Register the plugin:** `claude plugin marketplace add talentedgeai/infiniteleverage-plugin` — this wires the session advisory and hooks; it carries no skills.
+- **Register the PM schedules** exactly as `references/phase2-prompts.md` specifies, and verify they appear.
+- **Write HANDOFF.md** in the project so the next session (or the next person) starts with context.
+- **File the setup report.** Write a short structured report of this run: skill version, OS and triage verdict, the history state found, per-stage timing, every gate's outcome, every verify that failed and how it recovered, and anything the operator did by hand that this guide didn't ask for (a hand-fix is a bug in this skill, record it as one). Then: if `gh repo view talentedgeai/infiniteleverage-8-agents-template` succeeds (the operator is a team engineer), file it with `gh issue create` on that repo, title "setup run <version> <os> <state>", label `setup-report`. Otherwise write it to `SETUP-REPORT.md` in the project folder. Never include keys, tokens, or personal data beyond the machine facts above.
+
+State the end state in plain English: the live URL, the three grants Claude now holds, and that from here on, asking the user to paste SQL or click deploy would be a bug.
 
 ---
 
-## Running Phase 1 — Claude Chat / Desktop (Mode A)
+## Windows gates (own machine, WSL2 not yet present)
 
-Open claude.ai (or the Claude Desktop chat). Narrate each step — the operator acts. Phase 1 is intentionally minimal: get **Claude Desktop** ready and create only the three core accounts. **No API keys are collected here** — all env collection happens in Phase 2 (automated where possible). The Claude **CLI is not needed yet** — it's an optional install at the very end of this skill.
+**Gate W1 — turn on WSL2.**
+- **Your turn:** Start → type PowerShell → right-click → Run as administrator → run `wsl --install`.
+- **Why it's yours:** Windows requires administrator elevation as a consent step from you; Claude can't and shouldn't elevate itself.
+- **Verify:** the command reports installing, then asks for a restart.
 
-**Decision points:**
-- Machine below the version floor? Don't fight it — switch to the cloud track (`references/cloud-track-codespaces.md`).
-- Client already has GitHub? Use existing, confirm operator email is owner.
-- Tempted to grab API keys now? Don't — Phase 2 collects them, mostly automatically.
+**Gate W2 — restart.**
+- **Your turn:** restart the PC when prompted. Before they do, tell them exactly how to resume: *"When it's back, open Claude Desktop, open the Code tab, and paste the same setup prompt again — I'll detect where we stopped and continue."*
+- **Why it's yours:** Claude's session cannot survive or trigger a reboot.
+- **Verify (after resume):** the triage Check 3 finds the half-finished state and continues; `wsl.exe --status` succeeds.
 
-**Phase 1 is complete when:**
-- `references/os-detection.md` verdict is ✅ (or the user is on the cloud track)
-- Claude Code **Desktop** is installed and signed in (this is where Phase 2 runs)
-- `git --version` works; `gh auth login` done; `git config --global user.email` set
-- GitHub, Vercel, Supabase accounts exist
+**Gate W3 — the Ubuntu login.**
+- **Your turn:** the Ubuntu window asks for a username and password on first launch; choose them and write them down (the password won't show as you type — that's normal).
+- **Why it's yours:** it's a password.
+- **Verify:** commands run inside Ubuntu; continue the flow there. Projects live in the Linux home (`~/code-projects/`), never `/mnt/c/`.
 
-See `references/phase1-manual.md` for complete step-by-step.
-
----
-
-## Running Phase 2 — Claude Code: two parallel sessions (Mode A)
-
-Phase 2 runs as **two concurrent Claude Code sessions**. When the user first opens Code, set this up before running anything:
-
-> **Open a second Claude Code session/tab.** In **session 1**, paste the **2b** kickoff prompt — it's autonomous, needs no babysitting, and will install the agent team + schedules on its own. Then switch to **session 2** and run the **2a** prompts yourself — this is the interactive track where you'll click through a couple of browser steps and watch the site go live.
-
-- **2a (interactive, you watch):** deps → permissions → Supabase plugin/OAuth → scaffold → env collection → deploy → HTTP 200. Self-contained prompts; a 2a prompt never invokes an `@agent` (those belong to 2b).
-- **2b (autonomous, unattended):** fetch + install all 8 agents, global skills, hooks, register the 10 schedules. **No dashboard** (it needs the live site — built at the 2a finalize step).
-
-**Env collection — automate first, ask only when blocked. [P8]** In Phase 2, Claude collects keys *itself* wherever it can — driving the browser via the **Claude in Chrome extension (MCP)** or **computer-use** to open the Supabase / (later) Gemini / Resend dashboards and copy the values, writing each through the merge-safe collector:
-```bash
-python3 scripts/collect-credentials.py --check core      # see what's still missing
-python3 scripts/collect-credentials.py --set NEXT_PUBLIC_SUPABASE_URL=... SUPABASE_SECRET_KEY=...
-```
-Claude escalates to a **manual ask only when it genuinely can't proceed** — login walls it can't pass, 2FA, CAPTCHA/Arkose, billing/plan selection. When it asks, it names the exact value and where to find it. Gemini/Resend stay deferred to feature-time (collected the same automated way when their feature is built).
-
-**Decision points:**
-- Supabase plugin + OAuth (2a): Claude can't install a plugin or complete OAuth itself. (1) `/plugin` → marketplace → install **supabase** → restart if prompted. (2) open the auth URL → Authorize → tell Claude "done". **[P7]**
-- Vercel import (2a): one browser action (import repo at vercel.com/new, Root Directory = website/). **[P6]**
-- No approved plan when Developer runs: stop, notify via Lark (if configured) or log to HANDOFF.md. **[P1]**
-
-**Phase 2a is complete when:** `curl -I https://{project-slug}.vercel.app` returns HTTP 200 — 🎉 the win.
-
-**2a finalize / join (run at the end of the 2a session, after HTTP 200):**
-- Verify 2b finished: `ls ~/.claude/agents/` shows all 8 **[P13]** and all 10 routines are registered at https://claude.ai/code/routines **[P10]**. If 2b is incomplete, report what's missing and finish it here.
-- Build the agent team dashboard (needs the live site + agent defs).
-- Write HANDOFF.md **[P17]**.
-
-See `references/phase2-prompts.md` for the full prompt sequence (2a, the 2b autonomous block, and the finalize step).
+Full walkthrough and troubleshooting: `references/windows-setup.md`. Where the day-to-day session lives on Windows after setup is stated in that reference — keep it accurate to the last hardware test.
 
 ---
 
-## Resume Paths
+## Cloud track (corporate machines, chat-only surfaces, below-floor hardware)
 
-Stopped partway through? Here's where to pick up — no restarting needed.
-
-| Stopped at | Check (OS-aware) | Resume from |
-|-----------|-------|-------------|
-| Phase 1, machine/tools | `git --version` fails, or no package manager | Phase 1, Step 2 |
-| Phase 1, accounts | Desktop signed in but GitHub/Vercel/Supabase missing | Phase 1, Step 4 |
-| Phase 1 complete, Phase 2 not started | Desktop signed in, `~/.claude/rules/` empty | Phase 2 — start 2b session + 2a session |
-| 2a deps/config | `~/.claude/rules/` empty | 2a, Prompt 1 |
-| 2a Supabase | plugin not installed / MCP not authenticated | 2a, Prompt 3 |
-| 2a scaffold | `ls ~/code-projects/{project-slug}` empty | 2a, Prompt 4 |
-| 2a env/deploy | no `.env.local` / no GitHub repo / not HTTP 200 | 2a, Prompt 5–7 |
-| 2b (autonomous) | `ls ~/.claude/agents/` shows < 8 | 2b kickoff prompt |
-| 2b schedules | agents present, no routines registered | 2b (schedule step) |
-| Finalize | HTTP 200 + 8 agents, but no dashboard / HANDOFF.md | 2a finalize/join step |
+Follow `references/cloud-track-codespaces.md`. Same flow, same gates, same graduation lap — the machine layer just lives in the Codespace. Requirements: a paid Claude subscription, a GitHub account, a modern browser. Set the expectation that the cloud IDE takes minutes to start. The win is the same live site; there is no localhost step.
 
 ---
 
-## Checklist
+## Mode B — Additional machine (the team exists elsewhere)
 
-### Phase 1 — Manual (minimal — core only)
-- [ ] `references/os-detection.md` verdict ✅ (or on cloud track) — machine supported
-- [ ] Package manager installed (Homebrew on macOS / apt in WSL2) and in PATH
-- [ ] git installed (`git --version` works)
-- [ ] Claude Code CLI installed and authenticated (`claude --version`) — installed EARLY
-- [ ] Claude Code Desktop installed and signed in (Claude Pro)
-- [ ] Run `gh auth login` and set `git config --global user.email` — required for effort tracking to attribute your work
-- [ ] Operator email active: `{firstname}@{clientdomain}.com`
-- [ ] GitHub `{clientslug}` created and verified
-- [ ] Vercel linked to GitHub
-- [ ] Supabase project created, database password saved
-- [ ] **Deferred — do NOT collect in Phase 1:** Gemini (image gen), Resend + DNS (email), Lark (optional). Collected just-in-time when their feature is built.
+No infrastructure creation, no schedule registration. The order:
 
-### Phase 2a — Claude Code (interactive)
-- [ ] gh, node, jq, ffmpeg, vercel CLI installed and authenticated *(Claude CLI optional — see end of skill; Resend CLI deferred to feature-time)*
-- [ ] `~/.claude/settings.local.json` with `Bash(*)` + `acceptEdits`
-- [ ] `~/.claude/rules/global-engineering.md` written
-- [ ] Supabase plugin (`plugin:supabase`) installed via `/plugin` + MCP authenticated **[P7]**
-- [ ] Project scaffolded at `~/code-projects/{project-slug}/` with context folders + `website/` **[P4]**
-- [ ] `.specify/` initialized in project root (done by `infiniteleverage-project` Step 8.5 — verify with `ls .specify/`)
-- [ ] `.env.local` written with **core** keys (Supabase) — collected automatically where possible; Gemini/Resend deferred
-- [ ] GitHub repo created, pushed, Vercel project imported (Root Directory=website set in dashboard) **[P5][P6]**
-- [ ] `vercel link` run, core env vars added via `vercel env`, deployment verified (`vercel ls`)
-- [ ] Site live on Vercel (HTTP 200) 🎉
+1. Triage (Step 0) as normal — it will find the clean machine and the user's answer routes here.
+2. Stage A tools, Gate 0, Gates 2–3 (sign in to the existing accounts).
+3. Quick win first: clone the existing project, `npm install --prefix website`, `npm run dev --prefix website`, show the real site at localhost:3000.
+4. Stage C (team install), Gate 4 (Supabase connection), credentials into `.env.local` via secure transfer from the original machine (AirDrop or equivalent — never email).
+5. Graduation lap, version stamp, plugin registration. No schedules — they live on the original machine.
 
-### Phase 2b — Claude Code (autonomous, parallel session)
-- [ ] All 8 agents fetched from GitHub canonical repo to `~/.claude/agents/` **[P13]**
-- [ ] Hooks installed: `~/.claude/hooks/pre-bash` + `prompt-submit` copied and wired into `settings.local.json`
-- [ ] Global skills: `daily-checkin`, `create-local-routine`, `create-remote-routine`, `create-agent`, `infiniteleverage-help` **[P11]**
-- [ ] 10 RemoteTrigger routines registered — verify at https://claude.ai/code/routines **[P10]**
-
-### 2a finalize / join (after HTTP 200)
-- [ ] Verified 2b complete (8 agents + 10 routines) — finished anything missing
-- [ ] `email-index.md` Stage 0 populated
-- [ ] Agent team dashboard built (needs live site + agents)
-- [ ] HANDOFF.md written **[P17]**
-
-**Next**: Hand off HANDOFF.md to the client → on each additional machine (laptop, etc.), run this same `infiniteleverage-init` skill and answer **"another machine"** at Step 0 to follow **Mode B** below.
+Details: `references/mode-b-phase1-manual.md` and `references/mode-b-phase2-prompts.md`.
 
 ---
 
-## Mode B — Additional Machine (connect to an existing team)
+## Resume paths
 
-> Use this when the infrastructure already exists (accounts, GitHub repo, live site) and you're just wiring up another machine — a laptop, a second workstation. This **replaces the old `infiniteleverage-onboard` skill**. The hard part is already done; the reward here is seeing the *real, live site* running locally before touching any config.
+Any interruption resumes by evidence, not memory. Re-run triage Check 3; the first failing verify below is the resume point.
 
-**Prerequisite:** Mode A complete somewhere — the live site is on Vercel and the project repo exists on GitHub.
-
-Same building blocks as Mode A, but **nothing creates infrastructure and no schedules are registered** (those live on the original machine). The order:
-
-### Phase 1 (manual) — tools + the quick win
-1. Check the machine: `references/os-detection.md` (same verdict logic; cloud track if below floor).
-2. Install: package manager, git, gh, Node, Claude Code CLI + Desktop, Vercel CLI — authenticate each.
-3. Transfer the credentials file from the original machine (AirDrop / secure share — never email).
-4. **Quick win — see the live site locally:**
-   ```bash
-   mkdir -p ~/code-projects && cd ~/code-projects
-   gh repo clone {clientslug}/{project-slug}        # [P5]
-   cd {project-slug}
-   npm install --prefix website
-   npm run dev --prefix website                      # → http://localhost:3000
-   ```
-   That's the reward — the real deployed site, before any settings work.
-
-Full step-by-step: **`references/mode-b-phase1-manual.md`**.
-
-### Phase 2 (Claude Code) — config + agents (no infra creation)
-- Global dirs + permissions (`scripts/setup-permissions.py`), `~/.claude/CLAUDE.md`, `global-engineering.md`.
-- Credentials into `~/.claude/.env` with `scripts/collect-credentials.py` (merge-safe; Gemini/Resend still deferred until needed).
-- Supabase plugin (MCP) install + auth — same two manual steps as Mode A.
-- Fetch all 8 agents from the canonical repo → `~/.claude/agents/`; install hooks; test agents respond.
-- **Effort-tracking registration** for the cloned repo (register or write the skip marker), then the 5-check validation.
-
-Full prompt sequence + the effort-tracking registration block: **`references/mode-b-phase2-prompts.md`**.
-
-**Mode B is complete when:** all 8 agents respond · hooks installed + wired · `localhost:3000` showed the live site · PM briefed on business context · effort-tracking registered or skipped.
-
-**Then:** point the user to **`references/first-actions.md`** (8 agents, daily workflow, content pipeline, how to update agents). Run Phase 3 below on this machine too (stamp version + register plugin).
+| First failing check | Resume at |
+|---|---|
+| Tools missing | Stage A |
+| `gh auth status` / `vercel whoami` fail | Stage B |
+| Fewer than 8 agents, or hook wiring wrong | Stage C |
+| No project folder / no scaffold / no repo | Stage D |
+| Supabase tools don't respond | Gate 4 |
+| No `.env.local` core keys | D4 |
+| `vercel ls` empty | Gate 5 |
+| Site not HTTP 200 | Stage E |
+| Laps not proven / catalog has `[pending]` / no version stamp | Stage F |
 
 ---
 
-## Phase 3 — Stamp installed version and register plugin
+## Checklist (the definition of done)
 
-*(Applies to both modes — run after Mode A or Mode B completes on this machine.)*
-
-After confirming setup is complete, run:
-
-```bash
-version="$(curl --silent --max-time 5 \
-  -H "Accept: application/vnd.github.v3+json" \
-  "https://api.github.com/repos/talentedgeai/infiniteleverage-8-agents-template/releases/latest" \
-  | python3 -c "import sys,json; print(json.load(sys.stdin).get('tag_name','').lstrip('v'))" 2>/dev/null || echo "")"
-if [[ -n "$version" ]]; then
-  echo "$version" > ~/.claude/.infiniteleverage-version
-  echo "Version stamped: $version"
-else
-  echo "⚠️ Could not fetch version from GitHub Releases — check network or run again"
-fi
-```
-
-This stamps the installed release version so the plugin's SessionStart hook can detect and auto-apply future updates.
-
-Then register the plugin so Claude Code can discover and load it:
-
-```bash
-claude plugin marketplace add talentedgeai/infiniteleverage-plugin
-```
-
-This adds `talentedgeai/infiniteleverage-plugin` to `~/.claude/settings.json` as a known marketplace and enables it. After this, every new Claude Code session will automatically receive:
-- Agent routing hints via the `UserPromptSubmit` hook
-- Version update advisories via the `SessionStart` hook
-- Token usage awareness at session start
-
-If `claude plugin` is not yet available, the user is on an older Claude Code version — run `npm i -g @anthropic-ai/claude-code@latest` to upgrade first.
-
-### Partner check — install whitelabel skill if eligible
-
-Run silently after plugin registration. No output on failure — this is invisible to non-partners.
-
-```bash
-if gh repo view talentedgeai/infiniteleverage-partner-portal --json name > /dev/null 2>&1; then
-  echo "✓ Partner access confirmed — installing whitelabel skill"
-  mkdir -p ~/.claude/skills/infiniteleverage-whitelabel
-  gh api repos/talentedgeai/infiniteleverage-partner-portal/contents/setup-skills/infiniteleverage-whitelabel/SKILL.md \
-    --jq '.content' | base64 --decode \
-    > ~/.claude/skills/infiniteleverage-whitelabel/SKILL.md
-  echo "  Whitelabel skill installed → /infiniteleverage-whitelabel"
-fi
-```
-
-Partners will see `/infiniteleverage-whitelabel` available in every future session. Non-partners: silent skip.
+- [ ] Triage ran: surface, machine verdict, history state named
+- [ ] Gate 0 decision made knowingly and recorded
+- [ ] Tools at floor versions
+- [ ] Gates 1–3 verified: accounts exist, `gh auth status`, `vercel whoami`
+- [ ] 8 agents present, hooks wired (event → expected script), rules written
+- [ ] Project folder is the interview's folder (or created); scaffold merged, interview CLAUDE.md preserved
+- [ ] Repo pushed; Vercel imported (Root Directory = website); `vercel link` done
+- [ ] Supabase connected (Gate 4); keys in `website/.env.local` and Vercel env only
+- [ ] Site live: HTTP 200
+- [ ] Graduation lap passed: scratch migration with no dashboard; PR opened, merged, build watched green, live site updated
+- [ ] Catalog filled: no `[pending]` left in Core stack; every key line says "stored in website/.env.local, never written here"; Email and domain lines still read "[deferred to Build 2]"
+- [ ] Version stamped; plugin registered; schedules registered (Mode A only); HANDOFF.md written
 
 ---
 
-## Optional — Install the Claude CLI (power users)
+## For maintainers
 
-Everything above runs inside **Claude Code Desktop**, so the standalone `claude` terminal CLI is **not required** for setup. Offer it only at the end, as a recommendation for users who want to drive Claude Code from the terminal, scripts, or headless/automation contexts:
+- This file and `PROMPT.md` beside it are a contract: CI asserts the prompt's URL points at `stable`, every gate has its three parts, every referenced file exists, and the catalog keys Stage F fills match the interview prompt's `[pending]` list. Don't merge red.
+- The regression checklist for this skill lives at `SKILL-REGRESSION-CHECK.md` (same directory). A rewrite must preserve every invariant on it.
+- References that must stay consistent with this file: `os-detection.md` (floors and verdicts), `windows-setup.md` (gates W1–W3 and the post-setup session location), `cloud-track-codespaces.md` (must be org-owned and non-experimental before this skill routes corporate users to it), `phase2-prompts.md` (building blocks; this file's stage order wins on conflict).
 
-```bash
-# macOS / Linux / WSL2 Ubuntu:
-curl -fsSL https://claude.ai/install.sh | bash
-# (or, once Node is installed: npm install -g @anthropic-ai/claude-code)
-claude --version    # verify
-claude              # first run opens browser OAuth — sign in with the same Claude Pro account
-```
+## Open decisions (resolve before release, then delete this section)
 
-Skip without consequence if the user only works in Desktop. If they install it, the global hooks, agents, and skills already configured apply to CLI sessions too — no extra setup.
-
----
-
-## Additional Resources
-
-**Read-first / both modes**
-- **`references/os-detection.md`** — OS + shell detection, package-manager mapping, version floors, supported/borderline/cloud verdict (macOS + Windows WSL2 in one place)
-- **`references/windows-setup.md`** — One-time WSL2 turn-on walkthrough (linked from os-detection)
-- **`references/cloud-track-codespaces.md`** — Track B: cloud setup via GitHub Codespaces for old/unsupported machines (experimental)
-- **`references/pre-retreat-readiness.md`** — Catch sub-floor machines at registration; prework + loaners + GitHub-signup troubleshooting
-
-**Mode A — First Setup**
-- **`references/phase1-manual.md`** — Minimal Phase 1: machine check, Claude Code early, core accounts (GitHub/Vercel/Supabase). Gemini/Resend deferred.
-- **`references/phase2-prompts.md`** — Phase 2a (deps + first deploy = the win) then 2b (agents + schedules). Self-contained prompts for a zero-state machine.
-
-**Mode B — Additional Machine**
-- **`references/mode-b-phase1-manual.md`** — Tools + the quick-win clone (`localhost:3000` shows the live site)
-- **`references/mode-b-phase2-prompts.md`** — Config + agent install + effort-tracking registration (no infra creation)
-- **`references/first-actions.md`** — Client-facing guide: 8 agents, daily workflow, content pipeline, updating agents
-
-**Shared**
-- **`references/env-template.md`** — `.env.example` contract + just-in-time collection order
-- **`scripts/collect-credentials.py`** — Merge-safe, just-in-time credential writer (`--check <group>` / `--set KEY=VAL`); groups: core, gemini, resend, lark, supabase-admin
-- **`scripts/setup-permissions.py`** — Writes `~/.claude/settings.local.json` without overwriting existing content
+1. **Scheduling wording:** Protocol 10 says CronCreate; the schedule step registers cloud routines. Confirm what production machines actually run and make P10, this file, and `phase2-prompts.md` agree.
+2. **Cloud track hardening:** the Codespace template must move to an org-owned, version-pinned repo, and telemetry inside a Codespace must be verified, before the corporate fork ships.
+3. **Windows session location:** confirm on hardware whether the Desktop Code tab can host its session inside WSL, and write the answer into `windows-setup.md`.

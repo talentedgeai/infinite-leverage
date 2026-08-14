@@ -1,0 +1,22 @@
+name: init skill contract
+
+on:
+  pull_request:
+    paths:
+      - 'setup-skills/infiniteleverage-init/**'
+  push:
+    branches: [main]
+    paths:
+      - 'setup-skills/infiniteleverage-init/**'
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Asserts the prompt and the skill still agree: every catalog key the
+      # interview prompt writes as [pending] is one the skill's finalize step
+      # fills, every gate carries its three parts, referenced files exist, the
+      # prompt is pinned to stable, and nothing key-shaped is committed.
+      - name: Check the prompt and skill agree
+        run: python3 setup-skills/infiniteleverage-init/scripts/check-contract.py setup-skills/infiniteleverage-init
