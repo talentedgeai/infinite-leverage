@@ -173,8 +173,13 @@ fi
 
 # ── Phase 4: Refresh AGENT-DELEGATION block in CLAUDE.md files ───────────────
 
-INJECTOR="$HOME/.claude/skills/infiniteleverage-patch/scripts/inject-agent-delegation.sh"
-if [ -x "$INJECTOR" ]; then
+# Prefer the injector from the fresh clone (always current); fall back to a
+# locally installed copy only if the clone doesn't carry one
+INJECTOR="$REPO_ROOT/scripts/inject-agent-delegation.sh"
+if [ ! -f "$INJECTOR" ]; then
+  INJECTOR="$HOME/.claude/skills/infiniteleverage-patch/scripts/inject-agent-delegation.sh"
+fi
+if [ -f "$INJECTOR" ]; then
   echo ""
   echo "→ Refreshing AGENT-DELEGATION block in CLAUDE.md files…"
   delegation_touched=0
@@ -196,10 +201,14 @@ fi
 
 # ── Phase 5: Hooks ───────────────────────────────────────────────────────────
 
-INSTALL_HOOKS="$HOME/.claude/skills/infiniteleverage-patch/scripts/install-hooks.sh"
+# Same preference: the clone's own copy first, then a locally installed one
+INSTALL_HOOKS="$SCRIPT_DIR/install-hooks.sh"
+if [ ! -f "$INSTALL_HOOKS" ]; then
+  INSTALL_HOOKS="$HOME/.claude/skills/infiniteleverage-patch/scripts/install-hooks.sh"
+fi
 echo ""
 echo "→ Installing hooks…"
-if [[ -x "$INSTALL_HOOKS" ]]; then
+if [[ -f "$INSTALL_HOOKS" ]]; then
   bash "$INSTALL_HOOKS" "$REPO_ROOT"
 else
   echo "  ⚠️  install-hooks.sh not found at $INSTALL_HOOKS — skipping (run patch again after skills sync)"
