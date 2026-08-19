@@ -1,14 +1,14 @@
 // components/chat/MessageList.tsx
 'use client'
 import { useEffect, useRef } from 'react'
-import type { UIMessage } from 'ai'
+import type { ChatStatus, UIMessage } from 'ai'
 import { MessageBubble } from './MessageBubble'
 import { StreamingIndicator } from './StreamingIndicator'
 
-// status comes directly from useChat — 'idle' | 'streaming' | 'submitted' | 'error'
+// status comes directly from useChat
 interface Props {
   messages: UIMessage[]
-  status: 'idle' | 'streaming' | 'submitted' | 'error'
+  status: ChatStatus
 }
 
 export function MessageList({ messages, status }: Props) {

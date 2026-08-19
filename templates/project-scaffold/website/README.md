@@ -1,28 +1,35 @@
 # Website — Next.js
 
-This folder is scaffolded by the developer agent on first run:
+This folder ships a **starter kit** — feature modules (chat, billing, notifications, markdown rendering), Supabase migrations, and vitest tests — with **no `package.json`**. It is completed at bootstrap by merging a fresh `create-next-app` install underneath it:
 
 ```bash
-npx create-next-app@latest website --typescript --tailwind --app --eslint --src-dir --import-alias "@/*"
+# Scaffold Next.js in a temp dir — root-level app/, matching this starter kit
+NEXT_TMP=$(mktemp -d)
+npx create-next-app@latest "$NEXT_TMP/nextapp" \
+  --typescript --tailwind --app --eslint --no-src-dir --import-alias "@/*" --yes
+rm -rf "$NEXT_TMP/nextapp/.git" "$NEXT_TMP/nextapp/node_modules"
+
+# Merge: create-next-app fills in gaps; starter-kit files always win
+rsync -a --ignore-existing "$NEXT_TMP/nextapp/" website/
+rm -rf "$NEXT_TMP"
 ```
 
-The agent template repo intentionally does NOT include a generated Next.js project — that gets created at bootstrap. Once scaffolded, the structure looks like:
+See `infiniteleverage-project` SKILL.md Step 9 for the full workflow: the dependency install list, wiring `app/providers.tsx` (QueryClientProvider) into `app/layout.tsx`, and the `npm run build && npx vitest run` verification gate.
+
+Do NOT run `create-next-app` directly into this folder (it refuses non-empty directories) and do NOT use `--src-dir` (the starter kit uses a root-level `app/` layout).
+
+Structure after the merge:
 
 ```
 website/
-├── pages/             ← Pages Router OR src/app/ for App Router
-│   ├── index.jsx
-│   ├── about.jsx
-│   ├── api/
-│   └── blog/
-│       ├── index.jsx
-│       └── posts/<slug>.jsx
-├── components/
-├── lib/
-│   └── supabase.js
-├── styles/
-├── public/images/
-└── supabase/
-    ├── *.sql
-    └── functions/
+├── app/               ← App Router pages + API routes (chat, billing, auth, sessions)
+│   └── providers.tsx  ← QueryClientProvider — must be wired into app/layout.tsx
+├── components/        ← chat/, billing/, dashboard/, markdown/, notifications/, editor/
+├── lib/               ← auth/, billing/, chat/, supabase/, seo/, perf/, upload/
+├── supabase/
+│   └── migrations/    ← chat, notifications, subscriptions tables
+├── docs/              ← per-module setup notes
+├── public/
+├── vitest.config.ts
+└── vitest.setup.ts
 ```

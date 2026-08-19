@@ -1,7 +1,7 @@
 // components/chat/MessageBubble.tsx
 'use client'
 import { isToolUIPart, type UIMessage } from 'ai'
-import { Response, Reasoning } from '@ai-sdk/elements'
+import { Response, Reasoning } from './elements'
 import { ToolCallBlock } from './ToolCallBlock'
 
 interface Props {

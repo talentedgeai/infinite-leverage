@@ -21,6 +21,12 @@ function planFromSubscription(subscription: Stripe.Subscription): string {
   return 'free'
 }
 
+// Stripe moved current_period_end onto each subscription item in newer API versions.
+function periodEnd(subscription: Stripe.Subscription): string {
+  const ts = subscription.items.data[0]?.current_period_end ?? 0
+  return new Date(ts * 1000).toISOString()
+}
+
 export async function POST(req: Request) {
   // Raw body required for Stripe signature verification — do NOT use req.json()
   const body = await req.text()
@@ -69,7 +75,7 @@ async function handleEvent(event: Stripe.Event) {
         stripe_subscription_id: subscriptionId,
         plan: planFromSubscription(subscription),
         status: subscription.status,
-        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        current_period_end: periodEnd(subscription),
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
       break
@@ -85,7 +91,7 @@ async function handleEvent(event: Stripe.Event) {
         stripe_subscription_id: subscription.id,
         plan: planFromSubscription(subscription),
         status: subscription.status,
-        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        current_period_end: periodEnd(subscription),
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
       break
@@ -101,7 +107,7 @@ async function handleEvent(event: Stripe.Event) {
         stripe_subscription_id: subscription.id,
         plan: 'free',
         status: 'canceled',
-        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        current_period_end: periodEnd(subscription),
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
       break

@@ -1,21 +1,23 @@
 // components/chat/ToolCallBlock.tsx
-import { isToolUIPart } from 'ai'
 import type { UIMessage } from 'ai'
 
-// UIMessage['parts'][number] gives the union of all part types
+// UIMessage['parts'][number] gives the union of all part types;
+// tool parts (static `tool-*` and dynamic-tool) are the ones with a toolCallId
 type AnyPart = UIMessage['parts'][number]
+type ToolPart = Extract<AnyPart, { toolCallId: string }>
 
 interface Props {
-  part: AnyPart & { type: `tool-${string}` }
+  part: ToolPart
 }
 
 export function ToolCallBlock({ part }: Props) {
-  if (!isToolUIPart(part)) return null
+  const toolName =
+    'toolName' in part ? part.toolName : part.type.replace(/^tool-/, '')
 
   return (
     <div className="my-2 rounded border border-gray-200 bg-gray-50 p-3 text-sm font-mono">
       <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
-        <span className="font-semibold text-gray-700">{part.toolName}</span>
+        <span className="font-semibold text-gray-700">{toolName}</span>
         <span className="rounded bg-gray-200 px-1">{part.state}</span>
       </div>
 

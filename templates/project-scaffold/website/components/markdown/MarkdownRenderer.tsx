@@ -1,5 +1,6 @@
 // components/markdown/MarkdownRenderer.tsx
 import ReactMarkdown from 'react-markdown'
+import type { PluggableList } from 'unified'
 import Image from 'next/image'
 import {
   remarkGfm,
@@ -18,13 +19,13 @@ interface Props {
 
 // Hoist static plugin arrays to module level to prevent re-creation on every render
 // (follows rerender-memo + rendering-hoist-jsx best practices)
-const remarkPlugins = [remarkGfm] as const
+const remarkPlugins: PluggableList = [remarkGfm]
 
-const rehypePlugins = [
+const rehypePlugins: PluggableList = [
   rehypeHighlight,
   rehypeSlug,
   [rehypeExternalLinks, externalLinksOptions],
-] as const
+]
 
 /**
  * Renders a Markdown string with:
@@ -60,7 +61,7 @@ export function MarkdownRenderer({ content, className }: Props) {
 
           // Images: use next/image for local images, passthrough for external
           img: ({ src, alt }) => {
-            if (!src) return null
+            if (!src || typeof src !== 'string') return null
             const isExternal = src.startsWith('http')
             return isExternal ? (
               // eslint-disable-next-line @next/next/no-img-element

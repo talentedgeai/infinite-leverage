@@ -7,7 +7,7 @@ import { Header } from './Header'
 
 interface User {
   id: string
-  email: string
+  email?: string
 }
 
 interface DashboardLayoutProps {

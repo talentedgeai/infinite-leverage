@@ -18,7 +18,7 @@ export function clientOnly<T extends object>(
 ) {
   return dynamic(loader, {
     ssr: false,
-    loading: options?.loading as React.ComponentType | undefined,
+    loading: options?.loading,
   })
 }
 
@@ -35,6 +35,6 @@ export function lazyLoad<T extends object>(
 ) {
   return dynamic(loader, {
     ssr: options?.ssr ?? true,
-    loading: options?.loading as React.ComponentType | undefined,
+    loading: options?.loading,
   })
 }

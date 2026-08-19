@@ -6,7 +6,7 @@ import { SidebarItem } from './SidebarItem'
 
 interface User {
   id: string
-  email: string
+  email?: string
 }
 
 interface SidebarProps {
@@ -14,7 +14,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ user }: SidebarProps) {
-  const initials = user.email.slice(0, 2).toUpperCase()
+  const initials = (user.email ?? '??').slice(0, 2).toUpperCase()
 
   return (
     <aside className="hidden lg:flex flex-col w-64 border-r bg-background h-full">
