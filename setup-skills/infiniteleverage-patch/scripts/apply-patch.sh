@@ -99,7 +99,9 @@ if [ -d "$SKILLS_SRC" ]; then
         skills_errors=$((skills_errors + 1))
       fi
     elif ! diff -rq "$skill_dir" "$dest_skill" > /dev/null 2>&1; then
-      if cp -r "$skill_dir" "$SKILLS_DEST/"; then
+      # BSD cp treats a trailing-slash source as "copy contents", which on macOS
+      # dumped skill files into $SKILLS_DEST instead of updating the skill dir
+      if rm -rf "$dest_skill" && cp -R "${skill_dir%/}" "$dest_skill"; then
         echo "  ~ updated skill: $skill_name"
         skills_updated=$((skills_updated + 1))
       else
