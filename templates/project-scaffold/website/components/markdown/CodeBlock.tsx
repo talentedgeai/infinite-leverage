@@ -20,7 +20,9 @@ export function CodeBlock({ children, className, ...props }: Props) {
     if (typeof node === 'number') return String(node)
     if (Array.isArray(node)) return node.map(getTextContent).join('')
     if (node && typeof node === 'object' && 'props' in (node as React.ReactElement)) {
-      return getTextContent((node as React.ReactElement).props.children)
+      return getTextContent(
+        (node as React.ReactElement<{ children?: React.ReactNode }>).props.children
+      )
     }
     return ''
   }

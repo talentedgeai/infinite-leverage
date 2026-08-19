@@ -57,7 +57,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: session.model, // AI Gateway routes 'anthropic/...', 'openai/...', etc. automatically
-    messages: convertToModelMessages(messages),
+    messages: await convertToModelMessages(messages),
   })
 
   return result.toUIMessageStreamResponse({

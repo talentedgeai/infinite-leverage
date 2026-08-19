@@ -123,7 +123,14 @@ These files have hard-coded names that skills and agents reference by path:
 ├── resources/                                  ← Design system, brand assets, masters
 │   └── README.md
 │
-├── website/                                    ← Next.js app (scaffolded by developer)
+├── website/                                    ← Next.js app: starter kit (chat, billing, notifications,
+│   ├── app/                                     markdown, Supabase migrations, tests) merged with a
+│   ├── components/                              fresh create-next-app install (--no-src-dir) — see
+│   ├── lib/                                     infiniteleverage-project SKILL.md Step 9
+│   ├── supabase/
+│   ├── docs/
+│   ├── vitest.config.ts
+│   ├── vitest.setup.ts
 │   └── README.md
 │
 ├── CLAUDE.md                                   [FIXED]

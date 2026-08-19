@@ -484,14 +484,45 @@ Rules:
 
 This always runs — every Infinite Leverage project ships a Next.js app at `website/`.
 
-**Important:** the canonical scaffold ships a stub `website/README.md` that documents what `create-next-app` will produce. `create-next-app` refuses to install into a non-empty directory, so delete the stub README first (keep the `website/` folder itself) — `create-next-app` will then populate it and write its own README.
+**Important:** the canonical scaffold ships a starter kit inside `website/` (chat, billing, notifications, markdown rendering, Supabase migrations, vitest tests) with **no `package.json`** — it is designed to sit on top of a fresh `create-next-app` install. `create-next-app` refuses to install into a non-empty directory, so scaffold Next.js in a temp directory and merge it **underneath** the starter files. The starter uses a root-level `app/` layout, so create-next-app must run with `--no-src-dir`.
 
 ```bash
-cd "$TARGET"
-rm -f "$TARGET/website/README.md"   # remove stub README so create-next-app sees an empty dir
-npx create-next-app@latest website \
+# 9a. Scaffold Next.js in a temp dir (root-level app/, matching the starter kit)
+NEXT_TMP=$(mktemp -d)
+npx create-next-app@latest "$NEXT_TMP/nextapp" \
   --typescript --tailwind --app --eslint \
-  --src-dir --import-alias "@/*" --yes
+  --no-src-dir --import-alias "@/*" --yes
+rm -rf "$NEXT_TMP/nextapp/.git" "$NEXT_TMP/nextapp/node_modules"
+
+# 9b. Merge: create-next-app files fill in gaps; starter-kit files always win
+rsync -a --ignore-existing "$NEXT_TMP/nextapp/" "$TARGET/website/"
+rm -rf "$NEXT_TMP"
+
+# 9c. Install the dependencies the starter kit imports
+cd "$TARGET/website"
+npm install @ai-sdk/react @mdxeditor/editor @supabase/ssr @supabase/supabase-js \
+  @tanstack/react-form @tanstack/react-query @uiw/react-md-editor ai date-fns \
+  lucide-react react-markdown rehype-external-links rehype-highlight rehype-slug \
+  remark-gfm stripe zustand
+npm install -D vitest @vitejs/plugin-react @testing-library/react \
+  @testing-library/user-event @testing-library/jest-dom jsdom
+```
+
+**9d. Wire the React Query provider into the root layout.** The starter ships `app/providers.tsx` (QueryClientProvider); `app/layout.tsx` comes from create-next-app and must be edited to use it — the chat and notifications features fail to prerender otherwise:
+
+```tsx
+// app/layout.tsx — add:
+import { Providers } from "./providers";
+// ...and wrap the body children:
+<body>
+  <Providers>{children}</Providers>
+</body>
+```
+
+**9e. Verify before committing** — both must pass:
+
+```bash
+cd "$TARGET/website" && npm run build && npx vitest run
 ```
 
 If the operator wants the legacy Pages Router instead (some older projects do), substitute `--no-app` for `--app`. Default is App Router per the canonical stack.

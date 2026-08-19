@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Bell } from 'lucide-react' // TODO: replace with project design system icon
 import { useQueryClient } from '@tanstack/react-query'
-import { createBrowserClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/client'
 import { useUnreadCount } from '@/lib/notifications/queries'
 import { NotificationList } from './NotificationList'
 
@@ -22,7 +22,7 @@ export function NotificationBell() {
   // Realtime subscription — invalidate cache on INSERT for this user
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    const supabase = createBrowserClient()
+    const supabase = createClient()
 
     // Retrieve the current user once; subscription filter mirrors RLS
     let userId: string | null = null
