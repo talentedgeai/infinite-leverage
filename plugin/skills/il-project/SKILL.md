@@ -195,6 +195,7 @@ mv "$TARGET/standup/briefings/$MONTH/YYYY-MM-DD.md" \
 ```bash
 cp "$TMP/il-template/.claude/agents/"*.md "$TARGET/.claude/agents/"
 cp -R "$TMP/il-template/.claude/skills/." "$TARGET/.claude/skills/"
+rm -rf "$TARGET/.claude/skills/PH-skill-name"   # scaffold placeholder — not a real skill
 cp "$TMP/il-template/.claude/rules/global-engineering.md" "$TARGET/.claude/rules/" 2>/dev/null || true
 ```
 
