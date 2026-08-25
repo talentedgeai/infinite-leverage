@@ -17,10 +17,10 @@ These files have hard-coded names that skills and agents reference by path:
 | `.gitignore` | Developer agent | Manual |
 | `docs/brand/style-guide.md` | All agents | Manual (PM-guided during setup) |
 | `context/general-project-agent-context/publish-log.md` | web-publisher | Append-only |
-| `.specify/memory/constitution.md` | PM agent | `speckit-constitution` skill |
-| `.specify/features/{slug}/spec.md` | PM agent | `speckit-specify` via `pm-epic-writing` |
-| `.specify/features/{slug}/impl-plan.md` | Developer agent | `speckit-plan` via `dev-feature-plan` |
-| `.specify/features/{slug}/tasks.md` | Developer agent | `speckit-tasks` via `dev-feature-plan` |
+| `.specify/memory/constitution.md` | PM agent | `pm-constitution-sync` skill |
+| `.specify/features/{slug}/spec.md` | PM agent | `pm-epic-writing` skill |
+| `.specify/features/{slug}/impl-plan.md` | Developer agent | `dev-feature-plan` skill |
+| `.specify/features/{slug}/tasks.md` | Developer agent | `dev-feature-plan` skill |
 
 ## Full tree
 
@@ -39,12 +39,12 @@ These files have hard-coded names that skills and agents reference by path:
 ├── .specify/                                   ← spec-kit working directory (gitignored internals)
 │   ├── features/                               ← One folder per feature slug
 │   │   └── {slug}/
-│   │       ├── spec.md                         ← Written by speckit-specify (via pm-epic-writing)
-│   │       ├── dev-findings.md                 ← Written by pm-analyze-split
-│   │       ├── impl-plan.md                    ← Written by speckit-plan (via dev-feature-plan)
-│   │       └── tasks.md                        ← Written by speckit-tasks (via dev-feature-plan)
+│   │       ├── spec.md                         ← Written by pm-epic-writing
+│   │       ├── dev-findings.md                 ← Written by pm-epic-writing (dev-layer findings)
+│   │       ├── impl-plan.md                    ← Written by dev-feature-plan
+│   │       └── tasks.md                        ← Written by dev-feature-plan
 │   ├── memory/
-│   │   └── constitution.md                     ← Written by speckit-constitution
+│   │   └── constitution.md                     ← Written by pm-constitution-sync
 │   ├── templates/                              ← spec-kit internal templates
 │   └── extensions/
 │       └── git/

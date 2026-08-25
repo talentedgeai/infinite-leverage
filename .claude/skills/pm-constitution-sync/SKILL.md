@@ -1,45 +1,52 @@
 ---
 name: pm-constitution-sync
 description: >-
-  Copies the project's agreed-upon principles and rules into the main docs folder (docs/product/constitution.md) where all agents can find them. Run once during initial project setup and again whenever the principles are updated.
-  Use when the operator says "sync the constitution" or immediately after speckit-constitution runs.
+  Creates or updates the project constitution (versioned principles, KPIs, governance) at .specify/memory/constitution.md and syncs it to docs/product/constitution.md where every agent can find it. Use when the operator says "constitution", "project principles", "sync the constitution", or once during project setup after the client interview.
 ---
 
-# PM Constitution Sync
+# PM Constitution — Create & Sync
 
-Syncs the spec-kit constitution to the canonical product docs location.
+The constitution is the project's versioned principles: what the project
+believes, its KPIs, and its governance rules. It lives at
+`.specify/memory/constitution.md` and is mirrored to
+`docs/product/constitution.md` so agents and humans find it beside
+`product.md` without knowing the `.specify/` layout.
 
-## Why
+## Step 1 — Create or update the source
 
-spec-kit writes the constitution to `.specify/memory/constitution.md`. Our product docs live under `docs/product/`. Keeping a copy there means the PM agent, developer agent, and any human reviewer can find the constitution alongside `product.md`, `epics.md`, and `epic-status.md` without knowing the `.specify/` structure.
+If `.specify/memory/constitution.md` is missing, create it (copy
+`.specify/templates/constitution-template.md` if present, else from scratch):
 
-## Step 1 — Verify Source Exists
+- **Header**: project name, 1-sentence description, semver version (start
+  1.0.0), ISO date
+- **Principles** (respect the operator's requested count; default 3–5): each
+  with a name, a **declarative, testable statement** (MUST/SHOULD language —
+  never "should try to"), a why, and concrete examples
+- **KPIs**: the measurable definition of project success
+- **Governance**: how principles get amended (version bump + date)
 
-Confirm `.specify/memory/constitution.md` exists and was written by speckit-constitution. If missing, stop and remind the operator to run speckit-constitution first.
+Derive values from `docs/product/product.md`, the README, and existing specs;
+ask the operator only for what cannot be inferred. On update: bump the semver,
+never silently rewrite history.
 
-## Step 2 — Run speckit-constitution (if not already run)
+## Step 2 — Check consistency
 
-If `.specify/memory/constitution.md` does not exist, invoke speckit-constitution to create it. Use `docs/product/product.md` as the primary context source for project name, description, and principles.
+Scan existing specs in `.specify/features/*/spec.md` for conflicts with the
+principles; list any found — the operator decides whether spec or constitution
+moves.
 
-## Step 3 — Copy to Product Docs
+## Step 3 — Sync and commit
 
 ```bash
 cp .specify/memory/constitution.md docs/product/constitution.md
-```
-
-## Step 4 — Commit Both
-
-```bash
 git add .specify/memory/constitution.md docs/product/constitution.md
 git commit -m "docs(constitution): establish project constitution v{version}"
 ```
 
-## Step 5 — Confirm
+## Step 4 — Confirm
 
-Print:
 ```
-✅ Constitution synced
+✅ Constitution v{version}
    Source : .specify/memory/constitution.md
    Copy   : docs/product/constitution.md
-   Version: {version from constitution}
 ```

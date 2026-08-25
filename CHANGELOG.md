@@ -6,6 +6,27 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.0] — 2026-08-25
+
+**The speckit collapse.** The 9-skill speckit chain + 2 guard skills folded into the 4 skills
+that orchestrated them. 35 → 24 skills; ~33KB of chained skill-hopping becomes one 8.9KB
+self-contained pipeline.
+
+### Changed
+- **pm-epic-writing** absorbs speckit-specify, speckit-git-feature, speckit-clarify +
+  pm-clarify-guard, speckit-analyze + pm-analyze-split — the full discovery pipeline inline:
+  spec format, business-level question filter, gap analysis with the client/dev finding split.
+  Upstream spec-kit boilerplate (extension-hook protocols, $ARGUMENTS blocks, orphaned /slash
+  references) dropped entirely
+- **dev-feature-plan** absorbs speckit-git-validate, speckit-plan, speckit-tasks — branch
+  validation, impl-plan format, and the task-checklist format inline
+- **pm-to-issues** absorbs speckit-taskstoissues — one skill for both sources (tasks.md or
+  spec slicing), with the GitHub-remote-only safety gate and issue-number write-back
+- **pm-constitution-sync** absorbs speckit-constitution — create + sync in one skill
+- All `.specify/` output paths unchanged — scaffolded projects and existing specs unaffected
+
+---
+
 ## [2.3.0] — 2026-08-25
 
 **Six agents, skills that actually trigger.**
