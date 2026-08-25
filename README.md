@@ -40,8 +40,28 @@ plugin/                    ← the shipped plugin payload
 ├── skills/                ← agent workflow skills (per-project install source)
 └── rules/                 ← engineering guardrails
 templates/project-scaffold/ ← canonical new-project layout
-docs/                      ← guides, assessments, plans
+docs/                      ← guides, plans, slides
 ```
+
+## Where the skills live now
+
+The plugin itself exposes only `/il-project` and `/il-doctor`. Everything else
+is **project-scoped**: `/il-project` installs the 8 agents and all workflow
+skills below into the new project's own `.claude/`, so they are active only
+inside Infinite Leverage projects — never globally on a machine.
+
+The v1 setup skills are retired and replaced:
+
+| v1 (retired) | v2 |
+|---|---|
+| `/infiniteleverage-init` | Install the plugin + run `/il-project` — there is no machine setup anymore |
+| `/infiniteleverage-onboard` | Same — any laptop just installs the plugin |
+| `/infiniteleverage-patch` | Marketplace plugin updates; projects refresh via `/il-project` step 6 |
+| `/infiniteleverage-validate` | `/il-doctor` (product checks) + `/edge8-telemetry` (Edge8-internal tracking) |
+| `/infiniteleverage-project` | `/il-project` |
+
+Machines still carrying the v1 copies keep working until they migrate; the
+private `edge8-telemetry` plugin cleans them up on its first run.
 
 ## The 8 agents & their skills
 
