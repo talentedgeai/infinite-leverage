@@ -15,7 +15,7 @@ Add this repo as a plugin marketplace in Claude Code and install
 `infiniteleverage`:
 
 ```bash
-claude plugin marketplace add talentedgeai/infiniteleverage-8-agents-template
+claude plugin marketplace add talentedgeai/infinite-leverage
 claude plugin install infiniteleverage@infiniteleverage
 ```
 

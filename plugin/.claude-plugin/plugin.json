@@ -7,8 +7,8 @@
     "email": "khoa.doan@edge8.ai",
     "url": "https://github.com/talentedgeai"
   },
-  "repository": "https://github.com/talentedgeai/infiniteleverage-8-agents-template",
-  "homepage": "https://github.com/talentedgeai/infiniteleverage-8-agents-template",
+  "repository": "https://github.com/talentedgeai/infinite-leverage",
+  "homepage": "https://github.com/talentedgeai/infinite-leverage",
   "license": "MIT",
   "keywords": ["agents", "team", "infinite-leverage", "telemetry", "scaffold"],
   "hooks": "./hooks/hooks.json",
