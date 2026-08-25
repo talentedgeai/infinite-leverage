@@ -2,6 +2,7 @@
 name: pm-project-status
 description: >-
   Builds and updates the project status dashboard — a single HTML page showing which features are planned, in progress, and shipped, plus a PDF companion regenerated on every update. Includes a build log, key metrics, and links to all important docs. The operator uses this to understand where the project stands at a glance.
+  Use when the operator says "project status", "update the dashboard", or "where are we", and after any feature ships.
 ---
 
 # PM: Project Status Dashboard

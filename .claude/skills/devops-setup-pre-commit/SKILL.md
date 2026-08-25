@@ -2,6 +2,7 @@
 name: devops-setup-pre-commit
 description: >-
   Installs automatic code quality checks that run before every commit — catches style violations, formatting issues, and type errors locally before they ever reach GitHub or the live site. Run once per project during initial setup.
+  Use when the operator says "pre-commit", "husky", or "lint-staged", or once during initial project setup.
 credits: |
   Adapted from mattpocock/skills (setup-pre-commit)
   Source: https://github.com/mattpocock/skills

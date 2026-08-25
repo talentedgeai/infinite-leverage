@@ -38,9 +38,9 @@ The following context patterns automatically invoke the relevant dev team agent.
 | "generate image", "hero image", "create a visual" | designer | `designer-image-generation` |
 | "design system", "brand tokens", "colour palette" | designer | `designer-design-system` |
 | "mockup", "wireframe", "ui design" | designer | `designer-ui-ux` |
-| "publish", "build the page", "push to site", "update blog index" | web-publisher | `web-publisher-publish` |
-| "email campaign", "newsletter", "send to subscribers", "nurture" | email-marketer | `email-marketer-nurture` |
-| "import contacts", "brevo list", "add to email list" | email-marketer | — |
+| "publish", "build the page", "push to site", "update blog index" | developer | `developer (publishing)-publish` |
+| "email campaign", "newsletter", "send to subscribers", "nurture" | writer | `email-marketer-nurture` |
+| "import contacts", "brevo list", "add to email list" | writer | — |
 
 ---
 

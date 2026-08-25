@@ -6,6 +6,29 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.3.0] — 2026-08-25
+
+**Six agents, skills that actually trigger.**
+
+### Changed
+- **Agent roster 8 → 6** — web-publisher folded into the developer (an agent forbidden from
+  writing code that existed to call the developer was ceremony, not a colleague); email-marketer
+  folded into the writer with its hard rules (draft-only, unsubscribe, opt-in, no dupes) intact.
+  Delegation blocks, routing rules, scaffold, and docs updated
+- **Trigger-phrase pass on 17 operator-facing skills** — 25 of 35 descriptions had no "use when"
+  language, so skills never auto-fired (a direct cause of "doesn't work great with the models").
+  Pipeline-internal skills (speckit chain, guards) correctly keep their called-within descriptions
+- web-publisher-publish rewritten developer-owned (no delegation ceremony); email-marketer-nurture
+  writer-owned
+
+### Fixed
+- designer-image-generation pinned `gemini-2.0-flash-preview-image-generation` — a dead early-2025
+  preview model; now instructs resolving the current image-capable model at run time
+- designer-image-generation read `images.md` while the writer produces `image-prompts.md` — the
+  two halves of the content pipeline disagreed on the handoff filename
+
+---
+
 ## [2.2.0] — 2026-08-25
 
 **The skill cut.** Audit of all 62 workflow skills (dependency graph + staleness + redundancy

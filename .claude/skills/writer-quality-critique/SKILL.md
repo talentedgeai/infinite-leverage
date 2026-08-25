@@ -2,6 +2,7 @@
 name: writer-quality-critique
 description: >-
   Critiques a draft blog post through the lens of Dan Shipper (every.to) — evaluating intellectual depth, original point of view, narrative pull, and conceptual originality. Returns a scored critique with specific revision instructions. The writer applies all feedback before passing to the Neil Patel SEO critique.
+  Use on every draft before SEO review (mandatory gate), or when the operator says "critique this draft" or "is this post good".
 ---
 
 # Writer: Quality Critique (Dan Shipper / every.to POV)

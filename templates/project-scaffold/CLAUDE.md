@@ -11,22 +11,20 @@ This file is the entry point Claude Code reads when this repo is opened. It defi
 <!-- BEGIN: AGENT-DELEGATION (managed by infiniteleverage skills — do not delete this block) -->
 ## Agent delegation (auto-routing)
 
-When you receive a request, **delegate to the right specialist agent** before doing the work yourself. The 8 agents and their triggers:
+When you receive a request, **delegate to the right specialist agent** before doing the work yourself. The 6 agents and their triggers:
 
 | Agent | Delegate when the request involves… |
 |---|---|
 | **product-manager** | roadmap, vision, epics, daily plan, project-status.html, scope changes, approval triage, stakeholder updates |
-| **developer** | writing/changing code, fixing bugs, refactoring, scaffolding pages, API endpoints, Supabase migrations, env-vars wiring |
+| **developer** | writing/changing code, fixing bugs, refactoring, scaffolding pages, API endpoints, Supabase migrations, env-vars wiring, **publishing posts to the live site** |
 | **qa** | testing, regression checks, browser matrix, accessibility, QA plans, "verify this works" |
 | **devops** | CI/CD, deployments, secret management, infra escalations, Vercel/GitHub workflow issues |
 | **designer** | UI mockups, brand application, image prompts, design system updates, visual reviews |
-| **writer** | blog drafts, social copy, SEO briefs, voice/tone, content briefs |
-| **web-publisher** | publishing markdown → Next.js pages, updating `website/app/blog/`, image optimization, the publish workflow |
-| **email-marketer** | email drafts, sequences, broadcast campaigns, Brevo/Resend, CRM segmentation |
+| **writer** | blog drafts, social copy, SEO briefs, voice/tone, content briefs, **email campaigns and sequences** |
 
 **Delegation rules:**
 1. Pick exactly **one** agent per turn — don't run two in parallel unless the operator explicitly says so.
-2. If a request spans agents (e.g., "write a blog *and* publish it"), call them **in sequence**: writer → designer → web-publisher.
+2. If a request spans agents (e.g., "write a blog *and* publish it"), call them **in sequence**: writer → designer → developer (publish).
 3. If unclear which agent fits, **ask the operator** before assuming.
 4. Cross-cutting engineering rules live in `.claude/rules/global-engineering.md` — every agent honors them.
 5. Project-level persona overrides for each agent live in `agents/<name>/context/persona.md` — read these on first invocation.
@@ -37,5 +35,5 @@ When you receive a request, **delegate to the right specialist agent** before do
 See `FOLDER-STRUCTURE.md` at the project root for the canonical structure every project follows. Agents MUST honor it — do not invent new top-level folders.
 
 ## Publishing workflow
-Read source content from `content/topics/<slug>/` → optimize images → the web-publisher agent runs `web-publisher-publish` (Developer writes the App Router page under `website/app/blog/`, publisher updates the blog index, commits, verifies the Vercel build).
+Read source content from `content/topics/<slug>/` → optimize images → the developer runs `web-publisher-publish` (writes the App Router page under `website/app/blog/`, updates the blog index, commits, verifies the Vercel build).
 

@@ -1,7 +1,7 @@
 # Infinite Leverage (v2)
 
 The Infinite Leverage system in one repo: a bare-minimum Claude Code plugin, the
-8 agent definitions, their workflow skills, and the canonical project scaffold.
+6 agent definitions, their workflow skills, and the canonical project scaffold.
 
 **v2 principle: nothing installs globally.** The plugin ships 2 skills — no
 hooks, no telemetry, no background behavior; agents and workflow skills are
@@ -25,7 +25,7 @@ Then run `/il-doctor` once — it verifies the prerequisites.
 
 | Piece | What it does |
 |---|---|
-| `/il-project` | Scaffolds a new client project from `templates/project-scaffold/`, installs the 8 agents + skills **into the project's `.claude/`**, seeds `docs/product/` and `docs/brand/`, initializes git |
+| `/il-project` | Scaffolds a new client project from `templates/project-scaffold/`, installs the 6 agents + skills **into the project's `.claude/`**, seeds `docs/product/` and `docs/brand/`, initializes git |
 | `/il-doctor` | Setup check: prerequisites, repo context, scaffolded-project layout |
 
 ## Repo structure
@@ -36,7 +36,7 @@ plugin/                    ← the shipped plugin payload
 ├── .claude-plugin/        ← plugin manifest
 └── skills/                ← il-project, il-doctor
 .claude/
-├── agents/                ← 8 agent definitions (per-project install source)
+├── agents/                ← 6 agent definitions (per-project install source)
 ├── skills/                ← agent workflow skills (per-project install source)
 └── rules/                 ← engineering guardrails
 templates/project-scaffold/ ← canonical new-project layout
@@ -46,7 +46,7 @@ docs/                      ← guides, plans, slides
 ## Where the skills live now
 
 The plugin itself exposes only `/il-project` and `/il-doctor`. Everything else
-is **project-scoped**: `/il-project` installs the 8 agents and all workflow
+is **project-scoped**: `/il-project` installs the 6 agents and all workflow
 skills below into the new project's own `.claude/`, so they are active only
 inside Infinite Leverage projects — never globally on a machine.
 
@@ -63,10 +63,11 @@ The v1 setup skills are retired and replaced:
 Machines still carrying the v1 copies keep working until they migrate; the
 private `edge8-telemetry` plugin cleans them up on its first run.
 
-## The 8 agents
+## The 6 agents
 
-**Build team**: product-manager, developer, qa, devops · **GTM team**: writer,
-designer, web-publisher, email-marketer.
+**Build team**: product-manager, developer, qa, devops · **GTM team**: writer, designer.
+(The developer owns publishing; the writer owns email — the old web-publisher and
+email-marketer roles were folded in as skills.)
 
 Each agent is a thin definition in [`.claude/agents/`](.claude/agents) listing
 the workflow skills it uses; the skills themselves live in

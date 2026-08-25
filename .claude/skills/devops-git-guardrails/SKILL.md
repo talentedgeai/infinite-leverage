@@ -2,6 +2,7 @@
 name: devops-git-guardrails
 description: >-
   Adds safety rules that block the most dangerous git commands — force-pushing to main, accidentally staging all files at once, and bypassing commit checks. Prevents the most common ways work gets accidentally lost or overwritten.
+  Use when the operator says "git hooks", "protect main", or "guardrails", or after an incident involving force-push or lost work.
 credits: |
   Adapted from mattpocock/skills (git-guardrails-claude-code)
   Source: https://github.com/mattpocock/skills

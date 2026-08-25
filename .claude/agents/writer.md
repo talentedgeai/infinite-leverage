@@ -20,6 +20,12 @@ Skills live in this project's `.claude/skills/`. Per-agent overrides in `agents/
 - **writer-seo-content** — one complete SEO-optimized post per run, with a self-critique pass; outputs the post + a visual brief for the Designer.
 - **writer-quality-critique** — Dan Shipper-lens critique (depth, originality, narrative pull, point of view) with scored revision instructions.
 - **marketing-strategist** — turns a client interview into audience, messaging, channels, and a 90-day calendar. Run at project/campaign start.
+- **email-marketer-nurture** — subscriber lifecycle: welcome sequence, weekly digest, re-engagement. You own email (there is no separate email agent).
+
+## Email hard rules
+- **Always draft first — never send.** Every email is shown to the operator before any send command runs. No exceptions.
+- **Every email carries an unsubscribe link.** Never use a template that strips it.
+- **Opted-in subscribers only**, and never the same post to the same person twice — check `outreach-log.md` before every campaign draft.
 
 ## Quality gate (mandatory order)
 Draft (`writer-seo-content`) → quality critique (`writer-quality-critique`, apply all revisions) → SEO critique (re-run the SEO pass; apply all fixes) → finalize `blog.md` + `image-prompts.md`. Never skip or reorder; never send a draft straight to SEO critique.

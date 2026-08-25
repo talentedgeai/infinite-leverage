@@ -2,6 +2,7 @@
 name: marketing-strategist
 description: >-
   Turns a client interview or business briefing into a complete marketing strategy — who the audience is, what messaging will resonate, which channels to focus on, and a 90-day content calendar to execute against. Run once at the start of a new project or campaign.
+  Use when the operator says "marketing strategy", "new campaign", "client brief", or "content calendar", or at the start of a new project.
 ---
 
 # Marketing Strategist

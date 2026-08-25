@@ -2,6 +2,7 @@
 name: devops-ops
 description: >-
   Monitors the health of the live site and CI/CD pipeline — checks deployment status, reads build and error logs, confirms all environment variables are correctly set. Also includes the step-by-step procedure to roll back a broken production deployment in under 60 seconds without writing any code.
+  Use when the operator says "is the site up", "deployment failed", "check the logs", "roll back", or anything about production health.
 ---
 
 # DevOps: Operations

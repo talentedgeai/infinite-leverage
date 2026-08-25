@@ -2,6 +2,7 @@
 name: writer-seo-content
 description: >-
   Writes one complete, SEO-optimized blog post per run based on an approved brief. Applies a rigorous self-critique pass before finalizing — checking the hook, structure, evidence, readability, and call to action. Always produces the post file and a visual brief for the Designer to generate the hero image.
+  Use when the operator says "write a post", "blog post", or "draft content", or the content calendar has an unwritten topic due.
 ---
 
 # Writer: SEO Content Production

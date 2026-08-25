@@ -2,6 +2,7 @@
 name: designer-style-to-photo
 description: >-
   Reads a blog post's tone and subject matter, matches it to the best visual style from the design system, and writes a detailed, structured image prompt ready for the image generation step. Bridges the gap between written content and a visual that feels on-brand.
+  Use when the operator says "image prompt", "visual for this post", or a blog draft is finalized and needs its image prompt written.
 ---
 
 # Designer: Style-to-Photo Alignment
