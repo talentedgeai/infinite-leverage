@@ -1,226 +1,189 @@
 ---
 name: pm-epic-writing
 description: >-
-  Takes a new feature idea through the full discovery process — asks the right clarifying questions, checks for gaps and conflicts, and turns it into a detailed written brief (called an epic) that the developer can build from with confidence. Triggered when the PM says 'write a new epic', 'specify a feature', or after a client conversation produces a new idea. Output goes to docs/product/epics.md.
+  Takes a new feature idea through the full discovery process — writes a structured spec, runs a business-level clarification interview, reviews the spec for gaps and conflicts, and turns it into a Dan Shipper epic the developer can build from with confidence. Self-contained: the whole spec pipeline (specify → clarify → analyze → epic) lives in this skill. Use when the operator says "write a new epic", "specify a feature", "add an epic for X", or after a client conversation produces a new idea. Output goes to .specify/features/{slug}/ and docs/product/epics.md.
 ---
 
 # PM: Epic Writing — Full Discovery Workflow
 
-Translates a client idea into a fully specified epic with a feature branch and a dev handoff package. No client input is required after the initial idea is captured.
+Translates a client idea into a fully specified epic with a feature branch and a
+dev handoff package. No client input is required after the initial idea and one
+round of clarification questions.
 
-Every epic must pass this test: *"If you read only the title and the problem statement, you know exactly what bet we're making."*
-
----
+Every epic must pass this test: *"If you read only the title and the problem
+statement, you know exactly what bet we're making."*
 
 ## Inputs
 
-- **Feature idea**: a sentence or paragraph from the client describing what they want to build
-- **Product context**: `docs/product/product.md` (required — read before step 1)
-- **Existing epics**: `docs/product/epics.md` (read before step 5 to check for duplication)
-
----
+- **Feature idea**: a sentence or paragraph from the client
+- **Product context**: `docs/product/product.md` (required — read before Step 1)
+- **Existing epics**: `docs/product/epics.md` (read before Step 5)
 
 ## Step 1 — Load product context
 
-Read `docs/product/product.md` in full. Confirm you understand:
-- The core problem the product solves
-- Who the target user is
-- What the product is explicitly NOT building
+Read `docs/product/product.md` in full: the core problem, the target user, and
+what the product is explicitly NOT building. If `docs/product/constitution.md`
+exists, read it too — constitution violations are a hard gate later.
 
-If `docs/product/constitution.md` exists, read it now. Constitution violations are a hard gate later.
+## Step 2 — Write the spec
 
----
+Write `.specify/features/{slug}/spec.md` (derive the slug from the idea if not
+given). The spec is **complete, unambiguous, verifiable, and
+technology-agnostic** — outcomes, never implementation ("the system SHALL
+present products in a sortable list", not "use React"). Treat the client's
+words as *intent*, not spec text.
 
-## Step 2 — Run speckit-specify
+Sections, in order:
 
-Invoke **speckit-specify** to translate the client idea into a structured spec.
+1. **Executive Summary** — 1–2 sentences; who benefits; business value
+2. **Context & Problem Statement** — current state, the gap, constraints, dependencies
+3. **Requirements** — **MUST** (blocking) / **SHOULD** (important) / **MAY**
+   (optional), grouped by category (Functional, Performance, Security, UX,
+   Accessibility, Integration…); each one a complete sentence
+4. **Success Criteria** — measurable, technology-agnostic, user-focused,
+   verifiable. Good: "95% of searches return results in under 1 second". Bad:
+   "API response under 200ms", "Redis hit rate above 80%"
+5. **Design/Approach (outline)** — high-level strategy, key decisions,
+   integration points; no code-level detail
+6. **Acceptance Criteria** — standalone testable conditions, one per
+   requirement, happy path + key edge cases
+7. **Open Questions** — ambiguities, pending decisions, risks
+8. **Glossary** (only if needed)
 
-Inputs:
-- Feature name (slug and display name — derive from the idea if not given)
-- The client's feature description as the seed context
+Every section must be substantive — no placeholders. If the feature directory
+already exists, load the current spec, show its version, and ask whether to
+update it or create a variant.
 
-Output: `.specify/features/{slug}/spec.md`
+## Step 3 — Create the feature branch
 
-The spec must include:
-- Executive Summary (one paragraph)
-- MUST / SHOULD / MAY requirements
-- Success Criteria (user-outcome measurable)
-- Acceptance Criteria (testable conditions, one per requirement)
+If `.specify/extensions/git/scripts/bash/create-new-feature.sh` exists, run it:
+`… --json --short-name "<2-4-word-slug>" "<feature description>"`. Otherwise:
 
-Do not proceed to Step 3 until spec.md is written.
+```bash
+NEXT_NUM=$(git branch --list '[0-9][0-9][0-9]-*' | wc -l | tr -d ' ')
+BRANCH_NAME="$(printf '%03d' $((NEXT_NUM + 1)))-<short-name>"
+git checkout -b "$BRANCH_NAME"
+```
 
----
+Create the branch **once per feature**. If there's no git repo, warn and
+continue on the current branch — never block the workflow.
 
-## Step 3 — Run speckit-git-feature
+## Step 4 — Clarify (business-level only)
 
-Invoke **speckit-git-feature** to create a feature branch for this work.
+**4a — Generate candidate questions.** From the spec's unclear, incomplete, or
+risky sections, draft 5–10 strategic questions: scope gaps ("does 'user'
+include guests?"), edge cases ("what happens when search returns nothing?"),
+metrics ("what error rate is acceptable?"), assumptions ("is sub-second
+response required?"), trade-offs ("if we can't hit everything, what matters
+most?"). Never ask what the spec already answers.
 
-Branch naming: sequential (`001-{slug}`) or timestamp (`YYYYMMDD-HHMMSS-{slug}`).
+**4b — Filter before the client sees anything.** The client cannot answer
+technical questions. For each candidate:
 
-If git-feature fails or the project has no git repo: warn and continue on the current branch — do not block the workflow.
+- **KEEP** — user behaviour/journey, business goals and outcomes, scope,
+  priority trade-offs, UX edge cases
+- **REMOVE or REPHRASE** — API/schema design, database/storage/framework
+  choice, performance in engineering units, architecture patterns, DevOps.
+  If a technical question hides a business intent, rephrase it in
+  user-outcome terms ("acceptable API response time?" → "do users expect
+  results instantly, within a few seconds, or is a short wait fine?")
 
----
+Cap at 5–8 questions. Never tell the client questions were filtered.
 
-## Step 4 — Clarify then filter
+**4c — Write answers back.** Tighten acceptance criteria, resolve ambiguities,
+bump the spec version (semver), and append:
 
-### 4a — Run speckit-clarify
+```
+## Clarification Summary (Version X.Y.Z)
+**Date**: YYYY-MM-DD
+**Clarifications made**: …
+**Open questions remaining**: …
+```
 
-Invoke **speckit-clarify** on `.specify/features/{slug}/spec.md`.
+## Step 5 — Analyze, then split findings by audience
 
-speckit-clarify generates 5–10 candidate questions. Do NOT present them to the client yet.
+**5a — Review the spec** with these passes, producing a findings table
+`ID | Issue | Section | Severity | Remediation` (deterministic, actionable,
+≤50 rows):
 
-### 4b — Run pm-clarify-guard
+- **Duplication** — near-identical requirements/criteria
+- **Ambiguity** — vague quantifiers ("fast", "reliable", "some"), conditionals
+  without specifics ("if possible", "as needed")
+- **Underspecification** — MUST requirements with no success criterion;
+  metrics with no unit; acceptance criteria that aren't independently testable
+- **Constitution alignment** — violations of `docs/product/constitution.md`
+  principles, if it exists
+- **Coverage gaps** — missing edge cases (empty/null/boundary/error states),
+  missing cross-cutting concerns (accessibility, security, mobile)
+- **Inconsistency** — criteria that don't validate their requirements;
+  contradictory requirements
 
-Invoke **pm-clarify-guard** on the candidate question list.
+Severity: **HIGH** blocks implementation · **MEDIUM** slows it · **LOW** polish.
 
-pm-clarify-guard:
-- Removes or rephrases all technical questions (API design, DB choice, framework, architecture, performance SLAs in engineering units)
-- Caps output at 5–8 business-level questions
-- Rephrases borderline questions in user-outcome terms
+**5b — Split into two layers:**
 
-Present only the filtered, business-level questions to the client. Collect answers.
-
-### 4c — Write answers back to spec
-
-Apply the client's answers to `.specify/features/{slug}/spec.md`:
-- Tighten acceptance criteria
-- Add detail to ambiguous sections
-- Add a Clarification Summary block at the end of the spec
-- Bump the spec version (semver)
-
----
-
-## Step 5 — Analyze then split
-
-### 5a — Run speckit-analyze
-
-Invoke **speckit-analyze** on `.specify/features/{slug}/spec.md`.
-
-speckit-analyze returns a findings table: ID | Issue | Section | Severity | Remediation.
-
-### 5b — Run pm-analyze-split
-
-Invoke **pm-analyze-split** on the findings table.
-
-pm-analyze-split routes findings to two layers:
-
-**PM layer** (surface to client — business language only):
-- Business goal conflicts with `docs/product/product.md`
-- Epic-to-epic duplication with `docs/product/epics.md`
-- Success criteria unmeasurable from a user/business perspective
-- Missing acceptance criteria for a MUST requirement
-- Constitution misalignments (if `docs/product/constitution.md` exists)
-
-Present PM-layer findings to the client as a clean business-language table.
-
-**Gate**: If any PM-layer finding is HIGH severity, resolve it before proceeding to Step 6.
-MEDIUM and LOW findings: note them, offer to address, but do not block.
-
-**Dev layer** (do not surface to client):
-pm-analyze-split writes dev-layer findings (missing data models, ambiguous NFRs, technical underspecification) to `.specify/features/{slug}/dev-findings.md`. This file is consumed by the developer agent in Step 7.
-
----
+- **PM layer (surface to client, business language only)**: goal conflicts
+  with `product.md`, duplication with existing epics, unmeasurable success
+  criteria, MUST requirements missing acceptance criteria, constitution
+  misalignments, scope vagueness only the owner can resolve. Present as a
+  clean table (`ID | Issue | Severity | What We Need From You`) with all
+  jargon stripped. **Gate: every HIGH PM-layer finding must be resolved before
+  Step 6** — amend the spec with the client's input and re-analyze until none
+  remain. MEDIUM/LOW: note, offer, don't block.
+- **Dev layer (never surface to client)**: missing data models, criteria
+  requiring implementation knowledge, NFRs without technical constraints,
+  ambiguous technical assumptions. Write to
+  `.specify/features/{slug}/dev-findings.md` with the same table format —
+  consumed by `dev-feature-plan` Phase 0.
 
 ## Step 6 — Write the epic entry
 
-### 6a — Read existing epics
+Read `docs/product/epics.md`; if an existing epic covers the same problem,
+propose merging — never duplicate. Append (creating the file with its opening
+block if needed — "These are thematic bundles of work…"):
 
-Read `docs/product/epics.md`. Check for duplication. If an existing epic covers the same problem space, propose merging — do not create a duplicate.
-
-### 6b — Write the Dan Shipper epic entry
-
-Append to `docs/product/epics.md` (create the file with the opening block if it does not yet exist):
-
-**Opening block** (write once, on file creation):
-```
-These are thematic bundles of work. Each epic makes a bet on user behavior — a specific problem that, if solved, unlocks a meaningful outcome. Epics are not a sprint backlog.
-```
-
-**Epic format** (strict — no deviations):
 ```
 ## E{N} · {Epic Name}
 
-**The problem:** {One sentence: the specific user frustration or gap this epic addresses}
-**The mechanism:** {One sentence: the causal chain — how solving this produces the outcome}
+**The problem:** {one sentence — the user frustration this addresses}
+**The mechanism:** {one sentence — the causal chain to the outcome}
 **What it bundles:**
-- {Feature or component 1}
-- {Feature or component 2}
-**What success looks like:** {Specific, measurable — number + date or behaviour threshold}
-**Why it goes first:** {One sentence: dependency, risk reduction, or fastest learning}
+- {feature 1}
+- {feature 2}
+**What success looks like:** {measurable — number + date or behaviour threshold}
+**Why it goes first:** {dependency, risk reduction, or fastest learning}
 
 _Spec: `.specify/features/{slug}/spec.md`_
 ```
 
-Never use these fields — they belong in task plans: Thesis, Hypothesis, Acceptance criteria, Definition of done, Priority signal.
-
-After all epics, update (or create) the **Sequence argument** section explaining why this ordering and not another.
-
-### 6c — Assign epic number
-
-Epic numbers are sequential integers (E1, E2, E3…). Read existing epics to determine the next number.
-
----
+Never use: Thesis, Hypothesis, Acceptance criteria, Definition of done,
+Priority signal — those belong in task plans. Epic numbers are sequential.
+Update the **Sequence argument** section explaining the ordering.
 
 ## Step 7 — Create or update epic-status.md
 
-If `docs/product/epic-status.md` does not exist, create it with:
+Create `docs/product/epic-status.md` (pipeline stages table, status glyphs,
+At-a-glance table, Drilldown, Obsolete sections) if missing; otherwise add the
+new epic's row: status `☐ planned`, pipeline `○○○○○`.
 
-```markdown
-# {Product Name} · Epic Status · Last updated: {YYYY-MM-DD} · Phase in flight: Phase 1
-
-## Pipeline stages
-
-| Stage | Gate question |
-|-------|---------------|
-| 1 · Specified | Is there a written spec with acceptance criteria? |
-| 2 · In flight | Is active development underway? |
-| 3 · Feature-complete | Does it meet every acceptance criterion? |
-| 4 · Tested | Have all tests passed? |
-| 5 · Shipped | Is it deployed and measurably impacting users? |
-
-Status glyphs: 🔄 in flight · ✅ done · ⏳ partially done · ☐ planned · 🛑 paused
-
-## At a glance
-
-| Epic | Status | % done (est) | Pipeline | Open bugs | Closed bugs | Notes |
-|------|--------|--------------|----------|-----------|-------------|-------|
-
-## Drilldown
-
-## Obsolete / won't fix
-```
-
-If the file exists, add a new row to the **At a glance** table for the new epic with status `☐ planned` and pipeline `○○○○○`.
-
----
-
-## Step 8 — Hand off to developer agent
-
-Print the following for the developer agent (not the client):
+## Step 8 — Hand off to the developer
 
 ```
 EPIC WRITTEN — DEVELOPER HANDOFF
 ─────────────────────────────────
 Epic    : E{N} · {Epic Name}
-Branch  : {branch name from Step 3}
+Branch  : {branch}
 Spec    : .specify/features/{slug}/spec.md
-Dev findings : .specify/features/{slug}/dev-findings.md ({count} findings, {HIGH count} HIGH)
+Dev findings : .specify/features/{slug}/dev-findings.md ({n} findings, {n} HIGH)
 
-TO START DEVELOPMENT:
-Invoke dev-feature-plan with this spec path:
-  .specify/features/{slug}/spec.md
-
-dev-feature-plan resolves the dev findings and produces:
-  .specify/features/{slug}/impl-plan.md
-  .specify/features/{slug}/tasks.md
+TO START: invoke dev-feature-plan with the spec path — it resolves the dev
+findings and produces impl-plan.md + tasks.md.
 ```
-
----
 
 ## Epic writing rules
 
-- **One bet per epic**: each epic addresses exactly one user problem. If a new idea spans two problems, split it.
-- **No horizontal slicing**: epics are not tech layers ("Build the API", "Build the UI"). They are user-outcome bundles.
-- **Success is measurable**: "improve performance" is not an epic. "Reduce task completion time from 5 minutes to 90 seconds for 80% of users by Q3" is.
-- **Sequence argument is required**: every epic must explain why it goes where it does in build order.
-- **No timeline in epics.md**: delivery dates belong in `docs/product/01-product-timeline.md`, not in epic entries.
+- **One bet per epic** — one user problem; split anything that spans two
+- **No horizontal slicing** — epics are user-outcome bundles, not tech layers
+- **Success is measurable** — "improve performance" is not an epic
+- **Sequence argument required** — every epic explains its place in the order
+- **No timelines in epics.md** — dates live in `docs/product/01-product-timeline.md`

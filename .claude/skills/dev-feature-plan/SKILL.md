@@ -1,63 +1,80 @@
 ---
 name: dev-feature-plan
 description: >-
-  Turns an approved feature spec into a concrete, step-by-step build plan — phases, tasks, dependencies, and effort estimates — before any code is written. Use this whenever a feature is ready to be built but the how still needs to be mapped out.
+  Turns an approved feature spec into a concrete build plan and task checklist — validates the feature branch, resolves dev-layer findings, writes impl-plan.md (phases, decisions, risks, estimates) and tasks.md (dependency-ordered checklist with acceptance criteria). Self-contained: no other skills are invoked. Use when the operator says "plan this feature" or "how do we build this", or when pm-epic-writing hands off a completed spec.
 ---
 
 # Dev Feature Plan
 
-Translates a completed, analyzed feature spec into an implementation plan and task list without requiring any client input after handoff.
+Translates a completed, analyzed feature spec into an implementation plan and
+task list. Requires no client input after handoff.
 
 ## Inputs
 
-- **Spec path**: `.specify/features/{slug}/spec.md` (required — passed by PM agent)
-- **Dev findings**: `.specify/features/{slug}/dev-findings.md` (optional — from pm-analyze-split)
+- **Spec**: `.specify/features/{slug}/spec.md` (required)
+- **Dev findings**: `.specify/features/{slug}/dev-findings.md` (optional, from pm-epic-writing)
 
-## Step 1 — Validate Branch
+## Step 1 — Validate the branch
 
-Run speckit-git-validate to confirm the current branch is a feature branch.
+```bash
+git rev-parse --abbrev-ref HEAD
+```
 
-If not on a feature branch: warn the developer, suggest running speckit-git-feature, but do not block — the developer may choose to proceed on the current branch.
+A feature branch matches `^[0-9]{3,}-` (sequential, `001-feature-name`) or
+`^[0-9]{8}-[0-9]{6}-` (timestamp). On a feature branch → confirm and check the
+matching `.specify/features/{prefix}-*` directory exists. Not on one → warn
+("Feature branches look like 001-feature-name") and recommend creating one,
+but **do not block** — the developer may proceed deliberately. No git repo →
+skip with a warning.
 
-## Step 2 — Load Context
+## Step 2 — Load context
 
-Read:
-- `.specify/features/{slug}/spec.md` — the full spec
-- `.specify/features/{slug}/dev-findings.md` — dev-layer findings (if exists)
-- The corresponding epic entry from `docs/product/epics.md`
+Read the spec, `dev-findings.md` (if present), and the corresponding epic
+entry in `docs/product/epics.md`.
 
-## Step 3 — Phase 0: Resolve Dev Findings
+## Step 3 — Phase 0: resolve dev findings
 
-If `dev-findings.md` exists and has HIGH findings:
+For each HIGH finding in `dev-findings.md`: propose a concrete resolution
+(data model definition, technical constraint, threshold) and document it in a
+**Phase 0: Pre-Planning Decisions** section of the plan. A finding that needs
+human input gets flagged explicitly — never silently skipped.
 
-For each HIGH finding:
-1. Read the issue and suggested resolution
-2. Propose a concrete resolution (data model definition, technical constraint, etc.)
-3. Document the resolution inline in the plan under a **Phase 0: Pre-Planning Decisions** section
-4. If a finding cannot be resolved without human input, flag it explicitly — do not silently skip
+## Step 4 — Write the implementation plan
 
-Document all resolutions in `impl-plan.md` Phase 0 before proceeding to Phase 1.
+Write `.specify/features/{slug}/impl-plan.md` — implementation-agnostic
+(*what* and *why*; the *how* happens during the build):
 
-## Step 4 — Run speckit-plan
+- **Phase 0 — Outline & research**: what's in Phase 1, what's deferred, what
+  needs a prototype first, risks & assumptions (with mitigations)
+- **Phase 1 — Design & contracts**: system architecture and component
+  interactions, API contracts (endpoints, schemas, errors), data model,
+  UI/UX flow, testing strategy
+- **Phase 2+**: later milestones, each mapped to the spec requirements it
+  delivers
 
-Invoke speckit-plan on `.specify/features/{slug}/spec.md`.
+Rules: number phases MVP-first; T-shirt effort (S/M/L/XL) per phase; call out
+cross-phase dependencies; every risk carries a mitigation.
 
-Output: `.specify/features/{slug}/impl-plan.md`
+## Step 5 — Generate the task checklist (immediately, no pause)
 
-## Step 5 — Run speckit-tasks (immediately, no pause)
+Write `.specify/features/{slug}/tasks.md`. Every task is specific enough to
+start without re-reading the spec — verb-first title, 1–2 sentence
+description, testable acceptance criteria, grouped by phase:
 
-Without waiting for client input, invoke speckit-tasks on `.specify/features/{slug}/impl-plan.md`.
+```markdown
+## Phase {N}: {Phase Name}
 
-Output: `.specify/features/{slug}/tasks.md`
+### Task {N}.{M}: {Verb + object}
+**Description**: {1–2 sentences}
+**Acceptance Criteria**:
+- [ ] {testable criterion — cites the spec criterion it satisfies}
+**Effort**: {S/M/L/XL}
+**Dependencies**: {Task N.M, …} or "None"
+```
 
-Ensure:
-- Tasks marked `[P]` where they can run in parallel
-- Each task cites the spec acceptance criterion it satisfies
-- Dependency order is correct
+Mark `[P]` on tasks that can run in parallel. Order by dependency.
 
-## Step 6 — Phase Summary
-
-Print for the developer agent (not the client):
+## Step 6 — Summary
 
 ```
 FEATURE PLAN COMPLETE
@@ -66,12 +83,8 @@ Feature : {slug}
 Spec    : .specify/features/{slug}/spec.md
 Plan    : .specify/features/{slug}/impl-plan.md
 Tasks   : .specify/features/{slug}/tasks.md
+Dev findings resolved : {n}/{total} (unresolved: {IDs or "none"})
 
-Dev findings resolved : {count} / {total}
-Unresolved findings   : {list IDs or "none"}
-
-NEXT STEPS
-1. Review impl-plan.md — confirm architecture decisions
-2. Start dev-tdd on Task 1.1 (first task in Phase 1)
-3. Each test must cite the acceptance criterion from spec.md it validates
+NEXT: review impl-plan.md, then start dev-tdd on Task 1.1 — each test cites
+the acceptance criterion from spec.md it validates.
 ```

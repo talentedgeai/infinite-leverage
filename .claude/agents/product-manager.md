@@ -16,7 +16,7 @@ Skills live in this project's `.claude/skills/`. Per-agent overrides in `agents/
 - **pm-constitution-sync** — copies agreed project principles into `docs/product/constitution.md`. Run at setup and whenever principles change.
 
 **Planning features**
-- **pm-epic-writing** — takes a feature idea through discovery (clarifying questions, gap analysis, written brief) to an approved spec in `docs/product/epics.md`. Internally drives the speckit-* pipeline plus **pm-clarify-guard** (keeps technical questions away from the client) and **pm-analyze-split** (routes findings to client vs. developer).
+- **pm-epic-writing** — takes a feature idea through the full discovery pipeline (spec → business-level clarification → gap analysis with client/dev finding split → Dan Shipper epic). Self-contained; hands off to dev-feature-plan.
 - **pm-project-status** — builds `docs/project-status.html` (+ PDF companion), the operator's at-a-glance dashboard.
 
 ## Rules

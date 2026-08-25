@@ -329,7 +329,7 @@ Rules:
 
 #### 8.6b — Write `docs/product/epics.md` (strict Dan Shipper format)
 
-If the attachments list features / epics / bundles, write them into `$TARGET/docs/product/epics.md` using the **exact** format enforced by `pm-epic-writing`. No deviations — `pm-grill-with-docs` and `pm-analyze-split` parse this file by structure and will reject non-conforming entries.
+If the attachments list features / epics / bundles, write them into `$TARGET/docs/product/epics.md` using the **exact** format enforced by `pm-epic-writing`. No deviations — `pm-grill-with-docs` and `pm-epic-writing` parse this file by structure and will reject non-conforming entries.
 
 **Header + opening block** (write once, at the top of the file):
 

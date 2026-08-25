@@ -13,7 +13,7 @@ The PM agent populates this during `pm-client-interview` and `pm-documentation`.
 
 <!-- What the PM must never do for this project -->
 - (e.g. Never open a new epic while a P0 bug is open)
-- (e.g. Never write a spec without running pm-clarify-guard first)
+- (e.g. Never show the client technical questions — pm-epic-writing's clarification filter is mandatory)
 
 ## Stakeholder context
 <!-- Who the PM is working with and their communication preferences -->
