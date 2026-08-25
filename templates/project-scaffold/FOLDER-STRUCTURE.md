@@ -1,6 +1,6 @@
 # Canonical Project Folder Structure
 
-> **Authoritative spec.** Every Infinite Leverage project follows this layout. The PM agent, developer agent, and `infiniteleverage-init` skill must honor it exactly. Do not invent new top-level folders. New per-project additions go inside the existing slots.
+> **Authoritative spec.** Every Infinite Leverage project follows this layout. The PM agent, developer agent, and `il-project` skill must honor it exactly. Do not invent new top-level folders. New per-project additions go inside the existing slots.
 
 ## Fixed filenames (DO NOT rename)
 

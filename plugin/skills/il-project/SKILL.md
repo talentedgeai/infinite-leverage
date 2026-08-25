@@ -216,7 +216,7 @@ When you receive a request, **delegate to the right specialist agent** before do
 | **devops** | CI/CD, deployments, secret management, infra escalations, Vercel/GitHub workflow issues |
 | **designer** | UI mockups, brand application, image prompts, design system updates, visual reviews |
 | **writer** | blog drafts, social copy, SEO briefs, voice/tone, content briefs |
-| **web-publisher** | publishing markdown → Next.js components, updating `website/pages/blog/index.jsx`, image optimization, the publish workflow |
+| **web-publisher** | publishing markdown → Next.js pages, updating `website/app/blog/`, image optimization, the publish workflow |
 | **email-marketer** | email drafts, sequences, broadcast campaigns, Brevo/Resend, CRM segmentation |
 
 **Delegation rules:**
