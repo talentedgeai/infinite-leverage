@@ -6,15 +6,15 @@
     "email": "khoa.doan@edge8.ai"
   },
   "metadata": {
-    "description": "Infinite Leverage — per-project AI team scaffold and opt-in effort telemetry",
+    "description": "Infinite Leverage \u2014 per-project AI team scaffold and opt-in effort telemetry",
     "homepage": "https://github.com/talentedgeai/infinite-leverage"
   },
   "plugins": [
     {
       "name": "infiniteleverage",
       "source": "./plugin",
-      "description": "Bare-minimum Infinite Leverage plugin: /il-project scaffolds a client project with its own 8-agent team (project-scoped, never global), /il-doctor checks setup and manages telemetry consent. Includes one-time cleanup of v1 global installs.",
-      "version": "2.0.0",
+      "description": "Infinite Leverage product plugin: /il-project scaffolds a client project with its own 8-agent team (project-scoped, never global); /il-doctor checks the setup. Telemetry lives in the separate private edge8-telemetry plugin.",
+      "version": "2.1.0",
       "author": {
         "name": "Edge8",
         "email": "khoa.doan@edge8.ai"
