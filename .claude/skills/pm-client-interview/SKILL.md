@@ -2,6 +2,7 @@
 name: pm-client-interview
 description: >-
   Guides a structured two-round interview with the business owner to understand their goals, their customers, and what success looks like. Run once at the very start of a new project — this conversation becomes the foundation that everything else is built on. Output feeds directly into the product strategy document.
+  Use when the operator says "client interview", "kick off the project", or "understand the business", or docs/product/product.md is still a placeholder.
 ---
 
 # PM: Client Interview

@@ -1,7 +1,7 @@
 ---
 name: web-publisher-publish
 description: >-
-  Takes a finished blog post all the way to production — delegates React/Next.js implementation to Developer, commits, pushes to remote, merges to main, and confirms the Vercel deployment is healthy. The post is not done until the build is green.
+  Takes a finished blog post all the way to production — writes the App Router page, updates the blog index, commits, pushes, and confirms the Vercel deployment is healthy. The post is not done until the build is green. Owned by the developer agent. Use when the operator says "publish", "push the post live", or "build the page", or a finished post + hero image are waiting.
 ---
 
 # Web Publisher: Publish Post
@@ -19,14 +19,14 @@ Find the first folder that has both `blog.md` AND `{slug}-hero.webp` but NO publ
 2. Read the project's web style guide for component conventions
 3. Copy `{slug}-hero.webp` to `website/public/images/blog/`
 
-### Phase 2 — Code (delegated to Developer)
-4. **Brief the Developer agent:**
-   - Target file: `website/app/blog/{slug}/page.tsx` (App Router)
-   - Requirements: `export const metadata` (or `generateMetadata`) with title, description, OG/Twitter, canonical; `next/image` for all images; read-time estimate in post header; category tag from style guide; Tailwind classes (no inline styles)
-   - Patterns to follow: existing posts under `website/app/blog/`
-5. **Wait for Developer to confirm** the page is written and `npm run build` passes clean
+### Phase 2 — Code
+4. Write the page at `website/app/blog/{slug}/page.tsx` (App Router):
+   - `export const metadata` (or `generateMetadata`) with title, description, OG/Twitter, canonical
+   - `next/image` for all images; read-time estimate in post header; category tag from style guide; Tailwind classes (no inline styles)
+   - Follow the patterns of existing posts under `website/app/blog/`
+5. Confirm `npm run build` passes clean
 
-### Phase 3 — Index update (Web Publisher's responsibility)
+### Phase 3 — Index update
 6. Add the post card at the top of the blog index (`website/app/blog/page.tsx`) — follow the existing card pattern exactly
 
 ### Phase 4 — Quality gate (run before commit)

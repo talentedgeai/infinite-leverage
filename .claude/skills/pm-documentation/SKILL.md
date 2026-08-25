@@ -2,6 +2,7 @@
 name: pm-documentation
 description: >-
   Creates and maintains the single source of truth about the business — who the customers are, what problem is being solved, and what the product does. Run once after the client interview to create the file, then update it whenever the strategy changes. Everything the team builds is anchored to this document.
+  Use when the operator says "update product.md" or "document the product", or right after pm-client-interview completes.
 ---
 
 # PM: Product Documentation

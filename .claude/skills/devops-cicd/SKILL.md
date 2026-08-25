@@ -2,6 +2,7 @@
 name: devops-cicd
 description: >-
   Creates a GitHub Actions pipeline that automatically runs quality checks on every pull request: checks code style, verifies TypeScript types, runs tests, and confirms the app builds successfully. This prevents broken code from reaching the main branch.
+  Use when the operator says "ci/cd", "pipeline", "github actions", or a repo has no checks running on pull requests.
 ---
 
 # DevOps: CI/CD Pipeline

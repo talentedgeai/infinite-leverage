@@ -1,6 +1,6 @@
 ---
 name: il-project
-description: This skill should be used when the operator says "il project", "new project", "scaffold a project", "create infinite leverage project", "init new project", "start new client project", or "bootstrap project folder". Scaffolds a brand-new project directory from the canonical `templates/project-scaffold/` in `talentedgeai/infinite-leverage`, substitutes placeholders, wires the 8-agent team into `.claude/`, seeds `docs/product/` (product.md, epics.md, epic-status.md) from any rich description the operator provides, seeds `docs/brand/` styling from a chosen or random getdesign.md reference, initializes git, and prints next steps. All operations are inline — no bundled scripts.
+description: This skill should be used when the operator says "il project", "new project", "scaffold a project", "create infinite leverage project", "init new project", "start new client project", or "bootstrap project folder". Scaffolds a brand-new project directory from the canonical `templates/project-scaffold/` in `talentedgeai/infinite-leverage`, substitutes placeholders, wires the agent team into `.claude/`, seeds `docs/product/` (product.md, epics.md, epic-status.md) from any rich description the operator provides, seeds `docs/brand/` styling from a chosen or random getdesign.md reference, initializes git, and prints next steps. All operations are inline — no bundled scripts.
 version: 3.1.0
 ---
 
@@ -16,7 +16,7 @@ version: 3.1.0
 |---|---|
 | Project folder scaffold + stub files | `templates/project-scaffold/` |
 | Folder structure spec | `templates/project-scaffold/FOLDER-STRUCTURE.md` |
-| 8 agent definitions | `.claude/agents/*.md` |
+| 6 agent definitions | `.claude/agents/*.md` |
 | Project skills | `.claude/skills/*/SKILL.md` |
 | Engineering rules | `.claude/rules/global-engineering.md` |
 | AGENT-DELEGATION block content | embedded below in this SKILL.md — single source for the routing table |
@@ -206,22 +206,20 @@ BLOCK=$(cat <<'BLOCK_EOF'
 <!-- BEGIN: AGENT-DELEGATION (managed by infiniteleverage skills — do not delete this block) -->
 ## Agent delegation (auto-routing)
 
-When you receive a request, **delegate to the right specialist agent** before doing the work yourself. The 8 agents and their triggers:
+When you receive a request, **delegate to the right specialist agent** before doing the work yourself. The 6 agents and their triggers:
 
 | Agent | Delegate when the request involves… |
 |---|---|
 | **product-manager** | roadmap, vision, epics, daily plan, project-status.html, scope changes, approval triage, stakeholder updates |
-| **developer** | writing/changing code, fixing bugs, refactoring, scaffolding pages, API endpoints, Supabase migrations, env-vars wiring |
+| **developer** | writing/changing code, fixing bugs, refactoring, scaffolding pages, API endpoints, Supabase migrations, env-vars wiring, **publishing posts to the live site** |
 | **qa** | testing, regression checks, browser matrix, accessibility, QA plans, "verify this works" |
 | **devops** | CI/CD, deployments, secret management, infra escalations, Vercel/GitHub workflow issues |
 | **designer** | UI mockups, brand application, image prompts, design system updates, visual reviews |
-| **writer** | blog drafts, social copy, SEO briefs, voice/tone, content briefs |
-| **web-publisher** | publishing markdown → Next.js pages, updating `website/app/blog/`, image optimization, the publish workflow |
-| **email-marketer** | email drafts, sequences, broadcast campaigns, Brevo/Resend, CRM segmentation |
+| **writer** | blog drafts, social copy, SEO briefs, voice/tone, content briefs, **email campaigns and sequences** |
 
 **Delegation rules:**
 1. Pick exactly **one** agent per turn — don't run two in parallel unless the operator explicitly says so.
-2. If a request spans agents (e.g., "write a blog *and* publish it"), call them **in sequence**: writer → designer → web-publisher.
+2. If a request spans agents (e.g., "write a blog *and* publish it"), call them **in sequence**: writer → designer → developer (publish).
 3. If unclear which agent fits, **ask the operator** before assuming.
 4. Cross-cutting engineering rules live in `.claude/rules/global-engineering.md` — every agent honors them.
 5. Project-level persona overrides for each agent live in `agents/<name>/context/persona.md` — read these on first invocation.

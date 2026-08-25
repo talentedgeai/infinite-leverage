@@ -2,6 +2,7 @@
 name: email-marketer-nurture
 description: >-
   Manages the full subscriber email lifecycle — sends a welcome sequence to new subscribers, prepares weekly digest emails featuring the latest blog posts, and re-engages subscribers who have gone quiet. All emails are drafted for operator approval before any send command runs. Uses Resend for individual transactional emails and Brevo for larger bulk campaigns.
+  Owned by the writer agent. Use when the operator says "email campaign", "newsletter", "welcome sequence", "send to subscribers", or "re-engage subscribers".
 ---
 
 # Email Marketer: Subscriber Nurture

@@ -2,6 +2,7 @@
 name: qa-triage
 description: >-
   Classifies every incoming bug by severity (P0 = site completely down, P1 = major feature broken, P2 = significant issue, P3 = minor cosmetic), scores its priority, and routes it to the right person. Always run this first for any new bug report — nothing gets worked on without being triaged. Output goes to docs/qa/ and the project status dashboard.
+  Use for every new bug report, or when the operator says "triage", "classify this bug", or "prioritise this bug".
 credits: |
   Adapted from mattpocock/skills (triage)
   Source: https://github.com/mattpocock/skills

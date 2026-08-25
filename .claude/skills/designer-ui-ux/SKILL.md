@@ -2,6 +2,7 @@
 name: designer-ui-ux
 description: >-
   Applies accessibility, responsive design, and usability standards to any UI work — ensures the site works for people with disabilities, looks correct on all screen sizes, and has clear interactive states for every button, link, and form. Reference this when reviewing or designing any page component.
+  Use when the operator says "mockup", "wireframe", "ui design", "accessibility", "responsive", or asks "does this look right" about any page.
 ---
 
 # Designer: UI/UX Best Practices

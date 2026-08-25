@@ -1,3 +1,5 @@
+> **v1-era document.** The roster is now 6 agents (publisher → developer, email → writer). Current definitions: `.claude/agents/`.
+
 # Agent Guide
 
 All 8 agents in the Infinite Leverage team — their roles, definition files, context paths, trigger phrases, skills, hard rules, and output paths.

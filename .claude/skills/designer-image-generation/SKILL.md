@@ -1,7 +1,8 @@
 ---
 name: designer-image-generation
 description: >-
-  Generates one hero image using the Gemini AI image API, optimizes it to a compact web-friendly file (WebP, under 200 KB), and saves it alongside the blog post. Reads JSON image prompts from images.md created by the Writer. If images.md is missing, invokes the Writer to generate it first. If generation fails, saves the prompt so it can be used in any external image tool.
+  Generates one hero image using the Gemini AI image API, optimizes it to a compact web-friendly file (WebP, under 200 KB), and saves it alongside the blog post. Reads JSON image prompts from image-prompts.md created by the Writer. If image-prompts.md is missing, invokes the Writer to generate it first. If generation fails, saves the prompt so it can be used in any external image tool.
+  Use when the operator says "generate the image", "hero image", "create a visual", or a finished post is missing its hero image.
 ---
 
 # Designer: Image Generation
@@ -30,7 +31,7 @@ cat content/topics/{slug}/image-prompts.md 2>/dev/null
 Do NOT invent a prompt. The Writer owns prompt creation to ensure brand-voice and topic consistency.
 
 ## Generation
-- Model: Gemini flash image preview (`gemini-2.0-flash-preview-image-generation` or latest)
+- Model: the CURRENT Gemini image-generation model — never a pinned preview. Check the Gemini API docs/models list for the latest image-capable model at run time; if the call errors with a model-not-found, list available models and pick the newest image-capable one before falling back to the prompt-save flow.
 - Method: Python Gemini SDK or curl + Gemini API
 - Save raw output to `working_files/{slug}-raw.png`
 

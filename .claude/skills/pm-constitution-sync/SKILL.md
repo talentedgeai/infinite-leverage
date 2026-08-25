@@ -2,6 +2,7 @@
 name: pm-constitution-sync
 description: >-
   Copies the project's agreed-upon principles and rules into the main docs folder (docs/product/constitution.md) where all agents can find them. Run once during initial project setup and again whenever the principles are updated.
+  Use when the operator says "sync the constitution" or immediately after speckit-constitution runs.
 ---
 
 # PM Constitution Sync
