@@ -1,6 +1,6 @@
 {
   "name": "infiniteleverage",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Infinite Leverage v2 \u2014 the AI-team product plugin. /il-project scaffolds a client project with a project-scoped 8-agent team; /il-doctor checks the setup. No hooks, no telemetry, no writes outside the project you scaffold.",
   "author": {
     "name": "Edge8",
