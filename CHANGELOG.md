@@ -6,6 +6,25 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.1.0] — 2026-08-25
+
+### Changed
+- **Telemetry split.** All effort telemetry (il_telemetry hooks, consent flow) and the
+  v1 residue cleanup (migrate_v1.py + manifest + tests) moved to the private
+  `talentedgeai/edge8-telemetry` plugin. This public repo is now purely the product:
+  2 skills, no hooks, no background behavior, no company internals
+- `il-doctor` slimmed to a product setup check (prerequisites, repo context, scaffolded
+  project layout) and updated to use `${CLAUDE_PLUGIN_ROOT}` in all commands
+
+### Removed
+- `plugin/hooks/` entirely; the `hooks` key in plugin.json
+- `docs/assessments/` (internal effort-measurement methodology + self-audits) and
+  `docs/superpowers/` (internal feature specs) — moved to the private repo.
+  Note: this repo has always been public, so these remain in public git history;
+  removal is about discoverability, not secrecy
+
+---
+
 ## [2.0.0] — 2026-08-25
 
 **The bare-minimum release.** One repo, one plugin, nothing global. Addresses the two
