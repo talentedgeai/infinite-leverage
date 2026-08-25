@@ -6,6 +6,61 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.0.0] — 2026-08-25
+
+**The bare-minimum release.** One repo, one plugin, nothing global. Addresses the two
+problems from client review: v1 installed far too much (95 skills + 8 agents + hooks +
+a Bash(*) permission grant, all user-global via cp -R), and the prompts had drifted
+behind current models.
+
+### Added
+- **v2 plugin shipped from this repo** — `.claude-plugin/` marketplace + `plugin/` payload;
+  hooks run via `${CLAUDE_PLUGIN_ROOT}` (v1's hooks.json pointed at `~/.claude/hooks/*`, so
+  plugin updates never took effect without a manual copy step)
+- **`/il-doctor`** — health check + telemetry consent + v1 residue report (replaces
+  `infiniteleverage-validate` and the patch health-check)
+- **`migrate_v1.py`** — one-time, hash-verified cleanup of v1's global installs. Removes only
+  byte-exact copies of files v1 shipped (manifest generated from the full git history of both
+  v1 repos); modified files and symlinks are reported, never deleted. Also removes the v1
+  `Bash(*)` grant, `acceptEdits` default, and stale v1 hook registrations from settings files
+- **Telemetry consent gate** — `il_telemetry.consent`; every entrypoint (stop/flush/scan) is
+  opt-in. No consent → no capture, no delivery, no network calls
+- **Registration cache TTL (7d, both directions)** — v1 cached only negatives, permanently:
+  a repo registered after first probe was silenced forever. Positives are now cached too, so
+  no per-session probes
+- **API-first delivery** — records POST to the tracker's `/api/telemetry/ingest` when live,
+  falling back to the v1 git-append path meanwhile
+- **CI** — pytest suite (48 tests incl. migration safety) runs on Python 3.9 and 3.12
+
+### Changed
+- **`infiniteleverage-project` → `il-project` (3.0.0)** — no more machine-init prerequisite;
+  installs agents + skills into the project's `.claude/` only
+- **All 8 agents rewritten for current models** — 37KB → 17KB; boilerplate deduplicated,
+  dated "research practitioners before acting" crutches dropped, contradictions removed;
+  every unique hard rule preserved
+- `VERSION` bumped to 2.0.0 (kept so v1 machines see the update nag one last time)
+
+### Fixed
+- **Python 3.9 import failure** — v1's `X | None` annotations crashed the whole telemetry
+  package on macOS system python; the `2>/dev/null || true` hooks swallowed it, so v1
+  telemetry silently captured nothing on those machines. All modules now carry
+  `from __future__ import annotations`
+
+### Removed
+- `infiniteleverage-init` / `-patch` / `-onboard` and all global `cp -R` machinery — plugin
+  marketplace handles distribution and updates
+- `setup-permissions.py` — **never again does any installer write `Bash(*)` or change
+  `defaultMode`**
+- `pre-bash` / `prompt-submit` hooks (keyword-regex routing hints degrade current models;
+  guardrails are a per-project choice via `devops-git-guardrails`)
+- `session-start` 4-stage hook (version-check curl, usage briefing, nag lines) and
+  `usage-context.py` — no more network calls or transcript scans on session start
+- `scaffold-*` skill pack (10), `use-dev-team`/`use-marketing-team`, `infiniteleverage-help`,
+  `session-ingest`, lark rules, `plugin-staging/`, committed release zips, `rebuild-zips` CI,
+  `effort_selfreport.py` experiment
+
+---
+
 ## [1.8.0] — 2026-07-30
 
 ### Added

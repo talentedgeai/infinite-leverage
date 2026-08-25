@@ -1,8 +1,0 @@
-{
-  "name": "infiniteleverage-plugin",
-  "version": "1.0.0",
-  "description": "Infinite Leverage 8-agent system — Claude Desktop Team plugin. Provides setup skills (init, onboard, patch, project) and session hooks for agent routing, version checks, and usage awareness.",
-  "type": "plugin",
-  "keywords": ["claude", "agents", "infinite-leverage"],
-  "homepage": "https://github.com/talentedgeai/infiniteleverage-8-agents-template"
-}

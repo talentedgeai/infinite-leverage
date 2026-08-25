@@ -1,0 +1,16 @@
+{
+  "name": "infiniteleverage",
+  "version": "2.0.0",
+  "description": "Infinite Leverage v2 — bare minimum. Two skills (/il-project scaffolds a client project with a project-scoped agent team, /il-doctor checks setup and telemetry consent) and opt-in session-effort telemetry. Makes no writes outside its own plugin directory except the one-time v1 residue cleanup.",
+  "author": {
+    "name": "Edge8",
+    "email": "khoa.doan@edge8.ai",
+    "url": "https://github.com/talentedgeai"
+  },
+  "repository": "https://github.com/talentedgeai/infiniteleverage-8-agents-template",
+  "homepage": "https://github.com/talentedgeai/infiniteleverage-8-agents-template",
+  "license": "MIT",
+  "keywords": ["agents", "team", "infinite-leverage", "telemetry", "scaffold"],
+  "hooks": "./hooks/hooks.json",
+  "skills": "./skills/"
+}
