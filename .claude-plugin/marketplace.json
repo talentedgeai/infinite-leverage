@@ -1,0 +1,24 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "infiniteleverage",
+  "owner": {
+    "name": "Edge8",
+    "email": "khoa.doan@edge8.ai"
+  },
+  "metadata": {
+    "description": "Infinite Leverage — per-project AI team scaffold and opt-in effort telemetry",
+    "homepage": "https://github.com/talentedgeai/infiniteleverage-8-agents-template"
+  },
+  "plugins": [
+    {
+      "name": "infiniteleverage",
+      "source": "./plugin",
+      "description": "Bare-minimum Infinite Leverage plugin: /il-project scaffolds a client project with its own 8-agent team (project-scoped, never global), /il-doctor checks setup and manages telemetry consent. Includes one-time cleanup of v1 global installs.",
+      "version": "2.0.0",
+      "author": {
+        "name": "Edge8",
+        "email": "khoa.doan@edge8.ai"
+      }
+    }
+  ]
+}

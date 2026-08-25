@@ -1,0 +1,48 @@
+name: plugin-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # 3.9 = macOS system python (CommandLineTools) — the v1 telemetry
+        # package silently failed to import there; never regress that again.
+        python-version: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install pytest
+      - name: Validate plugin manifests
+        run: |
+          python3 -c "import json; json.load(open('.claude-plugin/marketplace.json'))"
+          python3 -c "import json; json.load(open('plugin/.claude-plugin/plugin.json'))"
+          python3 -c "import json; json.load(open('plugin/hooks/hooks.json'))"
+          python3 -c "import json; json.load(open('plugin/hooks/v1-manifest.json'))"
+      - name: Versions in lockstep
+        run: |
+          python3 - <<'PY'
+          import json
+          plugin = json.load(open('plugin/.claude-plugin/plugin.json'))["version"]
+          market = json.load(open('.claude-plugin/marketplace.json'))["plugins"][0]["version"]
+          version = open('VERSION').read().strip()
+          assert plugin == market == version, f"version drift: plugin.json={plugin} marketplace.json={market} VERSION={version}"
+          print("versions in lockstep:", plugin)
+          PY
+      - name: Telemetry + migration tests
+        working-directory: plugin/hooks
+        run: python3 -m pytest test_migrate_v1.py il_telemetry/tests -q
+      - name: No global-install regressions
+        run: |
+          # The v2 invariant: nothing in the shipped payload copies into ~/.claude
+          ! grep -rn "cp .*~/.claude\|cp .*\$HOME/.claude" plugin/ --include="*.md" --include="*.sh" --include="*.py" \
+            || { echo "::error::plugin payload writes into ~/.claude — forbidden in v2"; exit 1; }
+          ! grep -rn '"Bash(\*)"' plugin/ --include="*.py" --include="*.md" \
+            | grep -v migrate_v1 | grep -v test_ \
+            || { echo "::error::plugin payload grants Bash(*) — forbidden"; exit 1; }
