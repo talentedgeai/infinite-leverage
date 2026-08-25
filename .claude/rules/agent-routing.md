@@ -14,15 +14,15 @@ The following context patterns automatically invoke the relevant dev team agent.
 | "create issues", "break into tickets", "to issues" | product-manager | `pm-to-issues` |
 | "validate plan", "check against epics", "grill with docs" | product-manager | `pm-grill-with-docs` |
 | "build", "implement", "code this", "write the function" | developer | — |
-| "debug", "why is this broken", "diagnose", "I can't figure out" | developer | `dev-diagnose` |
-| "zoom out", "give me context on this module", "I'm new to this area" | developer | `dev-zoom-out` |
-| "grill me", "stress-test this plan", "what could go wrong" | developer | `dev-grill` |
+| "debug", "why is this broken", "diagnose", "I can't figure out" | developer | — (agent handles natively) |
+| "zoom out", "give me context on this module", "I'm new to this area" | developer | — (agent handles natively) |
+| "grill me", "stress-test this plan", "what could go wrong" | developer | — (agent handles natively) |
 | "tdd", "test-driven", "red-green-refactor" | developer | `dev-tdd` |
-| "spike", "prototype", "is this feasible", "hard unknown" | developer | `dev-prototype` |
-| "improve architecture", "refactor this module", "tech debt" | developer | `dev-improve-arch` |
-| "handoff", "wrapping up", "passing to QA", "done for now" | developer | `dev-handoff` |
+| "spike", "prototype", "is this feasible", "hard unknown" | developer | — (agent handles natively) |
+| "improve architecture", "refactor this module", "tech debt" | developer | — (agent handles natively) |
+| "handoff", "wrapping up", "passing to QA", "done for now" | developer | — (agent handles natively) |
 | "triage", "classify this bug", "prioritise this bug" | qa | `qa-triage` |
-| "test strategy", "what to test", "test plan" | qa | `qa-best-practices` |
+| "test strategy", "what to test", "test plan" | qa | — (agent handles natively) |
 | "ci/cd", "pipeline", "github actions", "deployment setup" | devops | — |
 | "pre-commit", "husky", "lint-staged" | devops | `devops-setup-pre-commit` |
 | "git hooks", "protect main", "guardrails" | devops | `devops-git-guardrails` |

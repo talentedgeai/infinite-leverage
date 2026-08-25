@@ -115,7 +115,6 @@ These files have hard-coded names that skills and agents reference by path:
 ├── emails/
 │   └── drafts/YYYY-MM-DD-PH-subject.md          ← Markdown draft with frontmatter
 │
-├── standup/
 │   ├── individual/PH-person.md                  ← Per-person check-in log
 │   └── briefings/
 │       └── YYYY-MM/YYYY-MM-DD.md                ← Daily PM-compiled briefing

@@ -207,10 +207,10 @@ Spec    : .specify/features/{slug}/spec.md
 Dev findings : .specify/features/{slug}/dev-findings.md ({count} findings, {HIGH count} HIGH)
 
 TO START DEVELOPMENT:
-Invoke dev-planning with this spec path:
+Invoke dev-feature-plan with this spec path:
   .specify/features/{slug}/spec.md
 
-dev-planning will route to dev-feature-plan, which resolves dev findings and produces:
+dev-feature-plan resolves the dev findings and produces:
   .specify/features/{slug}/impl-plan.md
   .specify/features/{slug}/tasks.md
 ```

@@ -6,6 +6,31 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.2.0] — 2026-08-25
+
+**The skill cut.** Audit of all 62 workflow skills (dependency graph + staleness + redundancy
+vs current models) → 35 survive. `/il-project` installs roughly half of what it used to.
+
+### Removed
+- **11 orphans** nothing referenced: create-agent, create-local-routine, create-remote-routine,
+  github-flow, global-caveman, pm-contribution-sync, pm-hub-report, seo-audit,
+  speckit-git-commit, speckit-git-remote, speckit-implement (~110KB, frozen since May–June)
+- **15 "teach the model to think" skills** current models make redundant (and that degrade
+  them): the dev-* soft belt (brainstorm, karpathy, zoom-out, grill, multi-agent, prototype,
+  planning, handoff, improve-arch, diagnose, github-hygiene, qa-delegation) and
+  qa-best-practices / qa-planning / qa-documentation. Their few real rules are folded into
+  the developer/qa agent files as short "Working style" sections
+- **The autonomous cron rhythm** (decided dead): .claude/scheduled-tasks/ (11 schedule defs),
+  pm-standup, the scaffold's standup/ tree, and the team-hours scripts
+
+### Changed
+- pm-epic-writing routes straight to dev-feature-plan (dev-planning removed)
+- agent-routing rows for removed skills keep their trigger → agent mapping
+- Survivors: content pipeline (writer/designer/publisher/email ×9), PM discovery pipeline
+  (×9 incl. speckit chain ×9), dev-feature-plan + dev-tdd + plan-protocol, devops ×4, qa-triage
+
+---
+
 ## [2.1.0] — 2026-08-25
 
 ### Changed

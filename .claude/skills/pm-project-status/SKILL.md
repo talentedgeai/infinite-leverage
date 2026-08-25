@@ -28,7 +28,7 @@ Pipeline uses 5 dots: Specified ●/○ → In flight ●/○ → Feature-comple
 - Deep-link to epic-status.md
 
 ### 4. Build Log
-Recent commits to main, grouped by date, newest first. Omit PM/standup commits.
+Recent commits to main, grouped by date, newest first. Omit PM/status-dashboard commits.
 
 ### 5. Companion Docs
 Grid of links to all docs/product/ files.

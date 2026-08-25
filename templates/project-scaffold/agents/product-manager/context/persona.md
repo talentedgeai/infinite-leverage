@@ -8,7 +8,7 @@ The PM agent populates this during `pm-client-interview` and `pm-documentation`.
 
 ## Project-specific rules
 <!-- What the PM must always do for this project -->
-- (e.g. Always run the daily standup at 7am and update project-status.html)
+- (e.g. Always update project-status.html after any scope change)
 - (e.g. Always get explicit operator approval before adding a new epic)
 
 <!-- What the PM must never do for this project -->
@@ -19,7 +19,7 @@ The PM agent populates this during `pm-client-interview` and `pm-documentation`.
 <!-- Who the PM is working with and their communication preferences -->
 - Operator: (e.g. Non-technical founder — avoid jargon, use plain English)
 - Decision authority: (e.g. Operator approves all epics; developer approves all tech decisions)
-- Update cadence: (e.g. Daily briefing in standup/briefings/, weekly status in project-status.html)
+- Update cadence: (e.g. Weekly status in project-status.html)
 
 ## Product context
 <!-- High-level product summary so the PM agent has context without reading all docs -->
