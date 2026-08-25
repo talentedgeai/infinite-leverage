@@ -21,18 +21,18 @@ Find the first folder that has both `blog.md` AND `{slug}-hero.webp` but NO publ
 
 ### Phase 2 — Code (delegated to Developer)
 4. **Brief the Developer agent:**
-   - Target file: `website/pages/blog/posts/{slug}.jsx`
-   - Requirements: `import Head from 'next/head'` (title, meta, OG/Twitter, canonical); `import Image from 'next/image'` for all images; read-time estimate in post header; category tag from style guide; CSS module or global styles (no inline)
-   - Patterns to follow: existing posts in `website/pages/blog/posts/`
-5. **Wait for Developer to confirm** the component is written and `npm run build` passes clean
+   - Target file: `website/app/blog/{slug}/page.tsx` (App Router)
+   - Requirements: `export const metadata` (or `generateMetadata`) with title, description, OG/Twitter, canonical; `next/image` for all images; read-time estimate in post header; category tag from style guide; Tailwind classes (no inline styles)
+   - Patterns to follow: existing posts under `website/app/blog/`
+5. **Wait for Developer to confirm** the page is written and `npm run build` passes clean
 
 ### Phase 3 — Index update (Web Publisher's responsibility)
-6. Add post card at the top of `website/pages/blog/index.jsx` — follow existing card pattern exactly
+6. Add the post card at the top of the blog index (`website/app/blog/page.tsx`) — follow the existing card pattern exactly
 
 ### Phase 4 — Quality gate (run before commit)
-- [ ] Component renders — correct JSX, no missing imports
+- [ ] Page renders — correct TSX, no missing imports
 - [ ] All images use `next/image` with correct `src`, `alt`, `width`, `height`
-- [ ] `<Head>` includes title, meta description, OG/Twitter tags
+- [ ] `metadata` includes title, meta description, OG/Twitter tags
 - [ ] Category tag matches a valid blog category
 - [ ] Post card at top of blog index grid
 - [ ] Read-time estimate in post header
@@ -40,9 +40,9 @@ Find the first folder that has both `blog.md` AND `{slug}-hero.webp` but NO publ
 ### Phase 5 — Commit and push
 7. Stage explicitly:
    ```bash
-   git add website/pages/blog/posts/{slug}.jsx \
+   git add website/app/blog/{slug}/page.tsx \
            website/public/images/blog/{slug}-hero.webp \
-           website/pages/blog/index.jsx
+           website/app/blog/page.tsx
    ```
 8. Commit: `git commit -m "publish: {Post Title}"`
 9. Push: `git push origin main`

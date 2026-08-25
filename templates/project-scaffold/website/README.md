@@ -14,7 +14,7 @@ rsync -a --ignore-existing "$NEXT_TMP/nextapp/" website/
 rm -rf "$NEXT_TMP"
 ```
 
-See `infiniteleverage-project` SKILL.md Step 9 for the full workflow: the dependency install list, wiring `app/providers.tsx` (QueryClientProvider) into `app/layout.tsx`, and the `npm run build && npx vitest run` verification gate.
+See `il-project` SKILL.md Step 9 for the full workflow: the dependency install list, wiring `app/providers.tsx` (QueryClientProvider) into `app/layout.tsx`, and the `npm run build && npx vitest run` verification gate.
 
 Do NOT run `create-next-app` directly into this folder (it refuses non-empty directories) and do NOT use `--src-dir` (the starter kit uses a root-level `app/` layout).
 
