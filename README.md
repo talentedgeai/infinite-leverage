@@ -63,23 +63,16 @@ The v1 setup skills are retired and replaced:
 Machines still carrying the v1 copies keep working until they migrate; the
 private `edge8-telemetry` plugin cleans them up on its first run.
 
-## The 8 agents & their skills
+## The 8 agents
 
-### Build team
-| Agent | Skills |
-|-------|--------|
-| product-manager | `pm-client-interview`, `pm-documentation`, `pm-project-status`, `pm-standup`, `pm-epic-writing` (+ speckit pipeline), `pm-constitution-sync` |
-| developer | `dev-planning`, `dev-feature-plan`, `dev-brainstorm`, `dev-zoom-out`, `dev-karpathy`, `dev-tdd`, `dev-prototype`, `dev-improve-arch`, `dev-multi-agent`, `dev-github-hygiene`, `dev-diagnose`, `dev-grill`, `dev-qa-delegation`, `dev-handoff`, `plan-protocol` |
-| qa | `qa-triage`, `qa-best-practices`, `qa-planning`, `qa-documentation` |
-| devops | `devops-ops`, `devops-setup-pre-commit`, `devops-cicd`, `devops-git-guardrails` |
+**Build team**: product-manager, developer, qa, devops · **GTM team**: writer,
+designer, web-publisher, email-marketer.
 
-### GTM team
-| Agent | Skills |
-|-------|--------|
-| writer | `writer-seo-content`, `writer-quality-critique`, `marketing-strategist` |
-| designer | `designer-design-system`, `designer-ui-ux`, `designer-style-to-photo`, `designer-image-generation` |
-| web-publisher | `web-publisher-publish` |
-| email-marketer | `email-marketer-nurture` |
+Each agent is a thin definition in [`.claude/agents/`](.claude/agents) listing
+the workflow skills it uses; the skills themselves live in
+[`.claude/skills/`](.claude/skills). Those two directories are the single
+source of truth — this README deliberately doesn't enumerate skills, because a
+hand-maintained list is how the v1 docs drifted.
 
 ## Updating
 
