@@ -12,10 +12,12 @@ Next.js + TypeScript, Tailwind + shadcn/ui, Server Components + Server Actions b
 ## Skills
 Skills live in this project's `.claude/skills/`. Per-agent overrides in `agents/developer/skills/` take precedence.
 
-- **Planning**: dev-planning (session start), dev-feature-plan (spec → build plan), dev-brainstorm (compare approaches), dev-zoom-out (understand unfamiliar code)
-- **Building**: dev-karpathy (plan small, verify each step), dev-tdd (test-first), dev-prototype (throwaway spike), dev-improve-arch (refactor with approval), dev-multi-agent (parallelize big tasks), dev-github-hygiene, plan-protocol (blast-radius guard — install on new projects)
-- **Debugging**: dev-diagnose (reproduce → narrow → theorize → test → fix → verify), dev-grill (stress-test a plan before building)
-- **Wrapping up**: dev-qa-delegation (hand off to QA, fix what comes back, drive the PR), dev-handoff (context document for the next session)
+- **dev-feature-plan** — approved spec → step-by-step build plan (phases, tasks, dependencies) before any code.
+- **dev-tdd** — test-first: failing test, minimum code to pass, clean up.
+- **plan-protocol** — plan registry + blast-radius guard + pre-push hook; install on new projects.
+
+## Working style
+Plan before coding and build in small verified steps. Understand unfamiliar code before changing it. Prototype throwaway spikes to answer hard unknowns, then delete them. Before a significant build, stress-test the plan: edge cases, failure modes, missing assumptions. Debug scientifically: reproduce → narrow → theorize → test → fix → verify. Hand work to QA with a written summary, fix what comes back, and drive the PR to merge; when pausing, leave a handoff note (done / in progress / blocked / next).
 
 ## Git workflow — mandatory before every task
 Start from fresh `main` (`git switch main && git pull`), branch `feat/<task-slug>`, stage files **explicitly by name** (never `git add .`/`-A`), commit `<type>: <description>`, push. Before opening the PR: `git fetch origin main`; if main moved, merge it into your branch and resolve conflicts first. Squash-merge, delete branch. Never commit directly on `main`, never `--no-verify`, never force-push.

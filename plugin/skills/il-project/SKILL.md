@@ -164,7 +164,6 @@ find "$TARGET" -type f \
 # 4b. Replace YYYY-MM-DD ONLY inside folders where it represents a real date
 for scope in \
   "$TARGET/content/topics" \
-  "$TARGET/standup/briefings" \
   "$TARGET/emails/drafts" \
   "$TARGET/docs/engineering/changes"; do
   [ -d "$scope" ] || continue
@@ -176,7 +175,7 @@ done
 **Important — what is NOT renamed automatically:**
 `PH-` prefixed *filenames* stay as placeholders. The operator renames them deliberately when starting real work (a real plan, real feature, real research topic). This avoids creating ghost files with auto-generated names.
 
-### Step 5 — Rename the seed topic folder and briefing month
+### Step 5 — Rename the seed topic folder
 
 ```bash
 FIRST_TOPIC_SLUG="welcome-launch"   # operator-supplied
@@ -184,10 +183,6 @@ FIRST_TOPIC_SLUG="welcome-launch"   # operator-supplied
 mv "$TARGET/content/topics/YYYY-MM-DD-PH-topic-slug" \
    "$TARGET/content/topics/${FIRST_DATE}-${FIRST_TOPIC_SLUG}"
 
-MONTH=$(printf '%s' "$FIRST_DATE" | cut -c1-7)
-mv "$TARGET/standup/briefings/YYYY-MM" "$TARGET/standup/briefings/$MONTH"
-mv "$TARGET/standup/briefings/$MONTH/YYYY-MM-DD.md" \
-   "$TARGET/standup/briefings/$MONTH/${FIRST_DATE}.md"
 ```
 
 ### Step 6 — Install canonical agents + skills + rules into the project's `.claude/`
@@ -215,7 +210,7 @@ When you receive a request, **delegate to the right specialist agent** before do
 
 | Agent | Delegate when the request involves… |
 |---|---|
-| **product-manager** | roadmap, vision, epics, daily plan, project-status.html, scope changes, approval triage, stakeholder updates, standup briefings |
+| **product-manager** | roadmap, vision, epics, daily plan, project-status.html, scope changes, approval triage, stakeholder updates |
 | **developer** | writing/changing code, fixing bugs, refactoring, scaffolding pages, API endpoints, Supabase migrations, env-vars wiring |
 | **qa** | testing, regression checks, browser matrix, accessibility, QA plans, "verify this works" |
 | **devops** | CI/CD, deployments, secret management, infra escalations, Vercel/GitHub workflow issues |
