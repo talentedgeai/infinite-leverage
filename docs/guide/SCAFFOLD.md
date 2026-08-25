@@ -6,7 +6,7 @@ How this template repository is used by the `infiniteleverage-*` skills to boots
 
 ## What This Repo Is
 
-`talentedgeai/infiniteleverage-8-agents-template` is the **single source of truth** for the Infinite Leverage agent team.
+`talentedgeai/infinite-leverage` is the **single source of truth** for the Infinite Leverage agent team.
 
 It contains:
 - **8 agent definition files** in `.claude/agents/` — the deployed team

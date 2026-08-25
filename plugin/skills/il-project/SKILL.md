@@ -1,6 +1,6 @@
 ---
 name: il-project
-description: This skill should be used when the operator says "il project", "new project", "scaffold a project", "create infinite leverage project", "init new project", "start new client project", or "bootstrap project folder". Scaffolds a brand-new project directory from the canonical `templates/project-scaffold/` in `talentedgeai/infiniteleverage-8-agents-template`, substitutes placeholders, wires the 8-agent team into `.claude/`, seeds `docs/product/` (product.md, epics.md, epic-status.md) from any rich description the operator provides, seeds `docs/brand/` styling from a chosen or random getdesign.md reference, initializes git, and prints next steps. All operations are inline — no bundled scripts.
+description: This skill should be used when the operator says "il project", "new project", "scaffold a project", "create infinite leverage project", "init new project", "start new client project", or "bootstrap project folder". Scaffolds a brand-new project directory from the canonical `templates/project-scaffold/` in `talentedgeai/infinite-leverage`, substitutes placeholders, wires the 8-agent team into `.claude/`, seeds `docs/product/` (product.md, epics.md, epic-status.md) from any rich description the operator provides, seeds `docs/brand/` styling from a chosen or random getdesign.md reference, initializes git, and prints next steps. All operations are inline — no bundled scripts.
 version: 3.0.0
 ---
 
@@ -10,7 +10,7 @@ version: 3.0.0
 
 **Every file this skill writes comes from ONE repo:**
 
-> https://github.com/talentedgeai/infiniteleverage-8-agents-template
+> https://github.com/talentedgeai/infinite-leverage
 
 | What | Canonical path |
 |---|---|
@@ -107,7 +107,7 @@ TARGET="$HOME/code-projects/<project-slug>"   # substitute real value
 
 ```bash
 TMP=$(mktemp -d)
-gh repo clone talentedgeai/infiniteleverage-8-agents-template "$TMP/il-template" -- --depth 1
+gh repo clone talentedgeai/infinite-leverage "$TMP/il-template" -- --depth 1
 cp -R "$TMP/il-template/templates/project-scaffold/." "$TARGET"
 ```
 
