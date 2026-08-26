@@ -6,6 +6,32 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.3] — 2026-08-26
+
+**Scaffold-to-CI continuity.** Verified that a project `il-project` produces passes the
+pipeline `devops-cicd` installs, and documented what Next 16 now adds on its own.
+
+### Verified (no code change needed)
+- **The first commit does not swallow `node_modules`.** Step 10 stages every untracked
+  file *after* Step 9's `npm install`; confirmed the root `.gitignore` and
+  create-next-app's `website/.gitignore` both cover it — 158 files, 1.1 MB, zero
+  `node_modules`, `.next`, or `.env` entries
+- **`npm ci` works from the committed lockfile**, and every file the generated pipeline
+  reads (`package.json`, `package-lock.json`, `tsconfig.json`, `eslint.config.mjs`,
+  `vitest.config.mts`, `vitest.setup.ts`) is in that first commit
+- **The generated CI pipeline is green on a fresh project**: install, lint, type check,
+  test (20 passing), build — all exit 0
+
+### Added
+- `website/AGENTS.md` and `website/CLAUDE.md` documented in `FOLDER-STRUCTURE.md` and
+  `il-project` step 9. Next 16's create-next-app writes both (`CLAUDE.md` is a one-line
+  `@AGENTS.md` import; `next dev` rewrites the block inside `AGENTS.md`). They are
+  framework-owned, they load only when an agent works inside `website/`, and they must not
+  be confused with the repo-root `CLAUDE.md` that carries the agent-delegation block or a
+  repo-root `AGENTS.md` installed by `plan-protocol`
+
+---
+
 ## [2.4.2] — 2026-08-26
 
 **The web template, actually run.** `il-project` step 9 had never been executed end to
