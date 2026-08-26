@@ -60,7 +60,11 @@ export const DEFAULT_CONFIG = {
   trivialFixMaxFiles: 3,
   staleWarnDays: 7,
   claimExpiryDays: 14,
-  components: ['learner', 'manager', 'admin', 'platform'],
+  // Empty = no taxonomy imposed: any non-empty `component` string is valid.
+  // A project that wants a fixed vocabulary sets its own list in config.json and
+  // the enum is enforced against that. The engine ships no domain words of its
+  // own — it has to work for a Rails shop and a marketing site alike.
+  components: [],
   statuses: ['planned', 'in-progress', 'blocked', 'shipped', 'superseded'],
   activeStatuses: ['planned', 'in-progress', 'blocked'],
   verifyCmd: null,
@@ -140,7 +144,8 @@ export function metaFromFields(fields, dir, rel, config = DEFAULT_CONFIG) {
 
   if (meta.slug !== dir) errors.push(`${rel} — slug "${meta.slug}" must equal dir name "${dir}"`)
   if (!meta.title) errors.push(`${rel} — missing "title"`)
-  if (!config.components.includes(meta.component))
+  if (!meta.component) errors.push(`${rel} — missing "component"`)
+  else if (config.components.length && !config.components.includes(meta.component))
     errors.push(`${rel} — "component" must be one of: ${config.components.join(', ')}`)
   if (!config.statuses.includes(meta.status))
     errors.push(`${rel} — "status" must be one of: ${config.statuses.join(', ')}`)
@@ -676,7 +681,11 @@ function today(now = new Date()) {
 // files. Registering a plan for it makes the install self-consistent from the
 // first command — and leaves a worked meta.yaml in the repo as the example.
 export function bootstrapPlan(config, { branch, onMain, owner, date }) {
-  const component = config.components.includes('platform') ? 'platform' : config.components[0]
+  const component = !config.components.length
+    ? 'platform'
+    : config.components.includes('platform')
+      ? 'platform'
+      : config.components[0]
   const lines = [
     'slug: 000-plan-protocol',
     'title: Plan protocol installation',
@@ -706,6 +715,9 @@ function verbInit(root, config) {
       baseRef: DEFAULT_CONFIG.baseRef,
       exempt: DEFAULT_CONFIG.exempt,
       hotZones: detectHotZones(root),
+      // Written explicitly so the knob is discoverable. [] = any component
+      // string is accepted; fill it in to enforce a fixed vocabulary.
+      components: DEFAULT_CONFIG.components,
       trivialFixMaxFiles: DEFAULT_CONFIG.trivialFixMaxFiles,
       verifyCmd: hasPkg || hasWebsitePkg ? 'npm run verify' : null,
       verifyCwd: hasWebsitePkg && !hasPkg ? 'website' : '.',

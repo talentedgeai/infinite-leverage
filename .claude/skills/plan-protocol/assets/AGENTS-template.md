@@ -58,7 +58,7 @@ do not talk yourself into "this is basically a typo".
    ```yaml
    slug: 001-example-feature        # must equal the dir name
    title: Example feature
-   component: platform              # one of config.json's `components`
+   component: platform              # free-form unless config.json lists `components`
    status: planned                  # planned | in-progress | blocked | shipped | superseded
    owner: your-name/claude-code     # person/runtime — required once status is active
    branch: feat/001-example         # required once in-progress

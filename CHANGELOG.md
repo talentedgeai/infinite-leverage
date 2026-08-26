@@ -6,6 +6,47 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.4] — 2026-08-26
+
+**The plan-protocol engine, actually run.** A 35 KB engine with its own 30-test suite ships
+into every scaffolded project, and nothing had ever executed either — not CI, not a review.
+Running it end to end surfaced a portability bug that made the skill's headline claim false.
+
+### Fixed
+- **`plan-protocol` imposed one client's domain vocabulary on every project.** The engine
+  hard-coded `components: ['learner', 'manager', 'admin', 'platform']` and `init` never
+  wrote the key into `config.json`, so it was invisible and unoverridable in practice —
+  a Rails shop had to label its billing work `learner`. The skill's own description says it
+  "works in any stack". `components` now ships **empty**, meaning any non-empty component
+  string is valid; a project opts into a fixed vocabulary by filling the list in, and the
+  enum is enforced against that. A missing `component` is still an error.
+  Backwards compatible: an install that already sets `components` keeps its enum
+- **`init` now writes `components` into `config.json`** so the knob is discoverable, and
+  `bootstrapPlan` no longer indexes into a possibly-empty list
+
+### Added
+- **CI runs the plan-protocol engine suite** (`node --test`, 32 tests, no install needed).
+  It had never run; a regression in the enforcement engine would have shipped silently
+- **CI asserts the engine ships no domain vocabulary** — `DEFAULT_CONFIG.components` must be
+  empty. Verified against the regression: reintroducing the old list fails the build
+- Two engine tests for the taxonomy modes (free-form by default, enforced when configured),
+  replacing the one that asserted the client-specific enum
+
+### Verified end to end (not just unit-tested)
+Installed the protocol into two throwaway repos — a Next-shaped one and a Rails-shaped one:
+- `init` writes `config.json`, scaffolds `.githooks/pre-push` mode 755, sets
+  `core.hooksPath`, seeds a bootstrap plan, and `doctor` reports enforcing
+- hot-zone detection found the Rails layout (`db/migrate`, `Gemfile`) with no Node marker
+- the pre-push hook **blocks a direct push to `main`**
+- the blast-radius guard exits 1 on an undeclared hot-zone change, and the pre-push hook
+  blocks that push too — the protocol's core promise, now demonstrated rather than asserted
+
+### Changed
+- `SKILL.md` documents `components` in the policy list; `AGENTS-template.md` no longer
+  implies the list is always populated
+
+---
+
 ## [2.4.3] — 2026-08-26
 
 **Scaffold-to-CI continuity.** Verified that a project `il-project` produces passes the
