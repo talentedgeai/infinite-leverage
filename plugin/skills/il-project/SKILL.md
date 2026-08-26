@@ -145,9 +145,28 @@ TARGET="$HOME/code-projects/<project-slug>"   # substitute real value
 
 > **gh syntax note** — flags for the underlying `git clone` (e.g. `--depth 1`) must come after a `--` separator, otherwise gh interprets them as its own options.
 
+**Pin the content to the plugin's own release.** This skill lives in the installed
+plugin, which Claude Code caches per version; the scaffold, agents and skills it copies
+come from the canonical repo at clone time. Unpinned, those two drift: a client running a
+cached older plugin would pull newer scaffold content, and in a workshop two people
+running the same command minutes apart get different scaffolds if `main` moves.
+
 ```bash
 TMP=$(mktemp -d)
-gh repo clone talentedgeai/infinite-leverage "$TMP/il-template" -- --depth 1
+REPO=talentedgeai/infinite-leverage
+
+# The running plugin knows its own version.
+IL_VERSION=$(python3 -c "import json,os,sys; print(json.load(open(os.path.join(os.environ['CLAUDE_PLUGIN_ROOT'],'.claude-plugin','plugin.json')))['version'])" 2>/dev/null)
+
+if [ -n "$IL_VERSION" ] && git ls-remote --tags "https://github.com/$REPO" "refs/tags/v$IL_VERSION" | grep -q .; then
+  gh repo clone "$REPO" "$TMP/il-template" -- --depth 1 --branch "v$IL_VERSION"
+  echo "✅ scaffold pinned to v$IL_VERSION — matches the installed plugin"
+else
+  gh repo clone "$REPO" "$TMP/il-template" -- --depth 1
+  echo "⚠️  no tag v${IL_VERSION:-?} on $REPO — falling back to main."
+  echo "   The scaffold may be newer than this skill. Report it if the scaffold looks wrong."
+fi
+
 cp -R "$TMP/il-template/templates/project-scaffold/." "$TARGET"
 ```
 

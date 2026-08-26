@@ -1,6 +1,6 @@
 # Image prompts — PH topic title
 
-<!-- design-preset: PH-preset-name — PH one-line reason (added by designer-style-to-photo) -->
+<!-- treatment: PH-treatment — PH one-line reason (added by designer-style-to-photo) -->
 
 Written by the Writer (`writer-seo-content`) as one JSON block per asset.
 The Designer reads these directly — it never invents a prompt of its own.
@@ -9,7 +9,7 @@ The Designer reads these directly — it never invents a prompt of its own.
 ```json
 {
   "subject": "PH — main visual element",
-  "style": "PH — art or photographic style, aligned to the design preset",
+  "style": "PH — art or photographic style, aligned to docs/brand/style-guide.md",
   "mood": "PH — emotional tone",
   "palette": "PH — key colours from docs/brand/style-guide.md",
   "composition": "PH — 16:9 landscape, framing note",

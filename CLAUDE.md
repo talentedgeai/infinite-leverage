@@ -23,7 +23,18 @@ plugin, the 6 agent definitions, their skills, and the project scaffold.
   that all belongs in `talentedgeai/edge8-telemetry` (private).
 
 ## Release flow
-Bump `plugin/.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json`
-versions together (and `VERSION`, kept for v1 machines' update nag), update
-`CHANGELOG.md`, merge to `main`. Installed plugins update through the
-marketplace — there is no zip/copy step anymore.
+1. Bump `plugin/.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json`
+   versions together (and `VERSION`, kept for v1 machines' update nag).
+2. Update `CHANGELOG.md`.
+3. Merge to `main`.
+4. **Tag the merge commit `vX.Y.Z` and push the tag.** This is not optional.
+   `/il-project` step 3 clones the tag matching the running plugin's version so
+   a client's scaffold matches the skill instructions they are executing; with
+   no tag it falls back to `main` and the two can drift. `/il-doctor` also
+   compares the installed version against the newest tag to tell a client when
+   to update — a cached older plugin is how a fixed bug keeps biting, since the
+   `/il-project` steps themselves ship inside the plugin.
+
+Installed plugins update through the marketplace — there is no zip/copy step.
+
+Before a release that a client will run, work through `docs/RELEASE-CHECKLIST.md`.

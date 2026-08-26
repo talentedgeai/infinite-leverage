@@ -19,7 +19,16 @@ claude plugin marketplace add talentedgeai/infinite-leverage
 claude plugin install infiniteleverage@infiniteleverage
 ```
 
-Then run `/il-doctor` once — it verifies the prerequisites.
+Then run `/il-doctor` once. It checks the prerequisites (`git`, an authenticated
+`gh`, `perl`, `node`/`npm`/`npx`, `rsync`), and tells you if your installed plugin
+is behind the latest release — worth doing before a workshop, since `/il-project`'s
+own steps ship inside the plugin.
+
+To update later:
+
+```bash
+claude plugin update infiniteleverage@infiniteleverage
+```
 
 ## What the plugin contains
 

@@ -23,7 +23,7 @@ cat content/topics/{slug}/image-prompts.md 2>/dev/null
 
 **If `image-prompts.md` exists:** read the `## hero.webp` section and parse the JSON block as the generation prompt.
 
-If the file has no `<!-- design-preset: … -->` comment at the top, run
+If the file has no `<!-- treatment: … -->` comment at the top, run
 `designer-style-to-photo` first — it aligns `style` / `mood` / `palette` to
 `docs/brand/style-guide.md` so the image comes back on-brand.
 
