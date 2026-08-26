@@ -34,6 +34,21 @@ plugin, the 6 agent definitions, their skills, and the project scaffold.
    compares the installed version against the newest tag to tell a client when
    to update — a cached older plugin is how a fixed bug keeps biting, since the
    `/il-project` steps themselves ship inside the plugin.
+5. **Mirror the release to `talentedgeai/infiniteleverage-8-plugin`** (private).
+   The claude.ai org plugin directory can only sync private repos, so that repo
+   distributes this plugin to every AIO Labs seat ("Installed by default") — a
+   webhook on its `main` triggers the directory re-sync. From this repo:
+
+   ```bash
+   git clone git@github.com:talentedgeai/infiniteleverage-8-plugin.git /tmp/il-dist
+   rm -rf /tmp/il-dist/.claude-plugin /tmp/il-dist/plugin
+   git archive vX.Y.Z -- .claude-plugin plugin | tar -x -C /tmp/il-dist
+   git -C /tmp/il-dist add -A && git -C /tmp/il-dist commit -m "mirror vX.Y.Z" && git -C /tmp/il-dist push
+   ```
+
+   Skipping this leaves org seats on the previous version while external
+   installs (public marketplace add) move ahead — exactly the v1 freeze that
+   served a June snapshot for 2½ months.
 
 Installed plugins update through the marketplace — there is no zip/copy step.
 
