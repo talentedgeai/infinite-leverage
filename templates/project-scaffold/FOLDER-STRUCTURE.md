@@ -12,7 +12,7 @@ These files have hard-coded names that skills and agents reference by path:
 | `docs/product/epics.md` | PM agent | `pm-epic-writing` skill |
 | `docs/product/epic-status.md` | PM agent | `pm-epic-writing` skill |
 | `docs/project-status.html` | PM agent | `pm-project-status` skill |
-| `CLAUDE.md` | All agents | Manual / `/init` |
+| `CLAUDE.md` | All agents | Manual / `/init` — the **root** one. `website/CLAUDE.md` is a different, create-next-app-generated file; never edit one thinking it is the other |
 | `README.md` | Developer agent | Manual |
 | `.gitignore` | Developer agent | Manual |
 | `docs/brand/style-guide.md` | All agents | Manual (PM-guided during setup) |
@@ -125,11 +125,13 @@ These files have hard-coded names that skills and agents reference by path:
 ├── website/                                    ← Next.js app: starter kit (chat, billing, notifications,
 │   ├── app/                                     markdown, Supabase migrations, tests) merged with a
 │   ├── components/                              fresh create-next-app install (--no-src-dir) — see
-│   ├── lib/                                     infiniteleverage-project SKILL.md Step 9
+│   ├── lib/                                     il-project SKILL.md Step 9
 │   ├── supabase/
 │   ├── docs/
-│   ├── vitest.config.mts
+│   ├── vitest.config.mts                        [ESM — .mts, not .ts; see Step 9]
 │   ├── vitest.setup.ts
+│   ├── AGENTS.md                                [create-next-app generates this — NOT IL-owned]
+│   ├── CLAUDE.md                                [create-next-app: just `@AGENTS.md` — NOT the root CLAUDE.md]
 │   └── README.md
 │
 ├── CLAUDE.md                                   [FIXED]
@@ -148,6 +150,7 @@ These files have hard-coded names that skills and agents reference by path:
 
 1. **Never invent new top-level folders.** New work goes inside an existing slot. If a slot doesn't fit, raise it to the PM agent first.
 2. **Honor fixed filenames.** Never rename `product.md`, `epics.md`, `epic-status.md`, `project-status.html`. Skills break otherwise.
+2b. **`website/AGENTS.md` and `website/CLAUDE.md` belong to Next.js, not to us.** create-next-app writes them, and `next dev` rewrites the block inside `AGENTS.md`. They carry framework guidance for whatever Next version is installed — leave them in place, commit them, and do not hand-edit or confuse them with the repo-root `CLAUDE.md` (agent delegation) or a repo-root `AGENTS.md` (installed by `plan-protocol`).
 3. **Per-agent context lives under `agents/<agent>/context/`**, not under `docs/`. `docs/` is for humans.
 4. **Project-local skills** go in `agents/<agent>/skills/<skill-name>/SKILL.md`. These are loaded after global skills and take precedence — do not duplicate global skill names, only add new project-specific capabilities.
 5. **Source content → `content/topics/<slug>/`. Published artifacts → `website/`.** Never publish directly from `content/`.
