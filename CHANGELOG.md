@@ -6,6 +6,57 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.6] — 2026-08-26
+
+**Install-path pinning, and the Designer chain fixed to match the file it actually reads.**
+Triaged the last open v1 PR and ported the durable idea out of it.
+
+### Fixed
+- **`/il-project` cloned the canonical content from `main`, unpinned, while the plugin
+  itself is cached per version.** The two drift: a client on a cached older plugin pulls
+  newer scaffold content, and in a workshop two people running the same command minutes
+  apart get different scaffolds if `main` moves. Step 3 now clones the tag matching the
+  running plugin's version (read from its own `plugin.json` via `CLAUDE_PLUGIN_ROOT`) and
+  says so, falling back to `main` with a visible warning when no tag exists
+- **v2 releases were never tagged** — the newest tag was `v1.8.0`, so there was nothing to
+  pin to. Tagged `v2.4.0` … `v2.4.5` at their release commits, and the release flow in
+  `CLAUDE.md` now requires tagging as a step, not an afterthought
+- **`/il-doctor` now reports plugin version skew.** A cached older plugin is how a fixed
+  bug keeps biting — `/il-project`'s own steps ship *inside* the plugin, so a client stayed
+  on the broken step 6 until they updated, and nothing told them to. Verified against the
+  real cache: a client on v2.4.0 is told v2.4.5 is out and given the update command
+- **The Designer chain read a file shape that does not exist.** `designer-design-system`
+  and `designer-style-to-photo` both described `docs/brand/style-guide.md` as holding
+  "5 presets"; the file `/il-project` step 8.7 actually creates is a **single brand
+  identity** (Brand identity · Voice · Vocabulary · Colour palette · Typography · Visual
+  style · Content formats). `designer-style-to-photo` step 1 would have looked for five
+  presets and found none — a break in the content pipeline on any real project
+
+### Changed
+- **`designer-design-system`** rewritten against the real file: it owns three sections
+  (Colour palette, Typography, Visual style), states who owns the rest, refuses to invent
+  a guide that does not exist, and gates on contrast plus no leftover placeholders
+- **`designer-style-to-photo`** picks a *treatment* within the one brand palette rather
+  than swapping palettes, and writes hex values from the guide's actual table. The marker
+  comment is now `<!-- treatment: … -->`; the scaffold stub and
+  `designer-image-generation` follow
+- **`designer-ui-ux`** was 17 lines of bullets with no procedure, yet "does this look
+  right" is one of its triggers. Now a review with a scope step, a runnable WCAG contrast
+  calculator (verified against the known AA boundary: `#767676` on white = 4.54), a report
+  format, and an explicit instruction not to claim a page "looks right" from a code read
+
+### Added
+- **`docs/RELEASE-CHECKLIST.md`** — runs 0–8 with a cadence, ported from the retired v1
+  init PR's test matrix. It states plainly which runs are verified and which have never
+  been executed
+
+### Triaged
+- **#55 closed.** All six files it touches were deleted in the v2 restructure; it modified
+  the retired `setup-skills/` bootstrap. Closed with a note mapping each of its 12
+  invariants to where it lives now, and its test matrix became the release checklist
+
+---
+
 ## [2.4.5] — 2026-08-26
 
 **A silent RLS denial in the billing path.** Cross-checking the scaffold's Supabase

@@ -76,6 +76,27 @@ if [ -f "FOLDER-STRUCTURE.md" ]; then
   fi
 fi
 
+# ── C2. Plugin version vs the marketplace ────────────────────────────────────
+# A cached older plugin is how a fixed bug keeps biting: /il-project's own steps
+# ship IN the plugin, so a client stays on the broken version until they update.
+echo ""
+echo "[ C2 · Plugin Version ]"
+PJ="${CLAUDE_PLUGIN_ROOT:-}/.claude-plugin/plugin.json"
+if [ -f "$PJ" ]; then
+  LOCAL_V=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['version'])" "$PJ" 2>/dev/null)
+  pass "installed plugin" "v${LOCAL_V:-unknown}"
+  REMOTE_V=$(git ls-remote --tags https://github.com/talentedgeai/infinite-leverage 'refs/tags/v*' 2>/dev/null     | sed 's#.*refs/tags/v##' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+  if [ -z "$REMOTE_V" ]; then
+    info "could not reach the marketplace to compare versions (offline is fine)"
+  elif [ "$REMOTE_V" != "$LOCAL_V" ] && [ "$(printf '%s\n%s' "$LOCAL_V" "$REMOTE_V" | sort -V | tail -1)" = "$REMOTE_V" ]; then
+    fail "plugin up to date" "v$LOCAL_V installed, v$REMOTE_V released — fix: claude plugin update infiniteleverage@infiniteleverage"
+  else
+    pass "plugin up to date" "v$LOCAL_V is current"
+  fi
+else
+  info "not running from an installed plugin — version check skipped"
+fi
+
 # ── D. Companion plugin (Edge8-internal) ─────────────────────────────────────
 echo ""
 echo "[ D · Companion ]"
