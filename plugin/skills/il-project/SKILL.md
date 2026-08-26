@@ -567,6 +567,13 @@ npm install -D vitest @vitejs/plugin-react @testing-library/react \
   @testing-library/user-event @testing-library/jest-dom jsdom
 ```
 
+**9c-note. create-next-app also writes `website/AGENTS.md` and `website/CLAUDE.md`.**
+Next 16 generates both — `CLAUDE.md` is a one-line `@AGENTS.md` import, and `AGENTS.md`
+carries version-specific framework guidance that `next dev` re-adds. Leave them, commit
+them, and do not confuse them with the repo-root `CLAUDE.md` that carries the agent
+delegation block from Step 7. They sit in `website/`, so they only load when an agent is
+working inside the app.
+
 **9d. Wire the React Query provider into the root layout.** The starter ships `app/providers.tsx` (QueryClientProvider); `app/layout.tsx` comes from create-next-app and must be edited to use it — the chat and notifications features fail to prerender otherwise:
 
 ```tsx
