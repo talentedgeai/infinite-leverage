@@ -128,7 +128,7 @@ These files have hard-coded names that skills and agents reference by path:
 │   ├── lib/                                     infiniteleverage-project SKILL.md Step 9
 │   ├── supabase/
 │   ├── docs/
-│   ├── vitest.config.ts
+│   ├── vitest.config.mts
 │   ├── vitest.setup.ts
 │   └── README.md
 │

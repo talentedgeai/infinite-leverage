@@ -6,6 +6,59 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.2] — 2026-08-26
+
+**The web template, actually run.** `il-project` step 9 had never been executed end to
+end in CI or in review. Running it revealed the shipped Next.js starter fails its own
+pipeline, plus a dependency that only resolved by luck. CI now guards the whole class.
+
+### Fixed
+- **The web template failed `npm run lint` with 2 errors**, so every new project's first
+  CI run — from the pipeline `devops-cicd` installs — went red on template code the
+  operator never wrote:
+  - `components/upload/FilePreview.tsx` called `setState` synchronously inside an effect
+    (`react-hooks/set-state-in-effect`). The object URL is now derived with `useMemo` and
+    revoked in a cleanup effect, which also removes a cascading render and the flash of
+    the file icon before the thumbnail
+  - `lib/chat/queries.test.ts` returned an anonymous wrapper component
+    (`react/display-name`) — now a named `Wrapper`
+  - Two unused-variable warnings cleared: `Link` in `MobileDrawer.tsx`, and the unused
+    props parameter (plus its now-orphaned type import) in `MDXEditorFull.tsx`
+- **`unified` was imported but never installed.** `MarkdownRenderer.tsx` does
+  `import type { PluggableList } from 'unified'`; step 9c never listed it, so it resolved
+  only because npm hoists it as a transitive dep of react-markdown. Added to step 9c
+- **`vitest.config.ts` → `vitest.config.mts`.** Vitest warned that ESM syntax in a
+  CommonJS-loaded config breaks under `configLoader: 'native'`, planned to become the
+  default. The `.mts` extension makes it explicitly ESM
+- **Step 6's install check was a `printf`, not a gate.** It only stopped when a count hit
+  zero. Now asserts 6 agents and ≥20 skills and exits non-zero otherwise — and counts with
+  `find` rather than a glob, because under zsh a non-matching glob aborts the command
+  instead of returning nothing
+
+### Changed
+- **Step 9e verifies the full pipeline**, not half of it: `npm run lint && npx tsc
+  --noEmit && npm run build && npx vitest run`. The previous gate ran build + vitest only,
+  which is exactly why two lint errors shipped
+- **`FilePreview` gained a test** (`FilePreview.test.tsx`, 6 cases) covering the
+  thumbnail, the non-image icon path, size formatting, `onRemove`, revoke-on-unmount, and
+  URL rotation when the file changes — the path the `useMemo` refactor could have broken
+
+### Added — CI guards for everything this review found
+The existing "no global-install regressions" check grepped only for `cp`, which is why
+`il-project` step 13's `mkdir`/`touch` into `~/.claude` survived three releases. Now:
+- Any write verb (`cp`/`mv`/`mkdir`/`touch`/`tee`/`rm`/`ln`/`install`) or shell
+  redirection targeting `~/.claude`, `$HOME/.claude` or `${HOME}/.claude` fails the build,
+  as does any mention of `human-token-tracker` or `il-telemetry` in the shipped payload
+- Agent and skill counts are asserted (6 / 24) **and cross-checked against the threshold
+  hard-coded in `doctor.sh`** — the drift that produced "found 6/8"
+- Every skill must have frontmatter whose `name` matches its directory
+- Every package the web template imports must be declared by step 9c
+
+Each guard was verified against the bug it targets: re-injecting the step-13 telemetry
+write, restoring `-ge 8`, and removing `unified` each fail CI.
+
+---
+
 ## [2.4.1] — 2026-08-26
 
 **Final skill review.** A full pass over all 26 skills, the 6 agents, the routing rules and

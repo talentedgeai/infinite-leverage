@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 
 interface FilePreviewProps {
   file: File
@@ -55,19 +55,22 @@ export function FilePreview({
   onRemove,
   className = '',
 }: FilePreviewProps): React.ReactElement {
-  const [objectUrl, setObjectUrl] = useState<string | null>(null)
   const isImage = IMAGE_MIME_TYPES.has(file.type)
 
+  // Derived, not state: calling setState inside an effect triggers a cascading
+  // render, and the thumbnail would flash the file icon on first paint.
+  const objectUrl = useMemo(
+    () => (isImage ? URL.createObjectURL(file) : null),
+    [file, isImage]
+  )
+
+  // Revoke the previous URL whenever it changes, and on unmount.
   useEffect(() => {
-    if (!isImage) return
-
-    const url = URL.createObjectURL(file)
-    setObjectUrl(url)
-
+    if (!objectUrl) return
     return () => {
-      URL.revokeObjectURL(url)
+      URL.revokeObjectURL(objectUrl)
     }
-  }, [file, isImage])
+  }, [objectUrl])
 
   return (
     <div

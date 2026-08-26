@@ -213,14 +213,23 @@ rm -rf "$TARGET/.claude/skills/PH-skill-name"   # scaffold placeholder — not a
 cp "$TMP/il-template/.claude/rules/global-engineering.md" "$TARGET/.claude/rules/"
 ```
 
-Verify before moving on — 6 agents and at least 20 skills must be present:
+Verify before moving on. This is a hard gate, not a print — a partial install is
+how a project silently ends up with no agents:
 
 ```bash
-echo "agents: $(ls "$TARGET/.claude/agents/"*.md 2>/dev/null | wc -l | tr -d ' ')/6"
-echo "skills: $(ls -d "$TARGET/.claude/skills/"*/ 2>/dev/null | wc -l | tr -d ' ')"
+# find, not a glob: under zsh a non-matching glob aborts the command instead of
+# returning nothing, so `ls dir/*.md` would error out rather than count zero.
+A=$(find "$TARGET/.claude/agents" -maxdepth 1 -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+S=$(find "$TARGET/.claude/skills" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+echo "agents: $A/6 · skills: $S/24"
+[ "$A" -eq 6 ] && [ "$S" -ge 20 ] || {
+  echo "❌ install incomplete — expected 6 agents and at least 20 skills"
+  echo "   check that \$TMP/il-template/.claude/ exists and the mkdir -p above ran"
+  exit 1
+}
 ```
 
-If either count is 0, stop and report — do not continue to Step 7.
+Do not continue to Step 7 unless this gate passes. Report the counts either way.
 
 ### Step 7 — Inject/refresh the AGENT-DELEGATION block in the project CLAUDE.md (inline)
 
@@ -553,7 +562,7 @@ cd "$TARGET/website"
 npm install @ai-sdk/react @mdxeditor/editor @supabase/ssr @supabase/supabase-js \
   @tanstack/react-form @tanstack/react-query @uiw/react-md-editor ai date-fns \
   lucide-react react-markdown rehype-external-links rehype-highlight rehype-slug \
-  remark-gfm stripe zustand
+  remark-gfm stripe unified zustand
 npm install -D vitest @vitejs/plugin-react @testing-library/react \
   @testing-library/user-event @testing-library/jest-dom jsdom
 ```
@@ -572,7 +581,7 @@ import { Providers } from "./providers";
 **9e. Verify before committing** — both must pass:
 
 ```bash
-cd "$TARGET/website" && npm run build && npx vitest run
+cd "$TARGET/website" && npm run lint && npx tsc --noEmit && npm run build && npx vitest run
 ```
 
 If the operator wants the legacy Pages Router instead (some older projects do), substitute `--no-app` for `--app`. Default is App Router per the canonical stack.

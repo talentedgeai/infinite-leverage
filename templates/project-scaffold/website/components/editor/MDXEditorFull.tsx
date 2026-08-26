@@ -39,7 +39,6 @@ import {
   InsertThematicBreak,
   ButtonWithTooltip,
   directivesPlugin,
-  type DirectiveEditorProps,
 } from '@mdxeditor/editor'
 import { MarkdownRenderer } from '@/components/markdown/MarkdownRenderer'
 
@@ -114,7 +113,7 @@ const plainTextCodeBlockDescriptor = {
 // Attachments directive extension
 // ---------------------------------------------------------------------------
 
-function AttachmentsDirectiveEditor(_props: DirectiveEditorProps) {
+function AttachmentsDirectiveEditor() {
   return (
     <div
       className="flex items-center gap-2 rounded-md border border-dashed border-neutral-300 bg-neutral-50 px-3 py-2 text-sm text-neutral-600"
