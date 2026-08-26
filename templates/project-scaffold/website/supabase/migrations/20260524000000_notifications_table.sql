@@ -13,7 +13,10 @@ create table notifications (
 alter table notifications enable row level security;
 
 create policy "user owns notifications"
-  on notifications for all using (auth.uid() = user_id);
+  on notifications for all
+  to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
 
 -- Optimises the two most common queries:
 -- 1. Fetch unread for a user (user_id, read_at IS NULL)

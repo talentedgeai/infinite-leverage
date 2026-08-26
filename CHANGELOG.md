@@ -6,6 +6,62 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.5] — 2026-08-26
+
+**A silent RLS denial in the billing path.** Cross-checking the scaffold's Supabase
+migrations against the code that queries them turned up a real bug in the shipped Stripe
+integration, plus three RLS hygiene gaps.
+
+### Fixed
+- **`app/api/billing/checkout/route.ts` wrote to `subscriptions` with the user-scoped
+  client, and RLS denied it silently.** That table's only policy is `for select` — by
+  design, since a user who could write their own row could set `plan: 'enterprise'` and
+  skip paying (`lib/billing/guards.ts` gates features on `plan`/`status`). The migration
+  says so in a comment: *"All writes are performed by the webhook handler using the
+  service role client."* The route did not follow it, and the result was never checked
+  (`await supabase...upsert(...)` with no `error` destructuring), so the write failed
+  without a trace. Consequences: `stripe_customer_id` is never persisted, so the **next**
+  checkout attempt finds no customer and mints a **second Stripe customer for the same
+  user**, and "Manage billing" returns *"No billing account found"* until a payment
+  actually completes and the webhook writes the row. Now uses the service-role client and
+  fails closed with a 500 if the write is rejected
+- **New `lib/supabase/service.ts`** — one shared service-role client, documented with why
+  `subscriptions` is SELECT-only, so the next route to need a privileged write does not
+  reinvent it. The webhook's private copy was removed in favour of it; it also throws a
+  named error when `SUPABASE_SECRET_KEY` is unset instead of failing at the API call
+
+### Changed — RLS hygiene across all four tables
+- **`auth.uid()` → `(select auth.uid())`.** Bare `auth.uid()` re-evaluates for every
+  candidate row; the subquery form is hoisted to an initplan and runs once. The documented
+  Supabase anti-pattern, present in every policy the scaffold shipped
+- **Policies scoped `to authenticated`.** They previously applied to every role, `anon`
+  included
+- **Explicit `with check`** on the `for all` policies, so the insert path is stated rather
+  than inherited from `using`
+- **Indexes on the columns RLS filters by** — `chat_sessions(user_id)` and
+  `chat_messages(user_id)` had none. `notifications` and `subscriptions` were already
+  covered (composite index / `unique` constraint)
+
+Migrations are edited in place because they are template files consumed at scaffold time.
+A project already scaffolded needs these as a follow-up migration.
+
+### Added — CI guards
+- **Queries match migrations**: every `.from('table').select('col')` in the web template
+  must resolve against a `create table` in `supabase/migrations/`. 24 query sites, 4 tables
+- **RLS hygiene**: every table enables RLS, no bare `auth.uid()`, every policy scoped
+  `to authenticated`
+
+Both verified against deliberate regressions — reverting to bare `auth.uid()`, dropping
+`to authenticated`, removing an `enable row level security`, and querying a nonexistent
+column each fail the build with a specific message.
+
+### Verified
+SQL parsed with libpg_query (`pglast`) — 16 statements across 3 migrations. The scaffolded
+app rebuilt from scratch with the billing fix: lint, `tsc --noEmit`, build, and vitest all
+exit 0 (20 tests).
+
+---
+
 ## [2.4.4] — 2026-08-26
 
 **The plan-protocol engine, actually run.** A 35 KB engine with its own 30-test suite ships

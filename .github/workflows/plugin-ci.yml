@@ -108,6 +108,82 @@ jobs:
           print("components default is empty (opt-in taxonomy)")
           PY
 
+      - name: Web template queries match its migrations
+        run: |
+          python3 - <<'PY'
+          import re, glob, os, sys
+          root = "templates/project-scaffold/website"
+
+          def strip_comments(src):
+              src = re.sub(r'/\*.*?\*/', '', src, flags=re.S)
+              keep = []
+              for line in src.split("\n"):
+                  if re.match(r'\s*//', line): continue
+                  keep.append(re.sub(r'(?<![:"\'/])//(?![/*]).*$', '', line))
+              return "\n".join(keep)
+
+          schema = {}
+          for f in sorted(glob.glob(f"{root}/supabase/migrations/*.sql")):
+              sql = open(f).read()
+              for m in re.finditer(r'create table (?:if not exists )?(\w+)\s*\((.*?)\n\);', sql, re.S | re.I):
+                  cols = set()
+                  for line in m.group(2).split("\n"):
+                      cm = re.match(r'^([a-z_][a-z0-9_]*)\s+\S', line.strip().rstrip(","))
+                      if cm and cm.group(1) not in ("primary","unique","foreign","constraint","check"):
+                          cols.add(cm.group(1))
+                  schema[m.group(1)] = cols
+
+          bad, sites = [], 0
+          for f in glob.glob(f"{root}/**/*.ts*", recursive=True):
+              if not os.path.isfile(f): continue
+              src = strip_comments(open(f, encoding="utf-8").read())
+              for m in re.finditer(r"\.from\(\s*['\"](\w+)['\"]\s*\)((?:\s*\.\w+\([^)]*\))*)", src):
+                  tbl, chain = m.group(1), m.group(2)
+                  sites += 1
+                  if tbl not in schema:
+                      bad.append(f"{f}: table '{tbl}' has no migration"); continue
+                  cols = []
+                  sel = re.search(r"\.select\(\s*['\"]([^'\"]*)['\"]", chain)
+                  if sel: cols += [c.strip().split(':')[0] for c in sel.group(1).split(',')]
+                  cols += [o.group(1) for o in re.finditer(r"\.(?:eq|neq|gt|gte|lt|lte|is|order|in)\(\s*['\"](\w+)['\"]", chain)]
+                  for c in (c.strip() for c in cols):
+                      if c and c != '*' and '(' not in c and c not in schema[tbl]:
+                          bad.append(f"{f}: {tbl}.{c} is not in the migration")
+          if bad:
+              print("\n".join(bad)); sys.exit(1)
+          print(f"{sites} query sites checked against {len(schema)} tables — all resolve")
+          PY
+
+      - name: Web template RLS hygiene
+        run: |
+          python3 - <<'PY'
+          import glob, re, sys
+          bad = []
+
+          def strip_sql_comments(src):
+              # -- comments explain the rules; they must not be scanned FOR the rules
+              src = re.sub(r'/\*.*?\*/', '', src, flags=re.S)
+              return "\n".join(re.sub(r'--.*$', '', line) for line in src.split("\n"))
+
+          for f in sorted(glob.glob("templates/project-scaffold/website/supabase/migrations/*.sql")):
+              sql = strip_sql_comments(open(f).read())
+              name = f.split("/")[-1]
+              for t in re.findall(r'create table (?:if not exists )?(\w+)', sql, re.I):
+                  if not re.search(rf'alter table {t} enable row level security', sql, re.I):
+                      bad.append(f"{name}: table '{t}' never enables row level security")
+              # bare auth.uid() re-evaluates per row; (select auth.uid()) is an initplan
+              for m in re.finditer(r'(?<!select )auth\.uid\(\)', sql):
+                  ctx = sql[max(0, m.start()-40):m.start()+15].replace("\n", " ")
+                  bad.append(f"{name}: bare auth.uid() — wrap as (select auth.uid()): ...{ctx.strip()}")
+              for m in re.finditer(r'create policy[^;]+;', sql, re.S | re.I):
+                  if 'to authenticated' not in m.group(0):
+                      pol = re.search(r'create policy\s+"([^"]+)"', m.group(0))
+                      bad.append(f"{name}: policy {pol.group(1) if pol else '?'} is not scoped `to authenticated`")
+          if bad:
+              print("\n".join("  " + b for b in bad)); sys.exit(1)
+          print("RLS enabled on every table; policies scoped and initplan-safe")
+          PY
+
       - name: Web template dependencies are all declared by il-project step 9c
         run: |
           python3 - <<'PY'
