@@ -186,4 +186,6 @@ findings and produces impl-plan.md + tasks.md.
 - **No horizontal slicing** — epics are user-outcome bundles, not tech layers
 - **Success is measurable** — "improve performance" is not an epic
 - **Sequence argument required** — every epic explains its place in the order
-- **No timelines in epics.md** — dates live in `docs/product/01-product-timeline.md`
+- **No timelines in epics.md** — epics carry sequence, not dates. Delivery dates live on
+  the dashboard (`docs/project-status.html`, via `pm-project-status`) and in the GitHub
+  issues created by `pm-to-issues`.

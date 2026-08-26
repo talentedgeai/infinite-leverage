@@ -35,13 +35,20 @@ Scan existing specs in `.specify/features/*/spec.md` for conflicts with the
 principles; list any found — the operator decides whether spec or constitution
 moves.
 
-## Step 3 — Sync and commit
+## Step 3 — Sync and stage
+
+Mirror the source, stage both copies, and stop. Committing is the operator's call
+(`.claude/rules/global-engineering.md`: never create a commit unless explicitly
+instructed).
 
 ```bash
 cp .specify/memory/constitution.md docs/product/constitution.md
 git add .specify/memory/constitution.md docs/product/constitution.md
-git commit -m "docs(constitution): establish project constitution v{version}"
+git status --short
 ```
+
+Suggested message if they ask you to commit:
+`docs(constitution): establish project constitution v{version}`
 
 ## Step 4 — Confirm
 

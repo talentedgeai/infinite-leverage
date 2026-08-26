@@ -25,4 +25,4 @@ Engineering guardrails that apply to every agent and every action in this repo.
 - Confirm before `rm -rf`, `git reset --hard`, `git branch -D`, or DB drops
 
 ## Continuous improvement
-When a solution is confirmed working AND explicitly approved, invoke `/capture-learning`.
+When a solution is confirmed working AND explicitly approved, append what was learned to `docs/engineering/changes/{YYYY-MM-DD}-{slug}.md` — the problem, the fix, and what confirmed it.

@@ -80,7 +80,7 @@ We are not selling {{PRODUCT}}. We are leading a movement to {{OUTCOME}}.
 
 ## Source Material Plan
 
-{{Where do the stories, data, photos, and reference material come from? How are they collected, permissioned, filed? Reference `context/source/` subfolders.}}
+{{Where do the stories, data, photos, and reference material come from? How are they collected, permissioned, filed? Reference `context/source-material/` subfolders.}}
 
 ---
 

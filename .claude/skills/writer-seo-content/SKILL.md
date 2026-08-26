@@ -32,9 +32,17 @@ Find the first folder that has `brief.md` but NOT `blog.md`. Validate brief.md h
 1. `content/topics/{slug}/blog.md` — full post in owner's voice
 2. `content/topics/{slug}/image-prompts.md` — JSON image prompts for Designer (see format below)
 
-## Neil Patel Self-Critique (mandatory after every draft)
+Write `blog.md` as soon as the draft is coherent — `writer-quality-critique` reads it
+from disk. `image-prompts.md` is written last, once the copy is final, so the prompts
+describe the post that actually shipped.
 
-Run this checklist before saving final files:
+## Neil Patel SEO Critique (second gate)
+
+**Order matters.** Draft → save `blog.md` → `writer-quality-critique` (Dan Shipper lens,
+apply every revision) → **this pass** → finalize. Running SEO before the quality gate
+optimises prose that may be about to be rewritten.
+
+Run this checklist against the post-revision draft, then apply every fix:
 
 ### Hook
 - Does the opening line make the reader need to keep reading?
@@ -68,7 +76,7 @@ Run this checklist before saving final files:
 
 One Markdown section per image asset, each containing a JSON block. The Designer reads these directly — be specific and brand-consistent.
 
-```markdown
+````markdown
 # Image prompts — {post title}
 
 ## hero.webp
@@ -94,6 +102,6 @@ One Markdown section per image asset, each containing a JSON block. The Designer
   "avoid": "..."
 }
 ```
-```
+````
 
 Include only the image types needed for the post. Always include `hero.webp`. Add `social-card.png` if the brief requests social promotion. Add `inline-{n}.png` only if the post explicitly needs illustrative diagrams.

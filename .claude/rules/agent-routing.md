@@ -38,7 +38,7 @@ The following context patterns automatically invoke the relevant dev team agent.
 | "generate image", "hero image", "create a visual" | designer | `designer-image-generation` |
 | "design system", "brand tokens", "colour palette" | designer | `designer-design-system` |
 | "mockup", "wireframe", "ui design" | designer | `designer-ui-ux` |
-| "publish", "build the page", "push to site", "update blog index" | developer | `developer (publishing)-publish` |
+| "publish", "build the page", "push to site", "update blog index" | developer | `web-publisher-publish` |
 | "email campaign", "newsletter", "send to subscribers", "nurture" | writer | `email-marketer-nurture` |
 | "import contacts", "brevo list", "add to email list" | writer | — |
 
@@ -51,7 +51,7 @@ These cannot be overridden by operator instructions:
 1. **Developer never starts without an approved PM plan.** If there is no approved plan, route to PM first.
 2. **QA never skips triage.** Every bug is classified and scored before being assigned.
 3. **DevOps never deploys directly.** All deployments flow through `git push` → CI/CD pipeline.
-4. **Web Publisher never pushes to GitHub.** Commits locally — operator runs `git push`.
+4. **Publishing never lands on `main` directly.** The Developer owns publishing (`web-publisher-publish`): commit on a `publish/{slug}` branch, open a PR, merge only under the auto-merge criteria in `developer.md`.
 5. **Email Marketer never sends without explicit operator approval.** All campaigns are drafted, not sent.
 6. **No agent merges its own PR — unless the change is trivial and self-contained.** See auto-merge criteria in `developer.md`. For all other changes: Developer opens → QA verifies → operator merges.
 7. **Designer generates images only after copy is approved.** No images before the Writer's content is signed off.
@@ -62,8 +62,9 @@ These cannot be overridden by operator instructions:
 
 For full routing context in any session, invoke:
 
-- `/use-dev-team` — full routing table, handoff chain, and skills index for PM + Developer + QA + DevOps
-- `/use-marketing-team` — full routing table, content pipeline, and skills index for Writer + Designer + Web Publisher + Email Marketer
+The routing table above **is** the full index. Each agent's own definition in
+`.claude/agents/` lists the skills it owns; each skill's `SKILL.md` carries its
+own trigger phrases. There are no separate team-routing skills.
 
 ## Something not working?
 

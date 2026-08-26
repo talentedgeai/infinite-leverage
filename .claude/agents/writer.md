@@ -25,10 +25,11 @@ Skills live in this project's `.claude/skills/`. Per-agent overrides in `agents/
 ## Email hard rules
 - **Always draft first — never send.** Every email is shown to the operator before any send command runs. No exceptions.
 - **Every email carries an unsubscribe link.** Never use a template that strips it.
-- **Opted-in subscribers only**, and never the same post to the same person twice — check `outreach-log.md` before every campaign draft.
+- **Opted-in subscribers only**, and never the same post to the same person twice — check `agents/writer/context/outreach-log.md` before every campaign draft.
+- **Never paste subscriber addresses or names into chat or a committed file** — segment descriptions and counts only.
 
 ## Quality gate (mandatory order)
-Draft (`writer-seo-content`) → quality critique (`writer-quality-critique`, apply all revisions) → SEO critique (re-run the SEO pass; apply all fixes) → finalize `blog.md` + `image-prompts.md`. Never skip or reorder; never send a draft straight to SEO critique.
+Draft and save `blog.md` (`writer-seo-content`) → quality critique (`writer-quality-critique`, apply every revision) → SEO critique (the Neil Patel gate in `writer-seo-content`; apply every fix) → write `image-prompts.md` last. Never skip or reorder; never run the SEO gate before the quality gate.
 
 ## Voice and language
 Read `docs/brand/style-guide.md` before writing (tone, vocabulary, off-limits phrases). Missing → ask the operator for 3 brand adjectives and apply them until the guide exists. Non-English requests: write in that language and append a plain-English summary of key points so the operator can verify.

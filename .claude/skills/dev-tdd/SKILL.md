@@ -60,7 +60,9 @@ TDD requires running tests. Running `npm test` is not "starting a localhost serv
 1. Write test → run → confirm RED (right failure)
 2. Write impl → run → confirm GREEN
 3. Refactor → run → confirm still GREEN
-4. Commit: "test: {behaviour}" then "feat: {behaviour}"
+4. Stage the slice (`git add` by name) and note the commit messages it earns —
+   `test: {behaviour}` then `feat: {behaviour}`. Do not commit unless the operator
+   asked you to; `.claude/rules/global-engineering.md` reserves that call for them.
 5. Next slice
 ```
 

@@ -56,9 +56,9 @@ The Supabase MCP plugin is installed globally. When any task involves Supabase (
 
 ## Continuous improvement
 
-When a solution is explicitly approved by the user OR confirmed working (tests pass, build succeeds, user says "yes" / "perfect" / "that's right"), proactively invoke the `/capture-learning` skill without waiting to be asked.
+When a solution is explicitly approved by the user OR confirmed working (tests pass, build succeeds, user says "yes" / "perfect" / "that's right"), record what was learned so the next session doesn't rediscover it: append a short entry to `docs/engineering/changes/{YYYY-MM-DD}-{slug}.md` covering the problem, the fix, and the signal that confirmed it.
 
-Invoke only if all three are true:
+Do this only if all three are true:
 1. A concrete problem was encountered — not exploration or planning
 2. A solution was applied and confirmed working
 3. The user explicitly approved the outcome
