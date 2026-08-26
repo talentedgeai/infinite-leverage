@@ -12,14 +12,18 @@ echo "=== INFINITE LEVERAGE — DOCTOR ==="
 # ── A. Prerequisites ─────────────────────────────────────────────────────────
 echo ""
 echo "[ A · Prerequisites ]"
-for tool in git gh python3 node; do
+# Required set = exactly what /il-project runs:
+#   git+gh (steps 1-3, 12) · perl (steps 4, 7) · node/npm/npx + rsync (step 9)
+for tool in git gh perl node npm npx rsync; do
   if command -v "$tool" >/dev/null 2>&1; then
-    pass "$tool available" "$($tool --version 2>&1 | head -1 | cut -c1-40)"
+    pass "$tool available" "$($tool --version 2>&1 | grep -m1 . | cut -c1-40)"
   else
     case "$tool" in
-      gh)   fix="fix: brew install gh && gh auth login" ;;
-      node) fix="fix: brew install node (needed for Next.js scaffold)" ;;
-      *)    fix="fix: install Xcode Command Line Tools" ;;
+      gh)              fix="fix: brew install gh && gh auth login" ;;
+      node|npm|npx)    fix="fix: brew install node (needed for the Next.js scaffold, step 9)" ;;
+      rsync)           fix="fix: brew install rsync (needed to merge the starter kit, step 9)" ;;
+      perl)            fix="fix: install Xcode Command Line Tools (placeholder substitution, steps 4+7)" ;;
+      *)               fix="fix: install Xcode Command Line Tools" ;;
     esac
     fail "$tool available" "$fix"
   fi
@@ -54,10 +58,16 @@ if [ -f "FOLDER-STRUCTURE.md" ]; then
   echo "[ C · Project Layout ]"
   pass "FOLDER-STRUCTURE.md present" ""
   AGENTS=$(ls .claude/agents/*.md 2>/dev/null | wc -l | tr -d ' ')
-  if [ "$AGENTS" -ge 8 ]; then
+  if [ "$AGENTS" -ge 6 ]; then
     pass "project agents installed" "$AGENTS agents in .claude/agents/"
   else
-    fail "project agents installed" "found $AGENTS/8 — fix: re-run /il-project step 6 to refresh"
+    fail "project agents installed" "found $AGENTS/6 — fix: re-run /il-project step 6 to refresh"
+  fi
+  SKILLS=$(ls -d .claude/skills/*/ 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$SKILLS" -ge 20 ]; then
+    pass "project skills installed" "$SKILLS skills in .claude/skills/"
+  else
+    fail "project skills installed" "found $SKILLS (expected 24) — fix: re-run /il-project step 6 to refresh"
   fi
   if grep -q "BEGIN: AGENT-DELEGATION" CLAUDE.md 2>/dev/null; then
     pass "CLAUDE.md delegation block" ""

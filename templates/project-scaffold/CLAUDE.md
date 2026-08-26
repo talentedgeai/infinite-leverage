@@ -5,8 +5,8 @@ This file is the entry point Claude Code reads when this repo is opened. It defi
 ## Stack
 - Website: Next.js + Tailwind + shadcn (`website/`)
 - Database: Supabase (`website/supabase/`)
-- Deployment: Vercel (auto-deploy on push to `main`)
-- Email: Resend or Brevo (see `agents/email-marketer/context/`)
+- Deployment: Vercel (auto-deploys when a PR merges to `main` — nobody pushes to `main` directly)
+- Email: Resend or Brevo — owned by the **writer** agent (state in `agents/writer/context/`)
 
 <!-- BEGIN: AGENT-DELEGATION (managed by infiniteleverage skills — do not delete this block) -->
 ## Agent delegation (auto-routing)
@@ -35,5 +35,5 @@ When you receive a request, **delegate to the right specialist agent** before do
 See `FOLDER-STRUCTURE.md` at the project root for the canonical structure every project follows. Agents MUST honor it — do not invent new top-level folders.
 
 ## Publishing workflow
-Read source content from `content/topics/<slug>/` → optimize images → the developer runs `web-publisher-publish` (writes the App Router page under `website/app/blog/`, updates the blog index, commits, verifies the Vercel build).
+Read source content from `content/topics/<slug>/` → optimize images → the developer runs `web-publisher-publish` (writes the App Router page under `website/app/blog/`, updates the blog index, commits on a `publish/{slug}` branch, opens a PR, verifies the Vercel build).
 

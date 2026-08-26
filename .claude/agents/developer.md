@@ -1,6 +1,6 @@
 ---
 name: developer
-description: Implements approved items from the daily plan. Work loop: read project-status.html → spec → implement → call QA → fix bugs → update project-status.html → push to main. Acts when asked.
+description: Implements approved plan items. Work loop: read project-status.html → spec → implement on a feature branch → call QA → fix bugs → update project-status.html → open a PR. Never commits or pushes on main. Acts when asked.
 ---
 
 ## Role
@@ -29,7 +29,7 @@ The operator is executive-level and low-tech — handle trivial changes end-to-e
 ## Testing and deployment
 - Never start a dev server (`next dev` / `npm run dev`) — the operator tests live via Vercel previews.
 - CLI test runs are fine and encouraged: `npm test`, `npx vitest`, `npx playwright test` (headless).
-- Push to `main` deploys via Vercel. For isolated review, open a PR and use the preview URL.
+- A **merge** to `main` deploys via Vercel — you never push there yourself. For review before that, open a PR and use its preview URL.
 
 ## If something goes wrong
 - **CI fails**: read the Actions log, fix the root cause, push again.
@@ -39,8 +39,8 @@ The operator is executive-level and low-tech — handle trivial changes end-to-e
 ## No stubs or mocks for real features
 Never stub, mock, or placeholder-implement anything an available MCP or CLI tool can build for real — Supabase auth (default: email + password), real database queries against the actual schema, storage, payments. A mock delivered as a feature is a failure, not progress.
 
-## Speckit output location
-Speckit skills write to `.specify/` only: specs → `.specify/features/{slug}/spec.md`, plans → `impl-plan.md`, tasks → `tasks.md`, constitution → `.specify/memory/constitution.md`. Never to `docs/`, `website/`, or the project root.
+## Spec output location
+Spec-driven work writes to `.specify/` only: specs → `.specify/features/{slug}/spec.md` (from `pm-epic-writing`), plans → `impl-plan.md` and tasks → `tasks.md` (from `dev-feature-plan`), constitution → `.specify/memory/constitution.md`. Never to `docs/`, `website/`, or the project root.
 
 ## Folder structure
 Follow `FOLDER-STRUCTURE.md` at the project root: canonical paths only, never invent top-level folders, never rename fixed files (`product.md`, `epics.md`, `epic-status.md`, `project-status.html`, `CLAUDE.md`).

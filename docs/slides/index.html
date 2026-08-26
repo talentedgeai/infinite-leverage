@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Infinite Leverage — 8-Agent Template · Introduction</title>
+<title>Infinite Leverage — 6-Agent Template · Introduction</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..500,0..100,0..1;1,9..144,300..500,0..100,0..1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -134,11 +134,11 @@
 
   <!-- 1 — TITLE -->
   <section class="slide center" data-bg="dark">
-    <div class="eyebrow">The 8-Agent Template</div>
+    <div class="eyebrow">The 6-Agent Template</div>
     <h1>An autonomous<br><span class="em">AI company</span> in a box.</h1>
     <p class="lead">One repository that turns Claude Code into a complete product &amp; marketing org — eight specialist agents, 70+ skills, and a stack that ships itself.</p>
     <div class="badgeRow" style="justify-content:center">
-      <span class="pill">8 Agents</span>
+      <span class="pill">6 Agents</span>
       <span class="pill">70+ Skills</span>
       <span class="pill">9 Scaffolds</span>
       <span class="pill">18 Protocols</span>
@@ -308,26 +308,25 @@
   <!-- 11 — THE REPOS (paper) -->
   <section class="slide paper" data-bg="paper">
     <div class="eyebrow">Single Source of Truth</div>
-    <h2>One canonical repo, two plugins</h2>
-    <p class="lead">All agents, skills, rules, scaffolds and bootstrap prompts live in <b>one</b> repo. Client machines are consumers — never hand-edited.</p>
+    <h2>One repo. It <span class="em">is</span> the marketplace.</h2>
+    <p class="lead">Agents, skills, rules and the project scaffold live in <b>one</b> repo, which also serves the plugin. Client machines are consumers — never hand-edited.</p>
     <div class="grid" style="margin-top:24px;gap:12px">
-      <div class="repo"><span class="git">📦</span><div><b>talentedgeai/infinite-leverage</b><br><small>canonical — agents · skills · rules · scaffolds · setup skills</small></div></div>
-      <div class="repo"><span class="git">🔌</span><div><b>talentedgeai/infiniteleverage-plugin</b><br><small>Claude Code plugin — routing hints · version advisories · usage HUD</small></div></div>
-      <div class="repo"><span class="git">🔌</span><div><b>talentedgeai/infiniteleverage-8-plugin</b><br><small>8-agent plugin distribution for the Claude Team marketplace</small></div></div>
+      <div class="repo"><span class="git">📦</span><div><b>talentedgeai/infinite-leverage</b><br><small>canonical &amp; public — 6 agents · 24 workflow skills · rules · scaffold · the plugin itself</small></div></div>
+      <div class="repo"><span class="git">🔒</span><div><b>talentedgeai/edge8-telemetry</b><br><small>private, Edge8-internal — effort tracking, kept entirely out of the product</small></div></div>
     </div>
-    <p class="sub">Change the canonical repo → CI rebuilds the release → clients pull it with one command. Never edit agents on a client laptop.</p>
+    <p class="sub">Merge to <code>main</code> → the marketplace serves the new version → installed plugins update themselves. Never edit agents on a client laptop.</p>
   </section>
 
   <!-- 12 — SETUP OVERVIEW -->
   <section class="slide" data-bg="dark">
     <div class="eyebrow">Getting Started</div>
-    <h2>Three bootstrap skills</h2>
+    <h2>Two skills. That's the whole plugin.</h2>
     <div class="grid g3" style="margin-top:26px">
-      <div class="card"><div class="tag">First machine</div><h3>/infiniteleverage-init</h3><p>Full Mac Mini bootstrap: zero → live website, 8-agent team, scheduled content pipeline. Phase 1 (manual accounts) → Phase 2 (automated).</p></div>
-      <div class="card"><div class="tag">Add a laptop</div><h3>/infiniteleverage-onboard</h3><p>Connect a personal laptop to the existing team. Ends Phase 1 with a quick win — your live site running locally.</p></div>
-      <div class="card"><div class="tag">Stay in sync</div><h3>/infiniteleverage-patch</h3><p>Health-check the machine, then pull the latest agents &amp; skills from GitHub. Additive &amp; safe to re-run.</p></div>
+      <div class="card"><div class="tag">Start a project</div><h3>/il-project</h3><p>Zero → scaffolded repo: canonical folder layout, a 6-agent team in the project's own <code>.claude/</code>, seeded product &amp; brand docs, Next.js app, first commit.</p></div>
+      <div class="card"><div class="tag">Check the setup</div><h3>/il-doctor</h3><p>Read-only health check: prerequisites, repo context, and whether the agents and skills actually landed in this project.</p></div>
+      <div class="card"><div class="tag">Stay in sync</div><h3>Automatic</h3><p>Installed plugins update through the marketplace. No patch command, no zips, nothing written to <code>~/.claude/</code>.</p></div>
     </div>
-    <p class="sub">Plus <code>/infiniteleverage-project</code> to scaffold a new project, and <code>/infiniteleverage-help</code> for the full skill menu.</p>
+    <p class="sub">Everything else is a workflow skill the six agents reach for — installed per project, never globally.</p>
   </section>
 
   <!-- 13 — SETUP STEPS -->
@@ -348,11 +347,12 @@
     <h2>Set up once, <span class="em">then just ask</span></h2>
     <p class="lead">Paste one prompt into a fresh Claude Code session — it's additive and safe even on a configured machine.</p>
     <div class="codeblock">
-<span class="c"># Sync this machine to the latest template</span>
-<span class="k">Run</span> infiniteleverage-patch to sync my machine with the latest template.
+<span class="c"># Register the marketplace once — updates arrive automatically after this</span>
+<span class="k">claude</span> plugin marketplace add <span class="s">talentedgeai/infinite-leverage</span>
 
-<span class="c"># Register the plugin so every session gets routing + updates</span>
-<span class="k">claude</span> plugin marketplace add <span class="s">talentedgeai/infiniteleverage-plugin</span>
+<span class="c"># Scaffold a project, then check it</span>
+<span class="k">Run</span> /il-project to set up a new client project.
+<span class="k">Run</span> /il-doctor to confirm the agents and skills installed.
 
 <span class="c"># Then work by intent — agents route automatically</span>
 <span class="s">"write an epic for the onboarding flow"</span>   <span class="c">→ Product Manager</span>
@@ -381,7 +381,7 @@
   <section class="slide center" data-bg="dark">
     <div class="eyebrow">Get Started</div>
     <h1>Your team is<br><span class="em">one prompt away.</span></h1>
-    <p class="lead">Run <code>/infiniteleverage-init</code> on a fresh Mac, <code>/infiniteleverage-onboard</code> on a laptop, or <code>/infiniteleverage-patch</code> to sync. Then point the Product Manager at your business and start asking.</p>
+    <p class="lead">Run <code>/il-project</code> to scaffold a project, <code>/il-doctor</code> to confirm it landed. Then point the Product Manager at your business and start asking.</p>
     <div class="badgeRow" style="justify-content:center">
       <div class="repo"><span class="git">📦</span><div><b>github.com/talentedgeai/infinite-leverage</b></div></div>
     </div>

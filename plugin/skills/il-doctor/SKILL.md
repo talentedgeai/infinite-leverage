@@ -15,9 +15,13 @@ bash "${CLAUDE_PLUGIN_ROOT}/skills/il-doctor/scripts/doctor.sh"
 
 It prints PASS/FAIL lines for:
 
-- **Prerequisites** — `git`, `gh` (authenticated), `python3`, `node` — everything `/il-project` needs
+- **Prerequisites** — `git`, `gh` (authenticated), `perl`, `node`/`npm`/`npx`, `rsync` —
+  exactly what `/il-project` runs (perl for placeholder substitution, node + rsync for
+  the Next.js scaffold in step 9)
 - **Repo context** — git remote + author email of the current directory
-- **Project layout** — when run inside a scaffolded project: `FOLDER-STRUCTURE.md`, `.claude/agents/`, `CLAUDE.md` delegation block present
+- **Project layout** — when run inside a scaffolded project: `FOLDER-STRUCTURE.md`,
+  6 agents in `.claude/agents/`, 24 skills in `.claude/skills/`, `CLAUDE.md` delegation
+  block present
 - **Companion plugin** — whether `edge8-telemetry` is installed (Edge8-internal; not needed by outside users)
 
 ## Interpreting results

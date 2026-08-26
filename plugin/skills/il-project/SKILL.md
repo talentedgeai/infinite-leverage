@@ -1,7 +1,7 @@
 ---
 name: il-project
 description: This skill should be used when the operator says "il project", "new project", "scaffold a project", "create infinite leverage project", "init new project", "start new client project", or "bootstrap project folder". Scaffolds a brand-new project directory from the canonical `templates/project-scaffold/` in `talentedgeai/infinite-leverage`, substitutes placeholders, wires the agent team into `.claude/`, seeds `docs/product/` (product.md, epics.md, epic-status.md) from any rich description the operator provides, seeds `docs/brand/` styling from a chosen or random getdesign.md reference, initializes git, and prints next steps. All operations are inline — no bundled scripts.
-version: 3.1.0
+version: 3.2.0
 ---
 
 # Infinite Leverage — New Project Scaffold
@@ -29,7 +29,7 @@ version: 3.1.0
 
 ## When to invoke
 
-The operator wants a fresh project folder that follows the canonical Infinite Leverage layout. Prerequisites: the Infinite Leverage v2 plugin installed (which is how this skill is running), plus `git` and `gh` authenticated. Agents are installed into the project itself — nothing is ever written to `~/.claude/`.
+The operator wants a fresh project folder that follows the canonical Infinite Leverage layout. Prerequisites: the Infinite Leverage v2 plugin installed (which is how this skill is running), plus `git`, an authenticated `gh`, `perl`, `node`/`npm`/`npx`, and `rsync` — Step 1 checks all of them. Agents are installed into the project itself; nothing is ever written to `~/.claude/`.
 
 ---
 
@@ -44,7 +44,7 @@ The operator wants a fresh project folder that follows the canonical Infinite Le
 | First topic slug | `welcome-launch` | optional | |
 | Owner name | `Dave Hajdu` | optional | |
 | Primary author for content | `Dave Hajdu` | optional | |
-| GitHub placement | personal vs org | **interactive** | resolved during Step 11 — never assume |
+| GitHub placement | personal vs org | **interactive** | resolved during Step 12 — never assume |
 | Planning / product attachments | PRD, brief, vision doc, transcripts, epic list, **or a rich inline description of the product** | optional | anything the operator pasted or attached in the chat invoking this skill. Used by Step 8.6 to populate `docs/product/`. |
 | Desired styling / design reference | "make it like Linear", brand colors + fonts, an existing style guide, or nothing | optional | Used by Step 8.7 to fill `docs/brand/`. If absent, Step 8.7 pulls a random DESIGN.md from getdesign.md. |
 
@@ -114,11 +114,25 @@ All commands below are run via the Bash tool. Each step is independent and re-ru
 
 ### Step 1 — Verify prerequisites
 
+Check everything this skill actually shells out to, not just the first few steps —
+a missing `rsync` or `npx` only surfaces minutes later, halfway through Step 9.
+
 ```bash
-command -v gh   >/dev/null || { echo "❌ gh CLI required";  exit 1; }
-command -v git  >/dev/null || { echo "❌ git required";      exit 1; }
-command -v perl >/dev/null || { echo "❌ perl required";     exit 1; }
+MISSING=""
+for t in git gh perl node npm npx rsync; do
+  command -v "$t" >/dev/null 2>&1 || MISSING="$MISSING $t"
+done
+[ -n "$MISSING" ] && { echo "❌ missing required tools:$MISSING"; echo "   run /il-doctor for per-tool install commands"; exit 1; }
+gh auth status >/dev/null 2>&1 || { echo "❌ gh is not authenticated — the operator must run 'gh auth login' themselves"; exit 1; }
+echo "✅ prerequisites OK"
 ```
+
+| Tool | Needed by |
+|---|---|
+| `git`, `gh` | Steps 2–3 (clone), 10 (init), 12 (repo create + push) |
+| `perl` | Steps 4, 7 (placeholder substitution, delegation block) |
+| `node`, `npm`, `npx` | Step 9 (create-next-app, dependency install, build, vitest) |
+| `rsync` | Step 9b (merging create-next-app under the starter kit) |
 
 ### Step 2 — Refuse to overwrite an existing project
 
@@ -187,12 +201,26 @@ mv "$TARGET/content/topics/YYYY-MM-DD-PH-topic-slug" \
 
 ### Step 6 — Install canonical agents + skills + rules into the project's `.claude/`
 
+The scaffold ships `.claude/rules/` and `.claude/skills/` but **not** `.claude/agents/`
+— create every destination first, or the multi-file `cp` fails with
+`Not a directory` and the project silently ends up with no agents.
+
 ```bash
+mkdir -p "$TARGET/.claude/agents" "$TARGET/.claude/skills" "$TARGET/.claude/rules"
 cp "$TMP/il-template/.claude/agents/"*.md "$TARGET/.claude/agents/"
 cp -R "$TMP/il-template/.claude/skills/." "$TARGET/.claude/skills/"
 rm -rf "$TARGET/.claude/skills/PH-skill-name"   # scaffold placeholder — not a real skill
-cp "$TMP/il-template/.claude/rules/global-engineering.md" "$TARGET/.claude/rules/" 2>/dev/null || true
+cp "$TMP/il-template/.claude/rules/global-engineering.md" "$TARGET/.claude/rules/"
 ```
+
+Verify before moving on — 6 agents and at least 20 skills must be present:
+
+```bash
+echo "agents: $(ls "$TARGET/.claude/agents/"*.md 2>/dev/null | wc -l | tr -d ' ')/6"
+echo "skills: $(ls -d "$TARGET/.claude/skills/"*/ 2>/dev/null | wc -l | tr -d ' ')"
+```
+
+If either count is 0, stop and report — do not continue to Step 7.
 
 ### Step 7 — Inject/refresh the AGENT-DELEGATION block in the project CLAUDE.md (inline)
 
@@ -572,7 +600,8 @@ At this point the project is fully scaffolded **locally** — Next.js is in plac
 Next steps locally:
 1. cd $TARGET
 2. Create website/.env.local with the Supabase keys (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY; see website/docs/)
-3. cd website && npm run dev   # verify the app starts
+3. cd website && npm run build   # verify the app compiles (the agents never start a dev
+                                 # server — you preview through Vercel once the repo is linked)
 4. Open the repo in Claude Code
 5. Invoke @product-manager — if docs/product/ was seeded by Step 8.6, run pm-grill-with-docs to validate; otherwise run pm-client-interview to fill product.md
 6. Invoke pm-epic-writing for each feature idea — creates/refines epics.md, epic-status.md, .specify/ specs
@@ -656,89 +685,6 @@ To wire up auto-deploys on Vercel:
   cd $TARGET && vercel link
 ```
 
-### Step 13 — Register the repo for effort tracking (interactive, optional but recommended)
-
-Now that the GitHub repo exists, register it with the Infinite Leverage effort tracker so human-hours and Claude-session records are captured and displayed in the dashboard.
-
-Ask the operator:
-
-> Do you want to register `$GH_OWNER/$PROJECT_SLUG` for effort tracking now?
-> This lets the dashboard show time spent per project. (y / skip)
-
-**If the operator says "skip":** write the local declined marker so the session-start hook stops prompting:
-
-```bash
-mkdir -p "$HOME/.claude/.il-telemetry/unregistered"
-touch "$HOME/.claude/.il-telemetry/unregistered/${GH_OWNER}__${PROJECT_SLUG}"
-echo "Skipped. Marker written — you won't be prompted again for this repo."
-echo "To register later, delete: ~/.claude/.il-telemetry/unregistered/${GH_OWNER}__${PROJECT_SLUG}"
-```
-
-**If the operator says "y":** gather these details interactively:
-
-| Field | Question to ask |
-|---|---|
-| Type | "Is this a personal project or a client project?" → `personal` or `client` |
-| Display name | "What's the human-readable display name?" (default: `$PROJECT_NAME`) |
-| *(client only)* Client name | "What is the client's company name?" |
-| *(client only)* Client initials | "Two-letter initials for the client (e.g. E8)?" |
-| *(client only)* Is internal? | "Are you part of the client's organisation? (y/n)" — sets `is_internal` |
-| *(client only)* Exclude identities | "Are there git emails or GitHub logins belonging to the client's own people that should NOT be counted as AI-assisted effort? (enter email or GitHub login, one per line; blank line to finish)" |
-
-Then build the JSON, commit it to the `telemetry` branch of `talentedgeai/human-token-tracker` at path `registrations/<owner>__<repo>.json`:
-
-```bash
-# 1. Resolve current GitHub login
-GH_LOGIN=$(gh api user --jq '.login')
-
-# 2. Build the JSON (Claude assembles this from the answers above)
-#    Example for a client project:
-REGISTRATION_JSON='{
-  "repo_full_name": "'"$GH_OWNER/$PROJECT_SLUG"'",
-  "github_login": "'"$GH_LOGIN"'",
-  "type": "client",
-  "project_name": "'"$PROJECT_NAME"'",
-  "client": { "name": "Acme Corp", "initials": "AC", "is_internal": false },
-  "exclude_identities": [
-    { "git_email": "bob@acme.com", "github_login": "bob-acme", "label": "Client" }
-  ],
-  "submitted_at": "'"$(date -u +%FT%TZ)"'"
-}'
-
-# 3. Check if the file already exists on the telemetry branch (to get its sha for update)
-REG_PATH="registrations/${GH_OWNER}__${PROJECT_SLUG}.json"
-STATUS_RESP=$(gh api "repos/talentedgeai/human-token-tracker/contents/${REG_PATH}?ref=telemetry" 2>/dev/null || echo "")
-EXISTING_SHA=$(echo "$STATUS_RESP" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('sha',''))" 2>/dev/null || echo "")
-
-# 4. Base64-encode the content
-ENCODED=$(echo "$REGISTRATION_JSON" | base64)
-
-# 5. PUT to the telemetry branch (with sha if updating, without if creating)
-if [ -n "$EXISTING_SHA" ]; then
-  gh api -X PUT "repos/talentedgeai/human-token-tracker/contents/${REG_PATH}" \
-    -f "message=registration: $GH_OWNER/$PROJECT_SLUG" \
-    -f "content=$ENCODED" \
-    -f "branch=telemetry" \
-    -f "sha=$EXISTING_SHA"
-else
-  gh api -X PUT "repos/talentedgeai/human-token-tracker/contents/${REG_PATH}" \
-    -f "message=registration: $GH_OWNER/$PROJECT_SLUG" \
-    -f "content=$ENCODED" \
-    -f "branch=telemetry"
-fi
-```
-
-On success, print:
-```
-✅ Registration submitted: registrations/$GH_OWNER__$PROJECT_SLUG.json → telemetry branch
-   The tracker applies new registrations on its next ingest run (no DB credentials needed).
-   Once active, effort records for this repo will appear in the dashboard.
-```
-
-On any error, print the error output and tell the operator they can retry by re-invoking this step. Do not leave partial state.
-
----
-
 ## What this skill does NOT do
 
 - Configure Supabase / Vercel / Resend / Brevo — account setup is the operator's job (the printed next-steps include the exact commands)
@@ -748,6 +694,7 @@ On any error, print the error output and tell the operator they can retry by re-
 - Define the brand **voice/tone** — Step 8.7 seeds only the *visual* side (palette, typography, visual style) of `docs/brand/style-guide.md`. Voice, vocabulary, and content formats stay for `pm-client-interview` unless planning docs already specify them.
 - Skip Next.js scaffolding — that step is mandatory
 - Push to GitHub silently — the GitHub repo creation+push is asked as a tail-end question and skipped if the operator declines. The skill prints the exact command they can run later.
+- Register the repo for effort tracking, or write anything at all under `~/.claude/` — effort telemetry is Edge8-internal and lives entirely in the private `edge8-telemetry` plugin. This skill writes only inside `$TARGET`.
 
 ## Why no .sh files
 
@@ -761,5 +708,5 @@ All routing-table content for the AGENT-DELEGATION block lives in **Step 7 of th
 ## References
 
 - `templates/project-scaffold/FOLDER-STRUCTURE.md` — the canonical layout this skill produces
-- `il-doctor/SKILL.md` — plugin health check and telemetry consent
+- `il-doctor/SKILL.md` — plugin health check (prerequisites, repo context, project layout)
 - `references/quick-prompts.md` — operator invocation patterns and failure-mode table

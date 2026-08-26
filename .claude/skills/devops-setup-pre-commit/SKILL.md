@@ -97,14 +97,18 @@ build/
 
 ## Step 6 — Verify
 
-Run a test commit to confirm hooks fire:
+Confirm the hook fires without creating a commit — `lint-staged` can be run directly
+against the staged set:
 
 ```bash
-git add .prettierrc .prettierignore package.json
-git commit -m "chore: add pre-commit hooks (husky + lint-staged + prettier)"
+git add .prettierrc .prettierignore package.json .husky/pre-commit
+npx lint-staged --diff HEAD   # dry-run the same checks the hook will run
+npx tsc --noEmit
 ```
 
-Confirm the hook output appears and all checks pass.
+Both must pass. Then hand off — the operator commits
+(`.claude/rules/global-engineering.md`). Suggested message:
+`chore: add pre-commit hooks (husky + lint-staged + prettier)`.
 
 ## Step 7 — Document
 

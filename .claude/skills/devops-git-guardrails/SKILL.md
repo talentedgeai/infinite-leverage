@@ -25,75 +25,88 @@ Claude Code hooks that block dangerous git commands before they execute.
 
 ## Installation
 
-Write the following to `.claude/settings.json` (project-level) or `~/.claude/settings.json` (global):
+**Project-scoped only.** Write to the project's `.claude/settings.json` — never to
+`~/.claude/settings.json`. Nothing in this system installs globally, and a global hook
+would fire in every unrelated repo on the machine.
 
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/git-guardrails.sh"
-          }
-        ]
-      }
-    ]
-  }
-}
+**Merge, don't overwrite.** `.claude/settings.json` usually already holds other keys
+(`permissions` especially). Read it first and add the `hooks` entry; a blind write
+destroys whatever was there:
+
+```bash
+mkdir -p .claude/hooks
+python3 - <<'PY'
+import json, os, pathlib
+p = pathlib.Path(".claude/settings.json")
+cfg = json.loads(p.read_text()) if p.exists() and p.read_text().strip() else {}
+entry = {"matcher": "Bash",
+         "hooks": [{"type": "command", "command": "bash .claude/hooks/git-guardrails.sh"}]}
+pre = cfg.setdefault("hooks", {}).setdefault("PreToolUse", [])
+if not any(h.get("hooks", [{}])[0].get("command", "").endswith("git-guardrails.sh")
+           for h in pre if h.get("hooks")):
+    pre.append(entry)
+p.write_text(json.dumps(cfg, indent=2) + "\n")
+print("hook registered in .claude/settings.json")
+PY
 ```
+
+Never touch the `permissions` key while doing this — granting permissions is not this
+skill's job.
 
 Create `.claude/hooks/git-guardrails.sh`:
 
 ```bash
 #!/usr/bin/env bash
 # Git guardrails for Claude Code
-# Reads the command from stdin as JSON and blocks dangerous patterns.
+# PreToolUse hook: reads the tool call from stdin as JSON, blocks dangerous patterns.
+#
+# Blocking contract: exit 2 with the reason on stderr. Claude Code treats a
+# PreToolUse exit-2 as "deny this call" and shows stderr to the model. Exit 0
+# means "no opinion" — the normal permission flow continues. Do not print a
+# JSON allow verdict: that is not this hook's decision to make.
 
 INPUT=$(cat)
-COMMAND=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_input',{}).get('command',''))" 2>/dev/null)
+COMMAND=$(printf '%s' "$INPUT" | python3 -c \
+  "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null)
 
-block() {
-  echo "BLOCKED: $1" >&2
-  echo '{"decision":"block","reason":"'"$1"'"}' 
-  exit 0
-}
+[ -z "$COMMAND" ] && exit 0
 
-# Block force push
-if echo "$COMMAND" | grep -qE 'git push.*(--force|-f)\b'; then
+block() { echo "BLOCKED by git-guardrails: $1" >&2; exit 2; }
+
+# Force push — covers --force, --force-with-lease, and -f as a standalone flag
+if printf '%s' "$COMMAND" | grep -qE 'git[[:space:]]+push.*(--force|[[:space:]]-f([[:space:]]|$))'; then
   block "Force push is not allowed. Use a PR and merge instead."
 fi
 
-# Block reset --hard
-if echo "$COMMAND" | grep -qE 'git reset --hard'; then
-  block "git reset --hard discards uncommitted work. Use git stash or git restore instead."
+# Hard reset
+if printf '%s' "$COMMAND" | grep -qE 'git[[:space:]]+reset[[:space:]]+--hard'; then
+  block "git reset --hard discards uncommitted work. Use git restore, or commit to a scratch branch first."
 fi
 
-# Block deleting main/master branch
-if echo "$COMMAND" | grep -qE 'git branch -D (main|master)'; then
+# Deleting the trunk branch
+if printf '%s' "$COMMAND" | grep -qE 'git[[:space:]]+branch[[:space:]]+-D[[:space:]]+(main|master)([[:space:]]|$)'; then
   block "Deleting the main/master branch is not allowed."
 fi
 
-# Block git add . or git add -A
-if echo "$COMMAND" | grep -qE 'git add (\.|(-A))(\s|$)'; then
-  block "git add . / git add -A stages everything including secrets. Stage files by name."
+# Bulk staging
+if printf '%s' "$COMMAND" | grep -qE 'git[[:space:]]+add[[:space:]]+(\.|-A|--all)([[:space:]]|$)'; then
+  block "git add . / -A stages everything including secrets. Stage files by name."
 fi
 
-# Block amend (warn — do not hard block, as local amends before push are valid)
-if echo "$COMMAND" | grep -qE 'git commit --amend'; then
-  # Check if HEAD is already on remote
-  BRANCH=$(git branch --show-current 2>/dev/null)
-  if git log "origin/$BRANCH..HEAD" 2>/dev/null | grep -q .; then
-    : # Commit not yet pushed — amend is OK
-  else
-    block "git commit --amend on a pushed commit rewrites public history. Create a new commit instead."
+# Amend: block ONLY when HEAD is provably already published.
+# A missing upstream means the branch was never pushed, so the amend is safe —
+# the old version of this check blocked that case, which is backwards.
+if printf '%s' "$COMMAND" | grep -qE 'git[[:space:]]+commit.*--amend'; then
+  UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null)
+  if [ -n "$UPSTREAM" ]; then
+    # Unpushed commits present? Then HEAD is local-only and amending is fine.
+    if [ -z "$(git rev-list "$UPSTREAM..HEAD" 2>/dev/null)" ]; then
+      block "git commit --amend on a pushed commit rewrites public history. Create a new commit instead."
+    fi
   fi
+  # No upstream (or not a git repo) => nothing published => allow.
 fi
 
-# All checks passed
-echo '{"decision":"allow"}'
 exit 0
 ```
 
@@ -105,19 +118,31 @@ chmod +x .claude/hooks/git-guardrails.sh
 
 ## Verify
 
-Test that the hook fires:
+Check both directions — a hook that blocks everything is as broken as one that blocks
+nothing:
 
 ```bash
-echo '{"tool_input":{"command":"git push --force origin main"}}' | bash .claude/hooks/git-guardrails.sh
-# Expected: BLOCKED message + JSON decision:block
+# should BLOCK (exit 2, reason on stderr)
+echo '{"tool_input":{"command":"git push --force origin main"}}' | bash .claude/hooks/git-guardrails.sh; echo "exit=$?"
+
+# should ALLOW (exit 0, no output)
+echo '{"tool_input":{"command":"git push origin feat/x"}}' | bash .claude/hooks/git-guardrails.sh; echo "exit=$?"
 ```
 
-## Commit
+Expected: `exit=2` with a `BLOCKED by git-guardrails:` line, then `exit=0` silent.
+
+## Hand off — do not commit
+
+Stage the two files and tell the operator what to review; committing is theirs to
+authorise (`.claude/rules/global-engineering.md`: never create a commit unless
+explicitly instructed).
 
 ```bash
 git add .claude/hooks/git-guardrails.sh .claude/settings.json
-git commit -m "chore: add Claude Code git guardrail hooks"
+git status --short
 ```
+
+Suggested message if they ask you to commit: `chore: add Claude Code git guardrail hooks`
 
 ---
 

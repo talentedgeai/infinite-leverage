@@ -67,7 +67,7 @@ Not every topic has all files. A topic owns only the deliverables assigned to it
 ## Source Material Structure
 
 ```
-context/source/
+context/source-material/
 ├── {{subfolder per source type — e.g. user-stories/, research/, founder/, caregiver/}}
 ```
 
@@ -84,7 +84,7 @@ The human or content producer agent updates `content-calendar.md` with the follo
 The writer agent:
 1. Reads `strategy.md` for brand voice and CTA rules
 2. Reads `content-calendar.md` for next week's topics
-3. Pulls relevant source material from `context/source/`
+3. Pulls relevant source material from `context/source-material/`
 4. Creates topic folders and writes all deliverables
 5. Writes `image-prompts.json` as the final step for each topic
 6. Updates topic status to `STATUS: WRITTEN`

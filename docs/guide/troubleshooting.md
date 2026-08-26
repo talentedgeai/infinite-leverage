@@ -10,19 +10,22 @@ Quick fixes for the most common problems operators run into. Written for non-tec
 
 1. Make sure you addressed the agent directly: `@developer fix this bug` or `@product-manager write an epic`.
 2. If you didn't use `@`, Claude picks the most relevant agent automatically. If it picks wrong, add the `@agent-name` prefix.
-3. If no agents respond at all, run `/infiniteleverage-patch` to reinstall them.
+3. If no agents respond at all, run `/il-doctor` — it reports whether the 6 agents are actually installed in `.claude/agents/`, and how to refresh them.
 
 ---
 
 ### "The agent says it doesn't have a skill"
 
-Skills live in `~/.claude/skills/`. If a skill is missing:
+Skills are **per project** — they live in this project's `.claude/skills/`, never in
+`~/.claude/`. Check what's installed:
 
 ```bash
-ls ~/.claude/skills/
+ls .claude/skills/     # expect 24 skill folders
+ls .claude/agents/     # expect 6 agent definitions
 ```
 
-If the skill folder isn't there, run `/infiniteleverage-patch` — it will sync the latest skills from the canonical template repo.
+Run `/il-doctor` for a full check. If agents or skills are missing, re-run step 6 of
+`/il-project` to refresh them from the canonical repo.
 
 ---
 
@@ -70,24 +73,6 @@ If you see this: tell Claude "open a PR instead of pushing directly."
 
 ---
 
-## Scheduled Routines
-
-### "My daily plan / standup isn't running"
-
-1. Check that the routine is registered: go to [claude.ai/code/routines](https://claude.ai/code/routines)
-2. If the routine is listed but not running, check that Claude Code is running (the desktop app must be open).
-3. If the routine is missing, run Prompt 10 from your `references/phase2-prompts.md` to re-register it.
-
----
-
-### "I updated agents via /infiniteleverage-patch but the schedule is still running old prompts"
-
-This is expected. Patching copies new skill files but does NOT automatically update running cron jobs.
-
-To update a routine's prompts: go to [claude.ai/code/routines](https://claude.ai/code/routines) → delete the old routine → re-run Prompt 10 from `references/phase2-prompts.md` to recreate it with the new prompt.
-
----
-
 ## Images & Content
 
 ### "Image generation failed"
@@ -103,30 +88,39 @@ The prompt is also saved to `content/topics/{slug}/image-prompts.md` so you can 
 
 ### "The email went out without my approval"
 
-This should never happen — the Email Marketer agent is configured to always draft and show you the email before sending. If a send happened without approval, check `agents/email-marketer/context/outreach-log.md` to see what was sent, then contact Resend or Brevo support to cancel any queued sends.
+This should never happen — email is owned by the **writer** agent, and both the agent
+definition and `email-marketer-nurture` state that emails are drafted only; the operator
+runs the send command. If a send happened without approval, check
+`agents/writer/context/outreach-log.md` to see what went out, then contact Resend or
+Brevo support to cancel any queued sends.
 
 ---
 
 ## Plugin & Setup
 
-### "The session-start message says I'm behind on the template version"
+### "My agents or skills look out of date"
 
-Run `/infiniteleverage-patch` in Claude Code. It will:
-1. Show you exactly what changed since your installed version
-2. Ask for confirmation before applying any changes
-3. Update your local agents and skills to the latest version
+The plugin updates itself through the marketplace — there is no patch command to run.
+To refresh a *project's* copy of the agents and skills after a plugin update, re-run
+step 6 of `/il-project` against that project.
+
+Confirm what you have with `/il-doctor`.
 
 ---
 
-### "I see 'hook failed' or 'permission denied' errors"
+### "I see 'permission denied' errors"
 
-The safety hooks (`pre-bash`, `prompt-submit`) must be installed at `~/.claude/hooks/`. Check:
+The Infinite Leverage plugin ships **no hooks and no permission grants** — if something
+is blocking a command, it is either your own project hook (`.claude/hooks/`, e.g. the
+one `devops-git-guardrails` installs) or Claude Code's normal permission prompt.
 
 ```bash
-ls ~/.claude/hooks/
+ls .claude/hooks/ 2>/dev/null        # project hooks, if any
+cat .claude/settings.json 2>/dev/null # what they're wired to
 ```
 
-If the hooks folder is empty or missing, run `/infiniteleverage-patch` — it will reinstall them.
+A `BLOCKED by git-guardrails:` message is the guardrail hook doing its job — read the
+reason and take the safe path it suggests rather than disabling it.
 
 ---
 

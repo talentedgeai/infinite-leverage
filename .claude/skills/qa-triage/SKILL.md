@@ -47,11 +47,24 @@ Priority mapping:
 | 10–29  | P2 — fix next sprint |
 | 1–9    | P3 — backlog |
 
+**Severity floors — these override the score, never the other way round.**
+A multiplicative score under-rates the rare-but-catastrophic: a live auth bypass
+nobody has hit yet scores 5 × 1 × 5 = 25 and would otherwise land in P2.
+
+| Condition | Minimum priority |
+|---|---|
+| `security` — data exposure, auth bypass, injection | **P0** |
+| `data-integrity` — data incorrectly stored, returned, or lost | **P1** (P0 if the loss is unrecoverable) |
+| Production is down or the site cannot load | **P0** |
+
+Record the raw score alongside the floored priority so the override is visible:
+`P0 (Score: 25 — raised by security floor)`.
+
 ## Step 3 — Route
 
 | Classification | Route to |
 |---|---|
-| `security` | PM → escalate immediately, no sprint needed |
+| `security` | P0 by floor → escalate to the operator immediately, before any sprint planning |
 | `data-integrity` | Developer (P0/P1) → QA validates fix |
 | `regression` | Developer → fix on same branch that caused it |
 | `new-defect` | Developer → fix on feature branch |
@@ -95,8 +108,16 @@ Write a triage report to `docs/qa/{YYYY-MM-DD}-{slug}-triage.md`:
 
 After writing the report:
 
-1. Update `docs/product/epic-status.md` — add bug under the relevant epic's "Known Issues" section.
-2. Update `docs/project-status.html` — add to the "Bugs" table with priority, classification, and assignee.
+1. Update `docs/product/epic-status.md`:
+   - **At a glance** table — increment the epic's `Open bugs` count.
+   - **Drilldown** — under that epic's heading (create `### E{N} · {Epic Name}` if it has
+     no drilldown entry yet), append a line:
+     `- P{n} · {classification} · {bug title} → docs/qa/{YYYY-MM-DD}-{slug}-triage.md`
+
+   Those are the only sections the file has — do not invent a "Known Issues" heading;
+   `pm-project-status` keys on the existing structure and will miss anything else.
+2. Update `docs/project-status.html` — add to the "Bugs" table with priority,
+   classification, and assignee.
 
 ---
 

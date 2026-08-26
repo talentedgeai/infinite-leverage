@@ -13,12 +13,19 @@ A GitHub Actions workflow that runs automatically on every PR and push to `main`
 1. **Install** — clean dependency install
 2. **Lint** — ESLint code quality checks
 3. **Type check** — TypeScript strict checks
-4. **Test** — Jest/Vitest unit and integration tests
+4. **Test** — Vitest unit and integration tests (the canonical scaffold ships Vitest;
+   on a Jest project use `npx jest --ci --passWithNoTests` instead — `--ci` is a Jest
+   flag and Vitest rejects it)
 5. **Build** — Next.js production build (catches build-time errors before they reach Vercel)
 
 Vercel handles preview and production deployments automatically via its GitHub integration — this CI is the code quality gate that protects `main`.
 
 ---
+
+> **Layout note** — the workflow below assumes the canonical scaffold, where the app
+> lives in `website/`. On a repo with the app at the root, drop the `defaults.run.working-directory`
+> block and change `cache-dependency-path` to `package-lock.json`. Check before you write:
+> `ls website/package.json 2>/dev/null || echo "app is at the repo root"`.
 
 ## Step 1 — Check what already exists
 
@@ -72,7 +79,7 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Test
-        run: npm test -- --passWithNoTests --ci
+        run: npx vitest run --passWithNoTests
 
       - name: Build
         run: npm run build
@@ -107,15 +114,19 @@ Tell the operator:
 
 ## Step 5 — Verify
 
-Push the workflow file on a feature branch:
+Stage the workflow on a feature branch and hand it to the operator — they commit and
+push (`.claude/rules/global-engineering.md`: never commit unless instructed, never push
+to `main`).
 
 ```bash
+git switch -c feat/add-ci
 git add .github/workflows/ci.yml
-git commit -m "ci: add GitHub Actions quality pipeline"
-git push origin feat/add-ci
+git status --short
 ```
 
-Open a PR and confirm the Actions tab shows the `quality` job running. All steps should pass before merging.
+Suggested message: `ci: add GitHub Actions quality pipeline`. Once they push and open a
+PR, confirm the Actions tab shows the `quality` job running; all steps should pass
+before merging.
 
 ---
 

@@ -1,8 +1,96 @@
 # Changelog
 
-All notable changes to the Infinite Leverage 8-Agent Templates are recorded here.
+All notable changes to the Infinite Leverage agent templates are recorded here.
 
 Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Removed.
+
+---
+
+## [2.4.1] — 2026-08-26
+
+**Final skill review.** A full pass over all 26 skills, the 6 agents, the routing rules and
+the scaffold. Three of these were install-breaking.
+
+### Fixed
+- **`il-project` step 6 never installed the agents.** The scaffold ships `.claude/rules/`
+  and `.claude/skills/` but not `.claude/agents/`, so `cp .../agents/*.md "$TARGET/.claude/agents/"`
+  failed with `Not a directory` and every new project came up with zero agents. Step 6 now
+  `mkdir -p`s all three destinations and verifies the counts (6 agents / 24 skills) before
+  continuing
+- **`il-doctor` failed on every healthy project.** The agent check asserted `-ge 8` against a
+  6-agent roster and told the operator to re-run an install step that was already correct.
+  Now checks 6, and also verifies the 24 skills landed
+- **Prerequisite checks matched neither reality nor each other.** `il-project` checked
+  `gh`/`git`/`perl` while mandatory step 9 needs `node`/`npm`/`npx`/`rsync`; `il-doctor`
+  checked a different set again. Both now check the same union, and `il-project` verifies
+  `gh auth status` up front
+- **`web-publisher-publish` pushed to `main`, then asked whether it was on a branch.**
+  Phase 5 ran `git push origin main` and Phase 6 then offered a PR flow that could never be
+  reached. Now: `publish/{slug}` branch → PR → merge only under the auto-merge criteria in
+  `developer.md`, with the preview URL handed over when it stops for approval
+- **`devops-git-guardrails` blocked `--amend` on branches that were never pushed** — the
+  upstream check treated "no upstream" as "already published". Rewritten around
+  `@{upstream}` with the logic verified against real repos; also fixes `--force-with-lease`
+  slipping through, and moves from the deprecated `{"decision":…}` output to exit-code 2
+- **`qa-triage` wrote bugs into a "Known Issues" heading that `epic-status.md` never has.**
+  Now writes to the At-a-glance count and the Drilldown section that actually exist
+- **`writer-seo-content`'s image-prompt example was a broken nested code fence** — the inner
+  ```json fence terminated the outer block early. Outer fence is now four backticks
+- **`devops-cicd` ran `npm test -- --ci`**, a Jest-only flag the scaffold's Vitest rejects.
+  Now `npx vitest run --passWithNoTests`, with the Jest equivalent noted
+- **`designer-image-generation` stretched hero images** — bare `scale=1200:630` on any source
+  that isn't 40:21. Now scale-and-crop, and it creates the scratch dir it writes to
+- Dead references removed repo-wide: `developer (publishing)-publish` in the routing table,
+  `/use-dev-team` and `/use-marketing-team`, `docs/product/01-product-timeline.md`,
+  `/capture-learning`, and ~15 skill names retired in 2.2.0/2.4.0
+
+### Removed
+- **Effort-tracking registration (`il-project` step 13).** It wrote to `~/.claude/`, pushed
+  client names and their staff's git emails to `talentedgeai/human-token-tracker`, and
+  referenced a session-start hook this plugin doesn't ship — contradicting the repo's own
+  "nothing global, no telemetry" rule, both manifests, and the skill's own execution
+  contract. Telemetry belongs to the private `edge8-telemetry` plugin. "telemetry" dropped
+  from the plugin keywords and the marketplace description
+- **`pm-project-status`'s team-hours machinery.** §6/§7 depended on `scripts/team-hours.py`
+  and `docs/assessments/team-hours-methodology.md` — neither ships — and carried
+  client-specific language ("human tokens", owner "carries clinical/regulatory risk").
+  Replaced with a Contributor Activity table and a Pulse Chart built only from `git`, `gh`,
+  `epic-status.md` and `docs/qa/`
+- **v1 documents that contradicted the shipped product**: `docs/guide/agent-map.html`
+  (titled "8-Agent Team"), `docs/guide/SCAFFOLD.md` and `docs/install-prompt.md` (both
+  documenting the retired global `~/.claude/` install). Nothing linked them; recoverable
+  from git history
+- **Two byte-identical duplicates of the intro deck** (`Infinite-Leverage-8-Introduction.html`,
+  `infinite-leverage-introduction.html`). `docs/slides/index.html` is the single copy, and
+  its text now names `/il-project` and `/il-doctor` instead of the retired
+  `/infiniteleverage-init|onboard|patch`, a 6-agent roster, and the one-repo-is-the-
+  marketplace architecture
+- **A real contributor's usage data shipped in the scaffold.** `templates/project-scaffold/docs/project-status.html`
+  carried a hard-coded username, hour count and token total, plus a call to a
+  `~/.claude/hooks/` script this plugin doesn't ship — copied into every new client
+  project. Replaced with an empty git/gh-derived Contributor activity table
+
+### Changed
+- **Email is draft-only in the skill body, not just the description.** `email-marketer-nurture`
+  said "drafted for operator approval" in its frontmatter while its workflows said "send to
+  all active subscribers". The hard rule is now the first thing in the body, and its state
+  files moved from the non-existent `agents/email-marketer/` to `agents/writer/context/`
+- **Image-prompt ownership settled.** The Writer owns `image-prompts.md` (JSON);
+  `designer-style-to-photo` now tunes its `style`/`mood`/`palette` in place instead of
+  authoring a competing key-value prompt. `FOLDER-STRUCTURE.md` and the scaffold stub
+  renamed `images.md` → `image-prompts.md` to match
+- **No skill commits without instruction.** `pm-constitution-sync`, `pm-project-status`,
+  `dev-tdd`, `devops-cicd`, `devops-setup-pre-commit` and `devops-git-guardrails` all
+  auto-committed against `global-engineering.md`; they now stage and hand off
+- **`devops-git-guardrails` is project-scoped and merges settings.** It no longer offers
+  `~/.claude/settings.json`, and registers its hook without clobbering existing keys
+- **`marketing-strategist` writes to paths that exist** — `context/source-material/`,
+  `content/content-calendar/content-calendar.md`; dropped the invented `content/images/`
+  and the handoff to a non-existent "Content Producer"
+- `pm-grill-with-docs` and `pm-to-issues` added to the PM's skill index (previously
+  reachable from the routing table but absent from the agent)
+- `docs/guide/AGENTS.md` rewritten for the 6-agent roster; `troubleshooting.md` de-v1'd
+- `qa-triage` gains severity floors so a rare-but-catastrophic security bug can't score P2
 
 ---
 

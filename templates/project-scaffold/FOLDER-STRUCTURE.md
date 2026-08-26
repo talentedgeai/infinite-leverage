@@ -16,7 +16,8 @@ These files have hard-coded names that skills and agents reference by path:
 | `README.md` | Developer agent | Manual |
 | `.gitignore` | Developer agent | Manual |
 | `docs/brand/style-guide.md` | All agents | Manual (PM-guided during setup) |
-| `context/general-project-agent-context/publish-log.md` | web-publisher | Append-only |
+| `content/topics/{slug}/image-prompts.md` | Writer agent | `writer-seo-content` writes it; `designer-style-to-photo` tunes its visual fields |
+| `context/general-project-agent-context/publish-log.md` | developer agent | Append-only (`web-publisher-publish` skill) |
 | `.specify/memory/constitution.md` | PM agent | `pm-constitution-sync` skill |
 | `.specify/features/{slug}/spec.md` | PM agent | `pm-epic-writing` skill |
 | `.specify/features/{slug}/impl-plan.md` | Developer agent | `dev-feature-plan` skill |
@@ -56,9 +57,11 @@ These files have hard-coded names that skills and agents reference by path:
 │   │   │   └── persona.md                      ← Project overrides loaded by the global agent on first run
 │   │   └── skills/                             ← Optional: add project-specific skills here
 │   │       └── <skill-name>/SKILL.md           ← Loaded AFTER global skills; project rules take precedence
-│   └── web-publisher/
-│       ├── context/persona.md
-│       └── output/                             ← Build artifacts staging (web-publisher only)
+│   └── writer/
+│       └── context/
+│           ├── persona.md
+│           ├── email-index.md                  ← Welcome-sequence state (email-marketer-nurture)
+│           └── outreach-log.md                 ← Append-only: which post went to which segment, when
 │
 ├── content/                                    ← Source-of-truth content
 │   ├── content-calendar/
@@ -71,7 +74,7 @@ These files have hard-coded names that skills and agents reference by path:
 │           ├── social-twitter.md
 │           ├── social-linkedin.md
 │           ├── social-facebook.md
-│           └── images.md                        ← Image prompts
+│           └── image-prompts.md                 ← JSON image prompts (Writer owns; Designer reads)
 │
 ├── context/                                    ← Agent-only context (not project docs)
 │   ├── general-project-agent-context/
@@ -114,10 +117,7 @@ These files have hard-coded names that skills and agents reference by path:
 │
 ├── emails/
 │   └── drafts/YYYY-MM-DD-PH-subject.md          ← Markdown draft with frontmatter
-│
-│   ├── individual/PH-person.md                  ← Per-person check-in log
-│   └── briefings/
-│       └── YYYY-MM/YYYY-MM-DD.md                ← Daily PM-compiled briefing
+│                                                  (drafted only — the operator sends)
 │
 ├── resources/                                  ← Design system, brand assets, masters
 │   └── README.md
