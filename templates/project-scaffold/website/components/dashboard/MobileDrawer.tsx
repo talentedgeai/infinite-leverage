@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import Link from 'next/link'
 import { NAV_ITEMS } from '@/lib/dashboard/nav-config'
 import { SidebarItem } from './SidebarItem'
 

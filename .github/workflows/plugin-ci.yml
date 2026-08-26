@@ -29,8 +29,84 @@ jobs:
           PY
       - name: No global-install regressions
         run: |
-          # The v2 invariant: nothing in the shipped payload copies into ~/.claude
-          ! grep -rn "cp .*~/.claude\|cp .*\$HOME/.claude" plugin/ --include="*.md" --include="*.sh" --include="*.py" \
-            || { echo "::error::plugin payload writes into ~/.claude — forbidden in v2"; exit 1; }
-          ! grep -rn '"Bash(\*)"' plugin/ --include="*.py" --include="*.md" \
-            || { echo "::error::plugin payload grants Bash(*) — forbidden"; exit 1; }
+          # The v2 invariant: the shipped payload never WRITES into ~/.claude.
+          # The old check only looked for `cp` — it missed the mkdir/touch pair that
+          # shipped in il-project step 13 for three releases. Match any write verb.
+          if grep -rnE '(cp|mv|mkdir|touch|tee|rm|ln|install)[^|;&]*(~/\.claude|\$HOME/\.claude|\$\{HOME\}/\.claude)' \
+               plugin/ --include="*.md" --include="*.sh" --include="*.py"; then
+            echo "::error::plugin payload writes into ~/.claude — forbidden in v2"; exit 1
+          fi
+          if grep -rnE '>\s*"?(~/\.claude|\$HOME/\.claude)' plugin/ --include="*.md" --include="*.sh" --include="*.py"; then
+            echo "::error::plugin payload redirects output into ~/.claude — forbidden in v2"; exit 1
+          fi
+          if grep -rn '"Bash(\*)"' plugin/ --include="*.py" --include="*.md"; then
+            echo "::error::plugin payload grants Bash(*) — forbidden"; exit 1
+          fi
+          if grep -rniE 'human-token-tracker|il-telemetry' plugin/ .claude/; then
+            echo "::error::telemetry belongs in the private edge8-telemetry plugin"; exit 1
+          fi
+          echo "no global-install or telemetry regressions"
+
+      - name: Agent and skill counts match what the tooling asserts
+        run: |
+          python3 - <<'PY'
+          import glob, re, pathlib
+          agents = sorted(glob.glob(".claude/agents/*.md"))
+          skills = sorted(glob.glob(".claude/skills/*/SKILL.md"))
+          assert len(agents) == 6, f"expected 6 agents, found {len(agents)}"
+          assert len(skills) == 24, f"expected 24 skills, found {len(skills)}"
+          # il-doctor hard-codes these counts; drift there is how "found 6/8" shipped
+          doc = pathlib.Path("plugin/skills/il-doctor/scripts/doctor.sh").read_text()
+          a = re.search(r'AGENTS"?\s*-ge\s*(\d+)', doc)
+          assert a and int(a.group(1)) == len(agents), \
+              f"doctor.sh asserts {a and a.group(1)} agents, repo has {len(agents)}"
+          print(f"{len(agents)} agents / {len(skills)} skills, doctor.sh in agreement")
+          PY
+
+      - name: Every skill has frontmatter whose name matches its directory
+        run: |
+          python3 - <<'PY'
+          import glob, os, re, sys
+          bad = []
+          for f in sorted(glob.glob(".claude/skills/*/SKILL.md") + glob.glob("plugin/skills/*/SKILL.md")):
+              t = open(f, encoding="utf-8").read()
+              if not t.startswith("---\n"):
+                  bad.append(f"{f}: no frontmatter"); continue
+              fm = t.split("---\n", 2)[1]
+              d = os.path.basename(os.path.dirname(f))
+              m = re.search(r'^name:\s*(\S+)', fm, re.M)
+              if not m:            bad.append(f"{f}: no name")
+              elif m.group(1) != d: bad.append(f"{f}: name {m.group(1)} != dir {d}")
+              if not re.search(r'^description:', fm, re.M): bad.append(f"{f}: no description")
+          if bad:
+              print("\n".join(bad)); sys.exit(1)
+          print("all skill frontmatter valid")
+          PY
+
+      - name: Web template dependencies are all declared by il-project step 9c
+        run: |
+          python3 - <<'PY'
+          import glob, os, re, sys, pathlib
+          # Everything the starter kit imports must be installed by step 9c or come
+          # from create-next-app. `unified` was imported but never installed and only
+          # resolved by accidental npm hoisting.
+          root = "templates/project-scaffold/website"
+          pkgs = set()
+          for f in glob.glob(f"{root}/**/*.ts*", recursive=True):
+              if not os.path.isfile(f): continue
+              for m in re.finditer(r'''(?:from\s+|require\(|import\()\s*['"]([^'"]+)['"]''',
+                                   open(f, encoding="utf-8").read()):
+                  s = m.group(1)
+                  if s.startswith(('.', '@/', '~/', 'node:')): continue
+                  p = s.split('/')
+                  pkgs.add('/'.join(p[:2]) if s.startswith('@') else p[0])
+          skill = pathlib.Path("plugin/skills/il-project/SKILL.md").read_text()
+          blk = re.search(r'# 9c\..*?```', skill, re.S).group(0)
+          declared = set(re.findall(r'@?[\w][\w@/.-]+', blk))
+          from_cna = {"next", "react", "react-dom", "typescript", "eslint", "tailwindcss"}
+          missing = sorted(pkgs - declared - from_cna)
+          if missing:
+              print("imported by the web template but not installed by step 9c:")
+              print("\n".join("  " + m for m in missing)); sys.exit(1)
+          print(f"all {len(pkgs)} template imports are declared")
+          PY
