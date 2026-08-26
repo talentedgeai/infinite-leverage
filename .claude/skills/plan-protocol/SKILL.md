@@ -43,9 +43,14 @@ node .specify/extensions/plan-protocol/plan.mjs <verb>
 | `doctor` | diagnose; `--heal` repairs what it can |
 
 All policy lives in `config.json` beside the engine: `plansDir`, `registryFile`, `baseRef`,
-`exempt`, `hotZones`, `trivialFixMaxFiles`, `staleWarnDays`, `claimExpiryDays`, `verifyCmd`,
-`verifyCwd`. Hot zones differ between two Next apps, never mind a Rails one — so they are
-data, and the engine never changes per project.
+`exempt`, `hotZones`, `components`, `trivialFixMaxFiles`, `staleWarnDays`, `claimExpiryDays`,
+`verifyCmd`, `verifyCwd`. Hot zones differ between two Next apps, never mind a Rails one — so
+they are data, and the engine never changes per project.
+
+`components` is the plan taxonomy. It ships **empty**, meaning any non-empty `component`
+string is valid — the engine imposes no domain vocabulary, because "billing" and "learner"
+cannot both be right. Fill the list in to enforce a fixed set:
+`"components": ["web", "api", "platform"]`. A missing `component` is always an error.
 
 ## Mode: init — a project with no protocol
 
@@ -76,8 +81,9 @@ data, and the engine never changes per project.
    "premerge": "node <engine> premerge",
    "prepare": "git -C . config core.hooksPath .githooks 2>/dev/null || true"
    ```
-7. Verify before reporting success: `node --test .../plan.test.mjs`, then `plan.mjs guard`,
-   then confirm the hook actually fires:
+7. Verify before reporting success: `node --test .../plan.test.mjs` (32 tests, no
+   framework or install needed), then `plan.mjs guard`, then confirm the hook actually
+   fires:
    ```bash
    git -c core.hooksPath=.githooks hook run pre-push
    ```

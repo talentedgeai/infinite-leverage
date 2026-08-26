@@ -83,6 +83,31 @@ jobs:
           print("all skill frontmatter valid")
           PY
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Plan-protocol engine test suite
+        run: |
+          # A 35KB engine ships into every scaffolded project and its own suite
+          # had never run in CI. node: builtins only — no install needed.
+          node --test .claude/skills/plan-protocol/assets/plan.test.mjs
+
+      - name: Plan-protocol ships no client-specific vocabulary
+        run: |
+          python3 - <<'PY'
+          import re, sys, pathlib
+          src = pathlib.Path(".claude/skills/plan-protocol/assets/plan.mjs").read_text()
+          m = re.search(r'^\s*components:\s*\[(.*?)\]', src, re.M | re.S)
+          assert m, "could not find the components default in plan.mjs"
+          if m.group(1).strip():
+              print("DEFAULT_CONFIG.components must ship empty — the engine imposes no")
+              print(f"domain vocabulary. Found: [{m.group(1).strip()}]")
+              sys.exit(1)
+          print("components default is empty (opt-in taxonomy)")
+          PY
+
       - name: Web template dependencies are all declared by il-project step 9c
         run: |
           python3 - <<'PY'

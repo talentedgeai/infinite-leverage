@@ -94,10 +94,31 @@ describe('metaFromFields validation', () => {
     assert.deepEqual(m.touches, ['a/b'])
   })
 
-  test('rejects an unknown component', () => {
+  // The engine ships no domain vocabulary of its own: by default any non-empty
+  // component is valid, and a project opts into a fixed list via config.json.
+  test('accepts any non-empty component when no taxonomy is configured', () => {
+    assert.deepEqual(
+      metaFromFields({ ...base, component: 'checkout' }, 'd', 'f', config).errors,
+      []
+    )
+  })
+
+  test('still requires a component to be present', () => {
     assert.match(
-      metaFromFields({ ...base, component: 'nope' }, 'd', 'f', config).errors.join(),
-      /"component" must be one of/
+      metaFromFields({ ...base, component: '' }, 'd', 'f', config).errors.join(),
+      /missing "component"/
+    )
+  })
+
+  test('rejects an unknown component once a taxonomy IS configured', () => {
+    const strict = { ...config, components: ['web', 'api', 'platform'] }
+    assert.match(
+      metaFromFields({ ...base, component: 'nope' }, 'd', 'f', strict).errors.join(),
+      /"component" must be one of: web, api, platform/
+    )
+    assert.deepEqual(
+      metaFromFields({ ...base, component: 'api' }, 'd', 'f', strict).errors,
+      []
     )
   })
 })
