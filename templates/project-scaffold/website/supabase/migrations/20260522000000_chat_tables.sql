@@ -10,8 +10,17 @@ create table chat_sessions (
   updated_at timestamptz default now()
 );
 alter table chat_sessions enable row level security;
+-- (select auth.uid()) not bare auth.uid(): the subquery is evaluated once as an
+-- initplan instead of once per row. Bare auth.uid() re-runs for every candidate
+-- row and dominates the query on a large table.
 create policy "user owns sessions"
-  on chat_sessions for all using (auth.uid() = user_id);
+  on chat_sessions for all
+  to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+-- The RLS predicate filters on user_id, so it needs its own index.
+create index on chat_sessions(user_id);
 
 -- chat_messages
 create table chat_messages (
@@ -24,6 +33,10 @@ create table chat_messages (
 );
 alter table chat_messages enable row level security;
 create policy "user owns messages"
-  on chat_messages for all using (auth.uid() = user_id);
+  on chat_messages for all
+  to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
 
 create index on chat_messages(session_id, created_at);
+create index on chat_messages(user_id);

@@ -1,16 +1,10 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createServiceClient } from '@/lib/supabase/service'
 import { stripe } from '@/lib/billing/stripe'
 import type Stripe from 'stripe'
 
-// Use secret-key client — no user session in webhook context.
-// Never use the user-facing createClient() here.
-function createServiceClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SECRET_KEY!,
-  )
-}
+// No user session in webhook context — all writes go through the shared
+// service-role client in lib/supabase/service.ts.
 
 function planFromSubscription(subscription: Stripe.Subscription): string {
   // TODO: Map your Stripe price IDs to plan names.

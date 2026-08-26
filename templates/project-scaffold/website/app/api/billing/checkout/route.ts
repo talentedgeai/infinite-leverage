@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { stripe } from '@/lib/billing/stripe'
 
 export async function POST(req: Request) {
@@ -37,13 +38,31 @@ export async function POST(req: Request) {
     })
     customerId = customer.id
 
-    // Upsert subscription row with customer ID
-    await supabase.from('subscriptions').upsert({
-      user_id: user.id,
-      stripe_customer_id: customerId,
-      plan: 'free',
-      status: 'active',
-    }, { onConflict: 'user_id' })
+    // Persist the Stripe customer id. `subscriptions` is SELECT-only under RLS
+    // (a user who could write it could self-grant a paid plan), so this write
+    // must go through the service-role client — the user-scoped `supabase`
+    // client above is denied here, silently, and the id would be lost.
+    const { error: upsertError } = await createServiceClient()
+      .from('subscriptions')
+      .upsert(
+        {
+          user_id: user.id,
+          stripe_customer_id: customerId,
+          plan: 'free',
+          status: 'active',
+        },
+        { onConflict: 'user_id' }
+      )
+
+    // Failing closed matters: if the id is not stored, the next checkout finds
+    // no customer and mints a SECOND Stripe customer for the same user.
+    if (upsertError) {
+      console.error('[billing] failed to persist stripe_customer_id', upsertError)
+      return NextResponse.json(
+        { error: 'Could not start checkout. Please try again.' },
+        { status: 500 }
+      )
+    }
   }
 
   const session = await stripe.checkout.sessions.create({
