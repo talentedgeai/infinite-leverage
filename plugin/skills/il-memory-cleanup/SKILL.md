@@ -50,9 +50,9 @@ walk them through conflicts one by one.
 
 Default to the **current project's** memory directory plus the global `CLAUDE.md`.
 Offer to sweep other projects' memory directories only if the operator asks or if
-they said the whole machine is a mess. Never touch anything else in `~/.claude/`
-(no settings, no permissions, no plugins, no agents) — if the mess extends to
-settings or leftover installs, that is `/il-doctor` territory, not this skill.
+they said the whole machine is a mess. Everything else under `~/.claude/`
+(settings, permissions, plugins, agents) is out of bounds — if the mess extends
+to settings or leftover installs, that is `/il-doctor` territory, not this skill.
 
 ## Phase 0 — Inventory (read-only)
 
@@ -112,10 +112,11 @@ Record the decisions as a checklist in the conversation before applying anything
 
 ## Phase 3 — Back up, then apply
 
-**Before the first write**, snapshot everything in scope:
+**Before the first write**, snapshot everything in scope. The backup lives
+*outside* the directory it protects, so it survives whatever happens inside it:
 
 ```bash
-mkdir -p ~/.claude/memory-backups && tar -czf ~/.claude/memory-backups/memory-$(date +%Y%m%d-%H%M%S).tar.gz -C ~ .claude/CLAUDE.md .claude/projects/*/memory 2>/dev/null
+mkdir -p ~/claude-memory-backups && tar -czf ~/claude-memory-backups/memory-$(date +%Y%m%d-%H%M%S).tar.gz -C ~ .claude/CLAUDE.md .claude/projects/*/memory 2>/dev/null
 ```
 
 Tell the operator the backup path and the restore command
