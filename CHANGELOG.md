@@ -23,6 +23,21 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.15] — 2026-08-27
+
+### Fixed
+- **The guide never said where the prompts run.** It assumed Claude Code was already on
+  the machine — the one assumption this audience cannot fill in themselves. New section
+  at the top: get the **Claude Code desktop app** (claude.ai/download, normal drag
+  install, sign in with a paid Claude plan, open the Claude Code tab), with the
+  one-sentence distinction that matters: regular Claude talks, Claude Code can also use
+  the computer — install tools, sign the machine in to GitHub, create the project — so
+  the client never opens a terminal. An explicit warning covers the near-misses: the
+  Claude website and the Cowork side of the app cannot install tools or sign the
+  computer in to GitHub, so the prompts will not work there
+
+---
+
 ## [2.4.14] — 2026-08-27
 
 ### Fixed

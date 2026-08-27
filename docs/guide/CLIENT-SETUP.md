@@ -17,6 +17,33 @@ tells you what it did.
 
 ---
 
+## Before anything: get Claude Code (the app the prompts run in)
+
+These prompts run inside **Claude Code — the desktop app**. Not the regular Claude chat,
+and not Claude in the browser. The difference in one sentence: regular Claude talks;
+Claude Code can also *use your computer* — install the tools, sign this machine in to
+GitHub, create your project — which is exactly what these prompts ask it to do. You
+never open a terminal yourself; Claude Code does that part.
+
+Getting it is a normal app install:
+
+1. On the computer the project will live on, go to **claude.ai/download** and download
+   the Claude desktop app (Mac or Windows).
+2. Install it like any app — on a Mac, open the download and drag it into Applications.
+3. Open it and **sign in with your Claude account**. Claude Code comes with the paid
+   plans (Pro, Max, or Team) — if you don't have one, that's the one purchase to make
+   first, at claude.ai.
+4. Open the **Claude Code** tab. When it asks which folder to work in, your home folder
+   or Desktop is fine for now — Prompt 3 creates the real project folder later.
+
+The chat box you're now looking at is where every prompt below gets pasted.
+
+> Using the Claude website or the Cowork side of the app? Those can't install tools or
+> sign your computer in to GitHub — the prompts below will not work there. It has to be
+> the Claude Code tab of the desktop app, on this computer.
+
+---
+
 ## Prompt 0 — Clean up (only if you've used Infinite Leverage before)
 
 The old version 1 installed itself into a shared folder on your computer. Version 2
