@@ -23,6 +23,35 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.16] — 2026-08-27
+
+**The bootstrap now runs in ordinary Claude.** Khoa's catch: the guide's first prompt
+assumed Claude Code, but Claude Code can't be the guide for installing Claude Code — and
+a non-technical client starts from the chat they already have.
+
+### Changed
+- **New Prompt 1 — "Get ready" — runs in any Claude: the website, the app, or Cowork.**
+  There Claude can't touch the computer, so the prompt makes it a pure instructor: ask
+  Mac or Windows first, then one copy-paste at a time — open the Terminal (with the
+  reassurance that nothing pasted there can break the computer), install git
+  (`git --version` triggering the macOS developer-tools dialog; git-scm.com on Windows),
+  install gh from cli.github.com (the downloadable installer — explicitly do NOT make
+  the client install Homebrew for this), `gh auth login` guided question by question
+  (the browser page opens already signed in from the GitHub step — one Authorize click),
+  and finally install the Claude Code desktop app itself. The client pastes back what
+  they see; Claude interprets — "never just point at an error"
+- **The journey is now five prompts**: 1 Get ready (ordinary Claude) → 2 Set up your
+  accounts (Claude Code: Supabase, Vercel, Stripe — GitHub moved to Prompt 1) →
+  3 Install → 4 Create your project, with 0 Clean up for v1 veterans. Prompt 2 verifies
+  `gh auth status` itself and routes back to Prompt 1 — naming that it runs "in the
+  ordinary Claude app, not here" — rather than half-fixing auth
+- The journey table gains a **"Where it runs"** column; the standalone get-Claude-Code
+  section from 2.4.15 folded into Prompt 1's final step
+- Command table gains `git --version` and `gh auth status` rows, since Prompt 1 hands
+  those to the client to paste themselves
+
+---
+
 ## [2.4.15] — 2026-08-27
 
 ### Fixed
