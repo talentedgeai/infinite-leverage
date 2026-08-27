@@ -8,7 +8,7 @@ to click or paste. Each prompt ends by telling you which one to copy next, by na
 |---|---|---|---|
 | 0 | **Clean up** | Claude Code | Only if you've used Infinite Leverage before. Never used it? Skip. |
 | 1 | **Get ready** | Any Claude — the website, the app, or Cowork | Everyone starts here. Ends with Claude Code installed and this computer signed in to GitHub. |
-| 2 | **Set up your accounts** | Claude Code | Supabase and Vercel (and Stripe if you take payments), click by click. |
+| 2 | **Set up your accounts** | Claude Code | Supabase and Vercel, click by click. |
 | 3 | **Install** | Claude Code | Takes a minute. Claude does all of it. |
 | 4 | **Create your project** | Claude Code | Your website and your four-person AI team, built in front of you. |
 
@@ -111,9 +111,9 @@ time. Never leave me staring at an error.
 
 ## Prompt 2 — Set up your accounts (in Claude Code, from here on)
 
-Two more free accounts — the database and the hosting — plus payments if you need it.
-Claude checks the GitHub connection from Prompt 1 first, then guides each sign-up click
-by click. All of it happens in your browser.
+Two more free accounts — the database and the hosting. Claude checks the GitHub
+connection from Prompt 1 first, then guides each sign-up click by click. All of it
+happens in your browser.
 
 ```
 Help me set up the remaining accounts my project needs. I'm not a
@@ -143,10 +143,6 @@ Go in this order:
 2. Vercel — puts my website on the internet.
    - Walk me through vercel.com — "sign up with GitHub" is one button, and
      that's all we need today.
-3. Stripe — for taking payments. Ask me first: "Will your project charge
-   customers money? If no, or not sure yet, we skip this — it can be
-   added any time." Only walk me through stripe.com if I say yes.
-
 After each account, show me a short tick-list of what's done and what's
 next. When everything is done, tell me, exactly: "Accounts ready. Next: go
 back to the setup guide and copy the prompt called 3 - Install. Paste it
