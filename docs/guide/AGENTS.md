@@ -1,7 +1,8 @@
 # Agent Guide
 
-The Infinite Leverage team is **4 agents**, installed **per project** by `/il-project`
-into that project's own `.claude/`. Nothing lives in `~/.claude/`.
+The Infinite Leverage team is **4 agents**, installed **per project** into that
+project's own `.claude/` — by `/il-project` for a new project, or `/il-adopt` for
+a repo that already exists. Nothing lives in `~/.claude/`.
 
 - Agent definitions: [`.claude/agents/`](../../.claude/agents) — 4 files
 - Workflow skills: [`.claude/skills/`](../../.claude/skills) — 16 skills

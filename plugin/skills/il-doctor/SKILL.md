@@ -30,8 +30,9 @@ It prints PASS/FAIL lines for:
   read-only or local operation (installing a CLI, setting git config).
 - `gh` not authenticated → tell the user to run `gh auth login` themselves
   (interactive; never run it for them).
-- Missing agents / delegation block inside a project → offer to re-run the
-  install step of `/il-project` (step 6) to refresh them.
+- Missing agents / delegation block inside a project → offer to run `/il-adopt`
+  (installs/refreshes the team in an existing repo — the same content as
+  `/il-project` step 6).
 
 ## Hard rules
 
