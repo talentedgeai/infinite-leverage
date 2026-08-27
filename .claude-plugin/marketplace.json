@@ -14,7 +14,7 @@
       "name": "infiniteleverage",
       "source": "./plugin",
       "description": "Infinite Leverage product plugin: /il-project scaffolds a client project with its own 4-agent team (project-scoped, never global); /il-adopt installs that team into an already-established repo; /il-doctor checks the setup; /il-memory-cleanup tidies a multi-account memory mess with the human in the loop. Telemetry lives in the separate private edge8-telemetry plugin.",
-      "version": "2.7.0",
+      "version": "2.7.1",
       "author": {
         "name": "Edge8",
         "email": "khoa.doan@edge8.ai"

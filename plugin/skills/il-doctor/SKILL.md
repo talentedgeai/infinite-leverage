@@ -20,8 +20,10 @@ It prints PASS/FAIL lines for:
   the Next.js scaffold in step 9)
 - **Repo context** — git remote + author email of the current directory
 - **Project layout** — when run inside a scaffolded project: `FOLDER-STRUCTURE.md`,
-  4 agents in `.claude/agents/`, 16 skills in `.claude/skills/`, `CLAUDE.md` delegation
-  block present
+  4 agents in `.claude/agents/`, 16 skills in `.claude/skills/`, no retired v2.4-era
+  agents/skills lingering (writer/designer and their content pipeline — re-running
+  `/il-project` step 6 moves them to `.claude/retired-il-<date>/`), `CLAUDE.md`
+  delegation block present
 - **Companion plugin** — whether `edge8-telemetry` is installed (Edge8-internal; not needed by outside users)
 
 ## Interpreting results

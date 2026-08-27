@@ -6,6 +6,29 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.7.1] — 2026-08-27
+
+**The v2.4 → v2.6 migration path for existing projects.** v2.6.0 removed the writer and
+designer agents, but a project scaffolded on v2.4.x still carries them — and nothing
+removed them on refresh. Worse: step 6's gate demanded *exactly* 4 agents, so refreshing
+a legacy project (6 on disk) failed the gate even after a successful copy.
+
+### Fixed
+- **`il-project` step 6 now retires the v2.4-era set on refresh** — 2 agents
+  (writer.md, designer.md) and 8 skills (the content pipeline) — by **moving** them to
+  `.claude/retired-il-<date>/`, never deleting, in case a client edited one. On a fresh
+  scaffold the block is a no-op. Verified end to end against a real v2.4.5 tree:
+  retired files land in the dated folder, a custom agent and a custom skill placed
+  beside them survive untouched, and the step is idempotent
+- **Step 6's gate asserts the canonical 4 are present instead of counting to exactly 4.**
+  The exact count was wrong twice over: it failed legacy projects mid-migration, and it
+  failed any project that legitimately added its own custom agent
+- **`il-doctor` flags lingering retired agents/skills** inside a project, naming each
+  one found and the fix (re-run step 6). Verified: FAILs on the legacy tree before
+  migration, PASSes after
+
+---
+
 ## [2.7.0] — 2026-08-27
 
 **Existing repos can finally get the team.** Until now the 4 agents and their skills
