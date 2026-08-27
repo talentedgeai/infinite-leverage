@@ -10,7 +10,7 @@ to click or paste. Each prompt ends by telling you which one to copy next, by na
 | 1 | **Get ready** | Any Claude — the website, the app, or Cowork | Everyone starts here. Ends with Claude Code installed and this computer signed in to GitHub. |
 | 2 | **Set up your accounts** | Claude Code | Supabase and Vercel (and Stripe if you take payments), click by click. |
 | 3 | **Install** | Claude Code | Takes a minute. Claude does all of it. |
-| 4 | **Create your project** | Claude Code | Your website and your six-person AI team, built in front of you. |
+| 4 | **Create your project** | Claude Code | Your website and your four-person AI team, built in front of you. |
 
 **Why Prompt 1 is different:** it runs in ordinary Claude — the chat you already have —
 because at that point Claude Code isn't installed yet. In that chat, Claude can't touch
@@ -328,7 +328,7 @@ to get past an error, and don't tell me it worked if it didn't.
 
 ## Your team, once it's built
 
-Six AI teammates live inside your project. Talk to them like colleagues — plain
+Four AI teammates live inside your project. Talk to them like colleagues — plain
 English. Name one directly with `@`, or just describe what you want and the right one
 picks it up.
 
@@ -338,12 +338,9 @@ picks it up.
 | **developer** | building features, fixing bugs, putting posts on the site |
 | **qa** | "check this works", testing, sorting out bug reports |
 | **devops** | "is the site up", deployments, rolling back a bad release |
-| **writer** | blog posts, marketing copy, email campaigns |
-| **designer** | brand look and feel, images, "does this page look right" |
 
 House rules they all follow, so you don't have to police them: nothing is saved to the
-project history unless you ask, nothing goes live without a review step, and **no email
-is ever sent** — the writer drafts, you press send.
+project history unless you ask, and nothing goes live without a review step.
 
 ## What the commands actually do
 
@@ -359,8 +356,8 @@ paste. This table exists so none of it feels like magic.
 | `claude plugin install infiniteleverage@infiniteleverage` | Installs Infinite Leverage. |
 | `claude plugin update infiniteleverage@infiniteleverage` | Gets the newest version, if it's already installed. |
 | `/il-doctor` | A health check. Says what's missing or out of date, and how to fix it. |
-| `/il-project` | Builds a new project: the folder, the website, and your six AI teammates. |
-| `@product-manager …` | Talks to one teammate directly. Works with any of the six names. |
+| `/il-project` | Builds a new project: the folder, the website, and your four AI teammates. |
+| `@product-manager …` | Talks to one teammate directly. Works with any of the four names. |
 | `npm run build` | Test-assembles the website to prove nothing is broken. Claude runs it for you. |
 
 ## If something looks wrong

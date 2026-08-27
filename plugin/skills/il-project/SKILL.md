@@ -16,7 +16,7 @@ version: 3.2.0
 |---|---|
 | Project folder scaffold + stub files | `templates/project-scaffold/` |
 | Folder structure spec | `templates/project-scaffold/FOLDER-STRUCTURE.md` |
-| 6 agent definitions | `.claude/agents/*.md` |
+| 4 agent definitions | `.claude/agents/*.md` |
 | Project skills | `.claude/skills/*/SKILL.md` |
 | Engineering rules | `.claude/rules/global-engineering.md` |
 | AGENT-DELEGATION block content | embedded below in this SKILL.md — single source for the routing table |
@@ -197,7 +197,6 @@ find "$TARGET" -type f \
 # 4b. Replace YYYY-MM-DD ONLY inside folders where it represents a real date
 for scope in \
   "$TARGET/content/topics" \
-  "$TARGET/emails/drafts" \
   "$TARGET/docs/engineering/changes"; do
   [ -d "$scope" ] || continue
   find "$scope" -type f \( -name '*.md' -o -name '*.html' -o -name '*.json' \) \
@@ -240,9 +239,9 @@ how a project silently ends up with no agents:
 # returning nothing, so `ls dir/*.md` would error out rather than count zero.
 A=$(find "$TARGET/.claude/agents" -maxdepth 1 -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
 S=$(find "$TARGET/.claude/skills" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
-echo "agents: $A/6 · skills: $S/24"
-[ "$A" -eq 6 ] && [ "$S" -ge 20 ] || {
-  echo "❌ install incomplete — expected 6 agents and at least 20 skills"
+echo "agents: $A/4 · skills: $S/16"
+[ "$A" -eq 4 ] && [ "$S" -ge 16 ] || {
+  echo "❌ install incomplete — expected 4 agents and at least 16 skills"
   echo "   check that \$TMP/il-template/.claude/ exists and the mkdir -p above ran"
   exit 1
 }
@@ -262,7 +261,7 @@ BLOCK=$(cat <<'BLOCK_EOF'
 <!-- BEGIN: AGENT-DELEGATION (managed by infiniteleverage skills — do not delete this block) -->
 ## Agent delegation (auto-routing)
 
-When you receive a request, **delegate to the right specialist agent** before doing the work yourself. The 6 agents and their triggers:
+When you receive a request, **delegate to the right specialist agent** before doing the work yourself. The 4 agents and their triggers:
 
 | Agent | Delegate when the request involves… |
 |---|---|
@@ -270,12 +269,10 @@ When you receive a request, **delegate to the right specialist agent** before do
 | **developer** | writing/changing code, fixing bugs, refactoring, scaffolding pages, API endpoints, Supabase migrations, env-vars wiring, **publishing posts to the live site** |
 | **qa** | testing, regression checks, browser matrix, accessibility, QA plans, "verify this works" |
 | **devops** | CI/CD, deployments, secret management, infra escalations, Vercel/GitHub workflow issues |
-| **designer** | UI mockups, brand application, image prompts, design system updates, visual reviews |
-| **writer** | blog drafts, social copy, SEO briefs, voice/tone, content briefs, **email campaigns and sequences** |
 
 **Delegation rules:**
 1. Pick exactly **one** agent per turn — don't run two in parallel unless the operator explicitly says so.
-2. If a request spans agents (e.g., "write a blog *and* publish it"), call them **in sequence**: writer → designer → developer (publish).
+2. If a request spans agents (e.g., "build it *and* verify it"), call them **in sequence**: developer → qa.
 3. If unclear which agent fits, **ask the operator** before assuming.
 4. Cross-cutting engineering rules live in `.claude/rules/global-engineering.md` — every agent honors them.
 5. Project-level persona overrides for each agent live in `agents/<name>/context/persona.md` — read these on first invocation.
@@ -506,7 +503,7 @@ If Step 8.6 was skipped (no attachments), print:
 
 ### Step 8.7 — Collect styling and seed `docs/brand/` (always runs)
 
-Every project gets a design direction before any UI is built — the designer, writer, and web-publisher agents all read `docs/brand/style-guide.md`. This step fills it from the operator's preference, or, if none was given, from a **random DESIGN.md on [getdesign.md](https://getdesign.md/)** (a collection of design-system analyses of well-known sites, made to drop into a project as a coding-agent design reference).
+Every project gets a design direction before any UI is built — every agent that touches the site reads `docs/brand/style-guide.md`. This step fills it from the operator's preference, or, if none was given, from a **random DESIGN.md on [getdesign.md](https://getdesign.md/)** (a collection of design-system analyses of well-known sites, made to drop into a project as a coding-agent design reference).
 
 #### 8.7a — Determine the design source
 
@@ -543,11 +540,11 @@ mkdir -p "$TARGET/docs/brand"
 
 #### 8.7c — Synthesize `docs/brand/style-guide.md`
 
-Translate the chosen source (operator preference OR the fetched DESIGN.md) into the canonical brand file at `$TARGET/docs/brand/style-guide.md`, filling the existing template sections — **Color palette** (real hex values), **Typography** (heading/body/mono fonts + line-height), and **Visual style** (mood, image style, reference aesthetics). Substitute `{Project Name}` with `$PROJECT_NAME`. Leave **Voice and tone** / **Vocabulary** / **Content formats** for the PM/writer interview unless the planning docs from Step 8.6 already specify them — in which case fill them too.
+Translate the chosen source (operator preference OR the fetched DESIGN.md) into the canonical brand file at `$TARGET/docs/brand/style-guide.md`, filling the existing template sections — **Color palette** (real hex values), **Typography** (heading/body/mono fonts + line-height), and **Visual style** (mood, image style, reference aesthetics). Substitute `{Project Name}` with `$PROJECT_NAME`. Leave **Voice and tone** / **Vocabulary** / **Content formats** for the PM interview unless the planning docs from Step 8.6 already specify them — in which case fill them too.
 
 Rules:
-- Use **concrete values**, not placeholders — real hex codes and named Google Fonts the designer can use immediately.
-- Keep the template's H2 headings intact (the designer/writer agents key on them).
+- Use **concrete values**, not placeholders — real hex codes and named Google Fonts the agents can use immediately.
+- Keep the template's H2 headings intact (the agents key on them).
 - Never invent a brand voice the operator didn't express — that's `Visual style` only here; voice stays an open question for the PM interview.
 
 #### 8.7d — Print what was applied
@@ -728,9 +725,9 @@ To wire up auto-deploys on Vercel:
 
 ## What this skill does NOT do
 
-- Configure Supabase / Vercel / Resend / Brevo — account setup is the operator's job (the printed next-steps include the exact commands)
+- Configure Supabase / Vercel — account setup is the operator's job (the printed next-steps include the exact commands)
 - Link the repo to Vercel for auto-deploy — printed as a next-step for the operator (`vercel link`)
-- Generate any content — that's the writer agent
+- Generate any content — content authoring is the operator's job
 - Write product.md / epics.md content **from scratch** — that's `pm-documentation` via the PM agent. Step 8.6 only seeds these files when the operator hands over planning attachments (or a rich inline description) at invocation time; otherwise they stay as placeholders.
 - Define the brand **voice/tone** — Step 8.7 seeds only the *visual* side (palette, typography, visual style) of `docs/brand/style-guide.md`. Voice, vocabulary, and content formats stay for `pm-client-interview` unless planning docs already specify them.
 - Skip Next.js scaffolding — that step is mandatory

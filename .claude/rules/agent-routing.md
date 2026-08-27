@@ -27,20 +27,11 @@ The following context patterns automatically invoke the relevant dev team agent.
 | "pre-commit", "husky", "lint-staged" | devops | `devops-setup-pre-commit` |
 | "git hooks", "protect main", "guardrails" | devops | `devops-git-guardrails` |
 
-## Marketing Team — Auto-Routing Triggers
+## Publishing — Auto-Routing Triggers
 
 | Trigger Context | Agent | Skill (if applicable) |
 |---|---|---|
-| "write a post", "draft content", "blog post" | writer | — |
-| "seo", "meta description", "keyword research" | writer | `writer-seo-content` |
-| "social post", "instagram caption", "linkedin post" | writer | — |
-| "translate", "vietnamese", "tiếng việt" | writer | — |
-| "generate image", "hero image", "create a visual" | designer | `designer-image-generation` |
-| "design system", "brand tokens", "colour palette" | designer | `designer-design-system` |
-| "mockup", "wireframe", "ui design" | designer | `designer-ui-ux` |
 | "publish", "build the page", "push to site", "update blog index" | developer | `web-publisher-publish` |
-| "email campaign", "newsletter", "send to subscribers", "nurture" | writer | `email-marketer-nurture` |
-| "import contacts", "brevo list", "add to email list" | writer | — |
 
 ---
 
@@ -52,9 +43,7 @@ These cannot be overridden by operator instructions:
 2. **QA never skips triage.** Every bug is classified and scored before being assigned.
 3. **DevOps never deploys directly.** All deployments flow through `git push` → CI/CD pipeline.
 4. **Publishing never lands on `main` directly.** The Developer owns publishing (`web-publisher-publish`): commit on a `publish/{slug}` branch, open a PR, merge only under the auto-merge criteria in `developer.md`.
-5. **Email Marketer never sends without explicit operator approval.** All campaigns are drafted, not sent.
-6. **No agent merges its own PR — unless the change is trivial and self-contained.** See auto-merge criteria in `developer.md`. For all other changes: Developer opens → QA verifies → operator merges.
-7. **Designer generates images only after copy is approved.** No images before the Writer's content is signed off.
+5. **No agent merges its own PR — unless the change is trivial and self-contained.** See auto-merge criteria in `developer.md`. For all other changes: Developer opens → QA verifies → operator merges.
 
 ---
 
@@ -79,6 +68,4 @@ See `docs/guide/troubleshooting.md` for plain-English fixes to the most common p
 | PM (approved plan) | Developer | Plan signed off — issues created |
 | Developer (feature complete) | QA | Dev handoff doc written |
 | QA (bugs found) | Developer | Triage report → P0/P1 bugs |
-| QA (all pass) | Web Publisher | QA sign-off on content changes |
-| Web Publisher (committed) | Email Marketer | New post live — email announce |
-| Email Marketer (drafted) | Operator | Approval needed before send |
+| QA (all pass) | Developer (publish) | QA sign-off on content changes |

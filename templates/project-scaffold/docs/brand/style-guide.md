@@ -1,6 +1,6 @@
 # {Project Name} — Brand Style Guide
 
-> **Authoritative brand reference.** All agents (writer, designer, email-marketer, web-publisher) read this file before producing any output. Fill it in during `pm-client-interview` setup. Keep it updated as the brand evolves.
+> **Authoritative brand reference.** All agents read this file before producing any output that touches the site or brand. Fill it in during `pm-client-interview` setup. Keep it updated as the brand evolves.
 
 ---
 
@@ -67,7 +67,7 @@
 
 ---
 
-## Visual style (for Designer and image generation)
+## Visual style (for UI and image generation)
 
 **Overall mood:** (e.g. Clean, editorial, high contrast)
 **Image style:** (e.g. Abstract geometric shapes, no stock photos of people)

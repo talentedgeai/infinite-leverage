@@ -1,10 +1,10 @@
 # Agent Guide
 
-The Infinite Leverage team is **6 agents**, installed **per project** by `/il-project`
+The Infinite Leverage team is **4 agents**, installed **per project** by `/il-project`
 into that project's own `.claude/`. Nothing lives in `~/.claude/`.
 
-- Agent definitions: [`.claude/agents/`](../../.claude/agents) — 6 files
-- Workflow skills: [`.claude/skills/`](../../.claude/skills) — 24 skills
+- Agent definitions: [`.claude/agents/`](../../.claude/agents) — 4 files
+- Workflow skills: [`.claude/skills/`](../../.claude/skills) — 16 skills
 - Routing table: [`.claude/rules/agent-routing.md`](../../.claude/rules/agent-routing.md)
 - Engineering guardrails: [`.claude/rules/global-engineering.md`](../../.claude/rules/global-engineering.md)
 
@@ -21,12 +21,10 @@ disagrees with a `SKILL.md` or an agent definition, the source file wins.
 | **developer** | Implementation, debugging, architecture, **publishing posts** | `dev-feature-plan`, `dev-tdd`, `plan-protocol`, `web-publisher-publish` |
 | **qa** | Test strategy, bug triage, regression verification | `qa-triage` |
 | **devops** | CI/CD, Vercel operations, git guardrails | `devops-ops`, `devops-cicd`, `devops-setup-pre-commit`, `devops-git-guardrails` |
-| **writer** | Blog drafts, SEO, marketing strategy, **email** | `writer-seo-content`, `writer-quality-critique`, `marketing-strategist`, `email-marketer-nurture` |
-| **designer** | Brand system, image prompts, hero images, UI/UX standards | `designer-design-system`, `designer-style-to-photo`, `designer-image-generation`, `designer-ui-ux` |
 
-Two v1 agents were folded in rather than retired: **web-publisher → developer**, and
-**email-marketer → writer**. There is no separate publisher or email agent; their skills
-kept their names.
+One v1 agent was folded in rather than retired: **web-publisher → developer**. There is
+no separate publisher agent; its skill kept its name. The writer and designer agents
+(and their skills, including email) were removed in v2.6.0.
 
 ---
 
@@ -39,11 +37,10 @@ pm-epic-writing → pm-grill-with-docs → (operator approves) → pm-to-issues
                 → dev-feature-plan → dev-tdd → qa-triage → PR → operator merges
 ```
 
-**Content**
+**Publishing**
 
 ```
-writer-seo-content → writer-quality-critique → (revise) → SEO pass
-                   → designer-style-to-photo → designer-image-generation
+operator provides finished post + hero image in content/topics/{slug}/
                    → web-publisher-publish (branch + PR) → Vercel green
 ```
 
@@ -58,9 +55,6 @@ writer-seo-content → writer-quality-critique → (revise) → SEO pass
    All changes land through a PR.
 4. No agent merges its own PR except under the auto-merge criteria in
    [`developer.md`](../../.claude/agents/developer.md).
-5. Emails are **drafted, never sent**. The operator runs the send command.
-6. The Designer generates images only after the copy is approved, and only from the
-   Writer's `image-prompts.md`.
 
 ---
 
@@ -75,7 +69,6 @@ writer-seo-content → writer-quality-critique → (revise) → SEO pass
 | Dashboard | `docs/project-status.html` (+ `.pdf`) |
 | QA triage reports | `docs/qa/{YYYY-MM-DD}-{slug}-triage.md` |
 | Blog posts | `content/topics/{slug}/` |
-| Email drafts | `emails/drafts/{YYYY-MM-DD}-{slug}.md` |
 | Brand | `docs/brand/style-guide.md` |
 
 Canonical layout: [`templates/project-scaffold/FOLDER-STRUCTURE.md`](../../templates/project-scaffold/FOLDER-STRUCTURE.md).

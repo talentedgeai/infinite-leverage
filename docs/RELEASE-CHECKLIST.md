@@ -17,7 +17,7 @@ green.
 |---|---|
 | Manifests parse; versions in lockstep | a broken manifest disables the plugin silently |
 | No writes to `~/.claude/`, no telemetry in the payload | **nothing installs globally** — the reason v2 exists |
-| 6 agents / 24 skills, cross-checked against `doctor.sh` | the counts the tooling asserts match reality |
+| 4 agents / 16 skills, cross-checked against `doctor.sh` | the counts the tooling asserts match reality |
 | Skill frontmatter `name` matches its directory | a mismatched skill is silently unroutable |
 | Plan-protocol engine suite (32 tests) | the enforcement engine still enforces |
 | Plan-protocol ships no domain vocabulary | the engine stays stack-neutral |
@@ -88,12 +88,8 @@ One feature, all the way through, on the scaffolded project:
 - [ ] the PR is opened, not merged by the agent (except under `developer.md` auto-merge)
 - [ ] no agent committed anything the operator did not ask for
 
-## Run 7 — the content chain **[teach]**
+## Run 7 — the publishing chain **[teach]**
 
-- [ ] `writer-seo-content` → `writer-quality-critique` → SEO pass, in that order
-- [ ] `designer-style-to-photo` annotates the Writer's `image-prompts.md`; the Designer
-      never authors one
-- [ ] `email-marketer-nurture` produces a **draft** and stops — no send command runs
 - [ ] `web-publisher-publish` opens a PR; nothing lands on `main` directly
 
 ## Run 8 — the negative cases **[teach]**

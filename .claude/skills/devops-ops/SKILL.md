@@ -16,7 +16,7 @@ description: >-
 
 **Out of scope:**
 - Writing or reviewing application code (Developer owns this)
-- Content pipeline (Writer/Designer/Web Publisher own this)
+- Content pipeline (the Developer's `web-publisher-publish` owns this)
 - Database schema changes (escalate to human engineer)
 
 ## Vercel CLI — Read-Only Monitoring
