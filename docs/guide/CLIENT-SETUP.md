@@ -1,147 +1,29 @@
-# Client setup — install Infinite Leverage and scaffold the first project
+# Client setup — four prompts, in order
 
-Two commands to install, one to scaffold. About 15 minutes, most of it `npm install`.
+This guide is written for people who don't code — CEOs, sales, marketing. You never type
+commands. You paste **four prompts into Claude Code, in order**, and Claude does the
+typing. Each prompt ends by telling you which one to copy next, by name.
 
----
-
-## Before you start
-
-You need these on your machine. `/il-doctor` checks all of them, so you can just install
-what it flags rather than working through this list first.
-
-| Tool | Check | If missing (macOS) |
+| # | Prompt | When |
 |---|---|---|
-| Git | `git --version` | `xcode-select --install` |
-| GitHub CLI, signed in | `gh auth status` | `brew install gh` then `gh auth login` |
-| Node 20+ with npm/npx | `node --version` | `brew install node` |
-| rsync | `rsync --version` | `brew install rsync` |
-| Perl | `perl --version` | ships with macOS |
+| 0 | **Clean up** | Only if you've used Infinite Leverage before. Never used it? Skip. |
+| 1 | **Install** | Everyone starts here. Takes a minute. |
+| 2 | **Set up your accounts** | Claude walks you through creating each account, click by click. |
+| 3 | **Create your project** | Your website and your six-person AI team, built in front of you. |
 
-Accounts you'll want, though not on day one: **GitHub** (required), **Supabase**
-(database and auth), **Vercel** (hosting), **Stripe** (only if the project takes payments).
-
----
-
-## Step 1 — Install the plugin
-
-In any terminal:
-
-```bash
-claude plugin marketplace add talentedgeai/infinite-leverage
-claude plugin install infiniteleverage@infiniteleverage
-```
-
-Already have it installed? `install` won't upgrade an existing plugin — update instead:
-
-```bash
-claude plugin update infiniteleverage@infiniteleverage
-```
-
-## Step 2 — Check the install
-
-Open Claude Code and run:
-
-```
-/il-doctor
-```
-
-Every line should be `✅ PASS`. It also tells you if your plugin is behind the latest
-release — worth doing before a workshop, because `/il-project`'s own instructions ship
-inside the plugin. To update:
-
-```bash
-claude plugin update infiniteleverage@infiniteleverage
-```
-
-## Step 3 — Scaffold the project
-
-```
-/il-project
-```
-
-It asks for a project slug and display name, previews what it will do, then runs to
-completion. It takes several minutes — most of that is installing the Next.js app.
-
-**Bring what you have.** Paste a product brief, a PRD, meeting notes, or just a few
-paragraphs describing the product into the same message. It uses that to fill
-`docs/product/`. Mention a design reference too ("make it like Linear", or your brand
-colours) and it fills `docs/brand/`. Both are optional — with nothing, you get
-placeholders and a design picked for you.
-
-At the end it asks once whether to create a GitHub repo and push. You can say no and do it
-later.
+Every prompt follows the same rules: plain English, no jargon, no walls of output, one
+question at a time, and Claude never asks you to edit a file — it makes the changes and
+tells you what it did.
 
 ---
 
-## Step 4 — Add your keys
+## Prompt 0 — Clean up (only if you've used Infinite Leverage before)
 
-```bash
-cd <your-project>/website
-cp .env.local.example .env.local
-```
-
-Open `.env.local` and fill it in — it lists every variable the app reads and where to get
-each one. `.env.local` is gitignored; the example is not. Never commit real keys.
-
-Then confirm it compiles:
-
-```bash
-npm run build
-```
-
-## Step 5 — Start working
-
-Open the project in Claude Code. You now have six agents. Talk to them in plain English —
-routing is automatic, but you can also name one directly with `@product-manager`.
-
-```
-@product-manager let's plan the first feature
-```
-
-A good first session:
-
-1. **`pm-client-interview`** — a structured conversation about the business. Its output
-   becomes `docs/product/product.md`, which everything else is anchored to. Skip it only
-   if step 3 already filled that file from your brief; then run **`pm-grill-with-docs`**
-   to check it instead.
-2. **`pm-epic-writing`** — turn one idea into a spec with acceptance criteria.
-3. **`pm-to-issues`** — break it into GitHub issues.
-4. **`@developer`** — build the first one, test-first.
-
----
-
-## The team
-
-| Agent | Ask it about |
-|---|---|
-| **product-manager** | roadmap, specs, epics, "where are we", the status dashboard |
-| **developer** | writing code, fixing bugs, publishing posts to the site |
-| **qa** | testing, bug triage, "verify this works" |
-| **devops** | CI/CD, deployments, "is the site up", rolling back |
-| **writer** | blog posts, SEO, marketing strategy, email campaigns |
-| **designer** | brand system, images, accessibility and UI review |
-
-**Rules they follow, so you don't have to police them:** nothing is committed unless you
-ask, nothing is pushed to `main` directly (everything goes through a pull request), and
-**no email is ever sent** — the writer drafts it and you run the send.
-
----
-
-## Prompt 0 — already installed an older version?
-
-Use this **before** the install prompts if there's any chance an older Infinite Leverage
-is on the machine. It detects which of two situations applies and handles either:
-
-- **v1 residue** — v1 installed itself into `~/.claude/` (v2 never does; it only writes
-  inside your project). That residue includes a `Bash(*)` permission grant, which is the
-  reason v2 exists and the one thing worth fixing even if nothing else is touched.
-- **v2, just out of date** — nothing to clean, only a plugin update.
-
-**Edge8-internal only:** if `/edge8-telemetry` is installed, run that instead. It carries
-`migrate_v1.py`, which removes only byte-exact copies of files v1 shipped, verified by
-hash against a manifest built from both v1 repos' full git history, and reports anything
-locally modified instead of deleting it. The prompt below is the careful manual
-equivalent for everyone else.
+The old version 1 installed itself into a shared folder on your computer. Version 2
+doesn't. This prompt quietly removes the old version's leftovers — and only those. It
+tells you the plan in three sentences, then handles everything itself. "Removed" really
+means moved to a dated backup folder, so nothing is ever truly gone, and anything it
+can't positively identify as the old version is left alone.
 
 ```
 I think I have an old version of Infinite Leverage on my computer. Please
@@ -216,9 +98,10 @@ Give me a short, friendly summary — three or four sentences, no jargon:
   case anything is ever needed back
 - that you're now on the current version and all checks passed
 Then my next step, worded like this: "Go back to the setup guide and copy
-the prompt called A - Hands-off (or B - Guided if you'd rather run the
-commands yourself). Fill in your project name, then paste it right here in
-this chat — or in a new one, both work."
+the prompt called 2 - Set up your accounts. If you still have your GitHub,
+Supabase and Vercel accounts from before, you can skip ahead to 3 - Create
+your project instead. Paste it right here in this chat — or in a new one,
+both work."
 Then stop and wait. Don't start setting up a project on your own.
 
 IF YOU GET STUCK
@@ -226,134 +109,198 @@ Stop and tell me in plain English. Don't guess, don't remove anything extra
 to get past an error, and don't tell me it worked if it didn't.
 ```
 
-**How it behaves:** one plain-English plan up front (three sentences), then it runs the
-whole cleanup quietly — no step-by-step approvals, no file lists, no jargon. "Removed"
-really means moved to a dated backup folder, so a wrong guess is recoverable; the client
-hears about the folder once, at the end. The single thing it will still stop and ask
-about is anything it cannot positively identify as v1 — that rule never bends. When it
-finishes, it hands the client to Prompt A (or B) itself. Cleanup and setup stay two
-separate prompts on purpose.
-
-**What this deliberately does not do:** it never clears `~/.claude/skills/` wholesale.
-Most people keep their own skills there, and v1's had ordinary names — the only safe
-signal is the name pattern plus the location. It also archives by renaming rather than
-deleting, so a wrong guess costs a folder move, not your work.
-
 ---
 
-## Prompt A — hands-off (for a non-technical client)
+## Prompt 1 — Install
 
-Paste this into Claude Code and it does everything it's allowed to do, stopping only for
-the handful of things that genuinely need a human.
-
-**What Claude cannot do for you, no matter how the prompt is worded:** sign in to GitHub
-(`gh auth login` is an interactive flow), create accounts, or copy keys out of a
-dashboard. Those need you. The prompt front-loads them so you're not interrupted later.
+The shortest one. Claude installs Infinite Leverage, checks everything is healthy, and
+tells you what to paste next. If it spots an old version 1 on the machine, it stops and
+sends you to Prompt 0 first.
 
 ```
-I'm not a developer. Please set up Infinite Leverage for me, and do as much of
-it yourself as you can.
+Please install Infinite Leverage for me.
 
-HOW TO WORK WITH ME
-- Plain English only. No jargon. Never paste a raw error at me — tell me what
-  it means and what you need from me.
-- Don't show me long command output. Just tell me what happened.
-- One question at a time, then wait for my answer.
-- Never ask me to edit a file. Tell me what to paste, and you make the change.
-- If you need my permission to run something, say in one sentence what it does,
-  then go ahead.
+I'm not a developer. Plain English only — no jargon, no raw output. Tell me
+what's happening in one sentence as you go, and only ask me something if
+you truly need me.
 
-THINGS ONLY I CAN DO
-You're not allowed to do these for me. When you reach one, stop, give me
-click-by-click instructions, and wait for me:
-- Signing in to GitHub (gh auth login)
-- Creating accounts — GitHub, Supabase, Vercel, and Stripe if I need payments
-- Copying keys out of those dashboards
-
-Everything else is yours.
-
-START HERE
-Before anything else, tell me which accounts I'll need and let me go create
-them. Don't start installing until I say I'm ready.
-
-THEN
-1. Install the plugin:
+1. First, a quick silent check: look for leftovers of the old version 1 —
+   things like ~/.claude/.infiniteleverage-version, an il_telemetry folder
+   inside ~/.claude/hooks, or files like product-manager.md and
+   web-publisher.md inside ~/.claude/agents. If you find any, change
+   nothing and tell me: "You have an older version on this computer. Go
+   back to the setup guide and copy the prompt called 0 - Clean up, and
+   paste it right here." Then stop.
+2. Check the basic tools are present: git, the GitHub tool (gh), Node,
+   rsync, perl. If something's missing and you can install it safely with
+   my package manager, ask me once with a one-line reason, then handle it.
+3. Install the plugin:
      claude plugin marketplace add talentedgeai/infinite-leverage
      claude plugin install infiniteleverage@infiniteleverage
    If it says the plugin is already installed, update it instead:
      claude plugin update infiniteleverage@infiniteleverage
-2. Run /il-doctor. Fix whatever you can fix yourself. For anything you can't,
-   walk me through it, then run it again until every line passes.
-3. Run /il-project to build my project:
-   - Call it: <PROJECT NAME>
-   - Folder name: <project-name-with-dashes>
-   <Describe your business here in a few sentences — what it does, who it's
-   for, what you want to build first. Mention a website you like the look of
-   if you have one. Delete this line if you'd rather answer questions later.>
-4. Set up my keys. Tell me exactly where to click to find each one, I'll paste
-   the values to you, and you put them in the right file. Confirm afterwards
-   that the file with my keys in it is not going to end up on GitHub.
-5. Check that the project builds.
-6. Do not put anything on GitHub until you've asked me first.
-
-WHEN YOU'RE DONE
-Tell me, in plain English: what you built, where it is on my computer, and the
-three things I should try first. Keep it short.
+4. Run /il-doctor. If everything passes, just say "all checks passed."
+   (It may mention GitHub sign-in — that's fine, we handle it in the next
+   step. Don't try to sign me in now.)
+5. Then tell me, exactly: "Installed. Next: go back to the setup guide and
+   copy the prompt called 2 - Set up your accounts. Paste it right here."
+Then stop and wait.
 
 IF YOU GET STUCK
-Stop and tell me. Don't guess, don't invent a workaround, and don't tell me
+Stop and tell me in plain English what you need. Don't guess, and don't
+tell me it worked if it didn't.
+```
+
+---
+
+## Prompt 2 — Set up your accounts
+
+The learning step. Your project needs a few free accounts, and this prompt turns Claude
+into a patient guide: what each account is for in one sentence, exactly where to click,
+one account at a time, checking each one worked before moving on. Nothing is installed
+or changed on your computer here — it's all in your web browser, except the GitHub
+sign-in at the end of step 1.
+
+```
+Help me set up the accounts my project needs. I'm not a developer — be a
+patient guide. Plain English, one account at a time, and don't move to the
+next until we've confirmed the current one works.
+
+For each account, do it in this exact shape:
+- one sentence on what it is and why my project needs it
+- numbered steps: exactly where to go and what to click
+- what to type into any field that isn't obvious
+- then confirm it worked — check it yourself where you can, otherwise ask
+  me what I see on screen
+
+Go in this order:
+
+1. GitHub — where my project's files live, like a shared drive with full
+   history.
+   - Ask me first: "Do you already have a GitHub account?" If not, walk me
+     through creating one at github.com, step by step.
+   - Then connect this computer to it: tell me to type  gh auth login  in
+     the terminal, and guide me through each question it asks (GitHub.com,
+     HTTPS, sign in with the web browser). Stay with me through it.
+   - You confirm it worked by running: gh auth status
+2. Supabase — my project's database and its sign-in system.
+   - Walk me through creating an account at supabase.com (signing in with
+     GitHub is the easy path), then creating ONE new project. Tell me
+     exactly what to click and what to name things.
+   - Tell me to save the database password it shows me somewhere safe, and
+     that we'll come back for the project's keys in the next prompt — today
+     we just need the project to exist.
+3. Vercel — puts my website on the internet.
+   - Walk me through creating an account at vercel.com. Signing up with my
+     GitHub account is one button, and that's all we need today.
+4. Stripe — for taking payments. Ask me first: "Will your project charge
+   customers money? If no, or not sure yet, we skip this — it can be added
+   any time." Only walk me through stripe.com if I say yes.
+
+After each account, show me a short tick-list of what's done and what's
+next. When everything is done, tell me, exactly: "Accounts ready. Next: go
+back to the setup guide and copy the prompt called 3 - Create your
+project. Paste it right here."
+Then stop and wait.
+
+IF ANYTHING GOES WRONG
+Tell me what happened in plain English and what to try — never just show
+me an error.
+```
+
+---
+
+## Prompt 3 — Create your project
+
+The build. Fill in the two highlighted lines (and describe your business in a sentence
+or two), paste it, and Claude scaffolds the project, connects your accounts one key at a
+time, and finishes by telling you the first three things to try.
+
+```
+Create my first Infinite Leverage project. I'm not a developer — plain
+English only, no jargon, no raw output. One question at a time. Never ask
+me to edit a file; you make the changes and tell me what you did.
+
+1. Run /il-project to build my project:
+   - Call it: <PROJECT NAME>
+   - Folder name: <project-name-with-dashes>
+   <Describe your business in a few sentences — what it does, who it's for,
+   what you want built first. Mention a website you like the look of if you
+   have one. Delete this line to answer questions later instead.>
+   While it runs, keep me posted with one plain sentence per stage — no
+   command output.
+2. Then connect the accounts I made earlier, one key at a time:
+   - Tell me exactly where to click to find each key (I already have the
+     accounts), I'll paste the value to you, and you put it in the right
+     file.
+   - After that, confirm to me that the file holding my keys stays private
+     on my computer and can never end up on GitHub.
+3. Check the project builds. If something fails, fix it yourself if you
+   can; otherwise explain in plain English what you need from me.
+4. Ask me: "Want your project on GitHub now? It stays private, and it's
+   how your site goes live later." Only do it if I say yes.
+5. When everything's done, tell me in plain English:
+   - what you built and where it lives on my computer
+   - the three things I should try first, as things I can paste — starting
+     with:  @product-manager let's plan the first feature
+Then stop and wait.
+
+IF YOU GET STUCK
+Stop and tell me in plain English. Don't guess, and don't tell me
 something worked when it didn't.
 ```
 
-Replace `<PROJECT NAME>`, `<project-name-with-dashes>`, and the description block. Nothing
-else needs editing.
-
-## Prompt B — guided (you run the commands)
-
-If you'd rather stay in control and just be walked through it:
-
-```
-Install the Infinite Leverage plugin and set up my first project.
-
-1. Check I have what's needed: git, gh (authenticated), node, npm, npx, rsync, perl.
-   Tell me exactly what to install if anything is missing — don't install it for me,
-   and don't run `gh auth login` for me, since that's interactive.
-
-2. Add the marketplace and install the plugin:
-     claude plugin marketplace add talentedgeai/infinite-leverage
-     claude plugin install infiniteleverage@infiniteleverage
-   If it says the plugin is already installed, update it instead:
-     claude plugin update infiniteleverage@infiniteleverage
-
-3. Run /il-doctor and show me the output as-is. If anything FAILs, tell me the fix
-   and stop — don't work around it.
-
-4. Once it's clean, run /il-project to scaffold my project.
-   - Project name: <YOUR PROJECT NAME>
-   - Slug: <your-project-slug>
-   - Put it in: ~/code-projects
-   [Paste your product brief here, or a few paragraphs about what you're building.
-    Mention a design reference if you have one — e.g. "make it look like Linear".
-    Delete these two lines if you have nothing yet.]
-
-5. When it finishes, show me the summary and tell me what to do next.
-   Don't create the GitHub repo yet — ask me first.
-```
-
-Replace the bracketed parts before pasting. Everything in it is optional except the
-project name and slug.
-
 ---
 
-## If something goes wrong
+## Your team, once it's built
 
-Run `/il-doctor` first — it names the fix for most problems.
+Six AI teammates live inside your project. Talk to them like colleagues — plain
+English. Name one directly with `@`, or just describe what you want and the right one
+picks it up.
 
-| Symptom | Cause |
+| Teammate | What to ask them |
 |---|---|
-| "No agents responding" | agents install per project — check `.claude/agents/` has 6 files, or re-run step 6 of `/il-project` |
-| `gh` not authenticated | run `gh auth login` yourself; the agents won't do it for you |
-| Build fails on missing env vars | `.env.local` is incomplete — compare against `.env.local.example` |
-| CI red on a fresh project | check the GitHub secrets named in `devops-cicd` match your `.env.local` |
+| **product-manager** | "what should we build next", plans, specs, "where are we" |
+| **developer** | building features, fixing bugs, putting posts on the site |
+| **qa** | "check this works", testing, sorting out bug reports |
+| **devops** | "is the site up", deployments, rolling back a bad release |
+| **writer** | blog posts, marketing copy, email campaigns |
+| **designer** | brand look and feel, images, "does this page look right" |
 
-More in [`troubleshooting.md`](troubleshooting.md).
+House rules they all follow, so you don't have to police them: nothing is saved to the
+project history unless you ask, nothing goes live without a review step, and **no email
+is ever sent** — the writer drafts, you press send.
+
+## What the commands actually do
+
+You never need to memorise these — the prompts run them for you. This table exists so
+none of it feels like magic.
+
+| Command | In plain English |
+|---|---|
+| `claude plugin marketplace add talentedgeai/infinite-leverage` | Tells Claude Code where Infinite Leverage lives. Run once, ever. |
+| `claude plugin install infiniteleverage@infiniteleverage` | Installs Infinite Leverage. |
+| `claude plugin update infiniteleverage@infiniteleverage` | Gets the newest version, if it's already installed. |
+| `/il-doctor` | A health check. Says what's missing or out of date, and how to fix it. |
+| `/il-project` | Builds a new project: the folder, the website, and your six AI teammates. |
+| `gh auth login` | Signs this computer in to your GitHub account. The one command you type yourself, because it opens your browser to prove it's really you. |
+| `@product-manager …` | Talks to one teammate directly. Works with any of the six names. |
+| `npm run build` | Test-assembles the website to prove nothing is broken. Claude runs it for you. |
+
+## If something looks wrong
+
+Paste this, any time:
+
+```
+Something's not working with my Infinite Leverage setup. Run /il-doctor,
+tell me what's wrong in plain English, fix what you can yourself, and walk
+me through anything that needs me — one step at a time.
+```
+
+The most common causes, for the curious:
+
+| What you see | What it usually means |
+|---|---|
+| The teammates don't respond | They live inside each project — make sure you opened the project folder in Claude Code. |
+| Something about GitHub sign-in | Run through the GitHub step of Prompt 2 again — signing in is the one thing only you can do. |
+| The site won't build after setup | A key is missing or mistyped — Prompt 3's key step, run again, fixes it. |
