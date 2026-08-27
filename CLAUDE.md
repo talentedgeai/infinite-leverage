@@ -5,9 +5,9 @@ plugin, the 4 agent definitions, their skills, and the project scaffold.
 
 ## Structure
 - `.claude-plugin/marketplace.json` — this repo IS the plugin marketplace
-- `plugin/` — the shipped plugin payload: 3 skills (`il-project`, `il-doctor`,
-  `il-memory-cleanup`). No hooks. Telemetry + v1 cleanup live in the private
-  `edge8-telemetry` repo
+- `plugin/` — the shipped plugin payload: 4 skills (`il-project`, `il-adopt`,
+  `il-doctor`, `il-memory-cleanup`). No hooks. Telemetry + v1 cleanup live in
+  the private `edge8-telemetry` repo
 - `.claude/agents/` — the 4 agent definitions (installed **per-project** by `il-project`)
 - `.claude/skills/` — agent workflow skills (installed **per-project** by `il-project`)
 - `.claude/rules/` — engineering guardrails copied into projects

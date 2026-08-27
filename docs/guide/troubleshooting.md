@@ -24,8 +24,8 @@ ls .claude/skills/     # expect 16 skill folders
 ls .claude/agents/     # expect 4 agent definitions
 ```
 
-Run `/il-doctor` for a full check. If agents or skills are missing, re-run step 6 of
-`/il-project` to refresh them from the canonical repo.
+Run `/il-doctor` for a full check. If agents or skills are missing, run `/il-adopt`
+in the project to install/refresh them from the canonical repo.
 
 ---
 
@@ -78,8 +78,8 @@ If you see this: tell Claude "open a PR instead of pushing directly."
 ### "My agents or skills look out of date"
 
 The plugin updates itself through the marketplace — there is no patch command to run.
-To refresh a *project's* copy of the agents and skills after a plugin update, re-run
-step 6 of `/il-project` against that project.
+To refresh a *project's* copy of the agents and skills after a plugin update, run
+`/il-adopt` inside that project.
 
 Confirm what you have with `/il-doctor`.
 

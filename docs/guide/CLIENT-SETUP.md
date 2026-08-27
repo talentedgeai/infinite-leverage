@@ -372,6 +372,7 @@ paste. This table exists so none of it feels like magic.
 | `claude plugin update infiniteleverage@infiniteleverage` | Gets the newest version, if it's already installed. |
 | `/il-doctor` | A health check. Says what's missing or out of date, and how to fix it. |
 | `/il-project` | Builds a new project: the folder, the website, and your four AI teammates. |
+| `/il-adopt` | Adds the four AI teammates to a project you already have. Doesn't touch your code. |
 | `@product-manager …` | Talks to one teammate directly. Works with any of the four names. |
 | `npm run build` | Test-assembles the website to prove nothing is broken. Claude runs it for you. |
 

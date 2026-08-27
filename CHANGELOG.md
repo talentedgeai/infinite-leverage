@@ -6,7 +6,7 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
-## [2.6.2] — 2026-08-27
+## [2.7.1] — 2026-08-27
 
 **The v2.4 → v2.6 migration path for existing projects.** v2.6.0 removed the writer and
 designer agents, but a project scaffolded on v2.4.x still carries them — and nothing
@@ -26,6 +26,27 @@ a legacy project (6 on disk) failed the gate even after a successful copy.
 - **`il-doctor` flags lingering retired agents/skills** inside a project, naming each
   one found and the fix (re-run step 6). Verified: FAILs on the legacy tree before
   migration, PASSes after
+
+---
+
+## [2.7.0] — 2026-08-27
+
+**Existing repos can finally get the team.** Until now the 4 agents and their skills
+were only installed by `/il-project` — as part of scaffolding a brand-new project.
+An already-established repo had no path to them (the plugin itself ships no agents;
+they are always project-scoped).
+
+### Added
+- **New skill `/il-adopt`** — installs the canonical 4 agents, the 16 workflow
+  skills, and `global-engineering.md` into the **current** repo's `.claude/`,
+  injects the AGENT-DELEGATION block into the repo's `CLAUDE.md` (creating it if
+  missing, replacing only the managed block if not), and seeds persona stubs and
+  doc anchors (`docs/product/*`, `docs/brand/style-guide.md`,
+  `docs/project-status.html`) **only where missing**. Mirrors `/il-project`'s
+  version-pinned clone, install gate, and delegation block. Non-destructive:
+  detects a previous install and confirms before refreshing canonical files, never
+  touches operator-written files, and never commits — it prints the explicit
+  `git add` / `git commit` for the operator.
 
 ---
 
