@@ -576,6 +576,11 @@ rm -rf "$NEXT_TMP/nextapp/.git" "$NEXT_TMP/nextapp/node_modules"
 rsync -a --ignore-existing "$NEXT_TMP/nextapp/" "$TARGET/website/"
 rm -rf "$NEXT_TMP"
 
+# 9b-ii. create-next-app's .gitignore has a blanket `.env*`, which would silently
+# untrack the committed example and leave teammates guessing at the var names.
+grep -q '!.env.local.example' "$TARGET/website/.gitignore" 2>/dev/null || \
+  printf '\n# keep the committed example visible (the .env* rule above would hide it)\n!.env.local.example\n' >> "$TARGET/website/.gitignore"
+
 # 9c. Install the dependencies the starter kit imports
 cd "$TARGET/website"
 npm install @ai-sdk/react @mdxeditor/editor @supabase/ssr @supabase/supabase-js \
@@ -634,7 +639,8 @@ At this point the project is fully scaffolded **locally** — Next.js is in plac
 
 Next steps locally:
 1. cd $TARGET
-2. Create website/.env.local with the Supabase keys (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY; see website/docs/)
+2. cp website/.env.local.example website/.env.local  # then fill it in — it lists every
+                                                     # var the app reads, with where to get it
 3. cd website && npm run build   # verify the app compiles (the agents never start a dev
                                  # server — you preview through Vercel once the repo is linked)
 4. Open the repo in Claude Code

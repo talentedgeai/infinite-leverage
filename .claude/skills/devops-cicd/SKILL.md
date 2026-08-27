@@ -85,7 +85,7 @@ jobs:
         run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
 ```
 
 ---
@@ -96,9 +96,9 @@ The build step needs environment variables. Tell the operator:
 
 > "To finish CI setup, go to your GitHub repo → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**, and add:
 > - `NEXT_PUBLIC_SUPABASE_URL` — copy from your `.env.local` file
-> - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — copy from your `.env.local` file
+> - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — copy from your `.env.local` file
 >
-> These are safe to add here — they are public-facing keys, not secrets. Never add `SUPABASE_SERVICE_ROLE_KEY` to GitHub secrets."
+> These are safe to add here — they are public-facing keys, sent to the browser anyway. Never add `SUPABASE_SECRET_KEY` to GitHub secrets; it bypasses row-level security and CI does not need it to build."
 
 ---
 

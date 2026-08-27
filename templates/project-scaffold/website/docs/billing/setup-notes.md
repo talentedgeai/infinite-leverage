@@ -6,14 +6,25 @@ Step-by-step checklist for wiring up Stripe billing in this project.
 
 ## 1. Required environment variables
 
-Add all three to `.env.local` (development) and your Vercel project settings (production):
+Add these to `.env.local` (development) and your Vercel project settings (production):
 
 ```
 STRIPE_SECRET_KEY=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
 NEXT_PUBLIC_APP_URL=https://your-domain.com
+SUPABASE_SECRET_KEY=sb_secret_...
 ```
+
+`SUPABASE_SECRET_KEY` is required for billing specifically: `subscriptions` is
+SELECT-only under RLS, so both the webhook and the checkout route write it through
+the service-role client.
+
+`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` is **not** needed by this template — checkout
+runs server-side via `/api/billing/checkout` and the browser only receives the
+returned URL. Add it only if you introduce Stripe.js client-side.
+
+`website/.env.local.example` is the authoritative list; CI fails if the code reads a
+variable it does not document.
 
 Get your keys at https://dashboard.stripe.com/apikeys.  
 Get `STRIPE_WEBHOOK_SECRET` from https://dashboard.stripe.com/webhooks after completing step 4.

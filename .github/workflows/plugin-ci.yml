@@ -154,6 +154,34 @@ jobs:
           print(f"{sites} query sites checked against {len(schema)} tables — all resolve")
           PY
 
+      - name: Web template env vars are all documented
+        run: |
+          python3 - <<'PY'
+          import re, glob, os, sys, pathlib
+          root = "templates/project-scaffold/website"
+          ex = pathlib.Path(f"{root}/.env.local.example")
+          if not ex.exists():
+              print(f"{ex} is missing — it is the authoritative env list"); sys.exit(1)
+          documented = set(re.findall(r'^([A-Z][A-Z0-9_]*)=', ex.read_text(), re.M))
+          used = {}
+          for f in glob.glob(f"{root}/**/*.ts*", recursive=True):
+              if not os.path.isfile(f): continue
+              for m in re.finditer(r'process\.env\.([A-Z][A-Z0-9_]*)', open(f, encoding="utf-8").read()):
+                  used.setdefault(m.group(1), set()).add(f)
+          runtime = {"NODE_ENV"}          # set by the runtime, never by the operator
+          missing = sorted(set(used) - documented - runtime)
+          if missing:
+              print("read by the app but absent from .env.local.example:")
+              for v in missing:
+                  print(f"  {v}  ({', '.join(sorted(used[v]))})")
+              sys.exit(1)
+          stale = sorted(documented - set(used))
+          if stale:
+              print("documented but never read — remove or wire up:")
+              print("\n".join("  " + v for v in stale)); sys.exit(1)
+          print(f"{len(documented)} env vars documented, all read; none stale")
+          PY
+
       - name: Web template RLS hygiene
         run: |
           python3 - <<'PY'

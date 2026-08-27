@@ -6,6 +6,38 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.7] — 2026-08-26
+
+**The setup instructions named a key the code does not read.** Writing the client setup
+guide surfaced it: a client following the instructions exactly got an app where every
+Supabase call received `undefined`.
+
+### Fixed
+- **`NEXT_PUBLIC_SUPABASE_ANON_KEY` → `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.** The code
+  reads `PUBLISHABLE_KEY`; `il-project` step 11 and `devops-cicd` (both the workflow env
+  block and the GitHub-secrets instructions) told the operator to set `ANON_KEY`. Builds
+  still pass — prerendering never exercises it — so this surfaces at runtime, on the first
+  login, in front of the client
+- **No `.env.local.example` existed at all.** The client had to derive variable names from
+  the source. Added one listing all 7 variables the app reads, each with where to get it
+  and why (including why `SUPABASE_SECRET_KEY` must never carry a `NEXT_PUBLIC_` prefix)
+- **The example would have been silently untracked.** create-next-app's `.gitignore` has a
+  blanket `.env*`, so a committed example is invisible to teammates. Step 9 now appends
+  `!.env.local.example` after the merge — verified end to end: the example is staged in the
+  first commit, and a real `website/.env.local` stays ignored
+- **`docs/billing/setup-notes.md` required `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`**, which
+  nothing reads — checkout is server-side and the browser only gets the returned URL. It
+  also omitted `SUPABASE_SECRET_KEY`, which billing genuinely needs
+
+### Added
+- **CI: every `process.env.*` the template reads must appear in `.env.local.example`**, and
+  nothing may be documented that is never read. Both directions, so the list cannot drift
+  in either — this is the guard that would have caught the `ANON_KEY` mismatch
+- **`docs/guide/CLIENT-SETUP.md`** — the install and first-project walkthrough written for
+  the client, including a paste-in prompt that drives the whole install
+
+---
+
 ## [2.4.6] — 2026-08-26
 
 **Install-path pinning, and the Designer chain fixed to match the file it actually reads.**
