@@ -47,6 +47,73 @@ not being used.
 
 ---
 
+## [2.4.16] — 2026-08-27
+
+**The bootstrap now runs in ordinary Claude.** Khoa's catch: the guide's first prompt
+assumed Claude Code, but Claude Code can't be the guide for installing Claude Code — and
+a non-technical client starts from the chat they already have.
+
+### Changed
+- **New Prompt 1 — "Get ready" — runs in any Claude: the website, the app, or Cowork.**
+  There Claude can't touch the computer, so the prompt makes it a pure instructor: ask
+  Mac or Windows first, then one copy-paste at a time — open the Terminal (with the
+  reassurance that nothing pasted there can break the computer), install git
+  (`git --version` triggering the macOS developer-tools dialog; git-scm.com on Windows),
+  install gh from cli.github.com (the downloadable installer — explicitly do NOT make
+  the client install Homebrew for this), `gh auth login` guided question by question
+  (the browser page opens already signed in from the GitHub step — one Authorize click),
+  and finally install the Claude Code desktop app itself. The client pastes back what
+  they see; Claude interprets — "never just point at an error"
+- **The journey is now five prompts**: 1 Get ready (ordinary Claude) → 2 Set up your
+  accounts (Claude Code: Supabase, Vercel, Stripe — GitHub moved to Prompt 1) →
+  3 Install → 4 Create your project, with 0 Clean up for v1 veterans. Prompt 2 verifies
+  `gh auth status` itself and routes back to Prompt 1 — naming that it runs "in the
+  ordinary Claude app, not here" — rather than half-fixing auth
+- The journey table gains a **"Where it runs"** column; the standalone get-Claude-Code
+  section from 2.4.15 folded into Prompt 1's final step
+- Command table gains `git --version` and `gh auth status` rows, since Prompt 1 hands
+  those to the client to paste themselves
+
+---
+
+## [2.4.15] — 2026-08-27
+
+### Fixed
+- **The guide never said where the prompts run.** It assumed Claude Code was already on
+  the machine — the one assumption this audience cannot fill in themselves. New section
+  at the top: get the **Claude Code desktop app** (claude.ai/download, normal drag
+  install, sign in with a paid Claude plan, open the Claude Code tab), with the
+  one-sentence distinction that matters: regular Claude talks, Claude Code can also use
+  the computer — install tools, sign the machine in to GitHub, create the project — so
+  the client never opens a terminal. An explicit warning covers the near-misses: the
+  Claude website and the Cowork side of the app cannot install tools or sign the
+  computer in to GitHub, so the prompts will not work there
+
+---
+
+## [2.4.14] — 2026-08-27
+
+### Fixed
+- **The journey order had a bootstrap problem.** Install came before accounts, but the
+  install prompt runs `gh` and `/il-doctor` complains about GitHub auth — and you cannot
+  sign in to an account that does not exist yet. Reordered: **1 Set up your accounts →
+  2 Install**. The accounts prompt now also owns the machine-side GitHub connection: it
+  installs git/gh if missing (asking once; the client types any password themselves) and
+  runs `gh auth login` right after the GitHub sign-up, so the browser page it opens is
+  already signed in and the client just clicks Authorize
+- **Google Chrome is now step 1 of the accounts prompt.** Every sign-in that follows —
+  GitHub, Supabase, Vercel, Stripe, and the `gh auth login` browser flow — happens in one
+  browser where the client stays signed in. Claude checks whether Chrome is installed and
+  guides the download click by click if not
+- **Prompt 2 (Install) refuses to duplicate Prompt 1's work**: if the computer is not
+  signed in to GitHub, it says "run the prompt called 1 - Set up your accounts first"
+  and stops, instead of half-fixing auth mid-install
+- **Prompt 0's handoff updated for the new order**: v1 veterans go straight to
+  3 - Create your project (their accounts and sign-ins still work), with 1 as the
+  fallback if they no longer have them
+
+---
+
 ## [2.4.13] — 2026-08-27
 
 **The setup guide becomes a four-prompt journey.** Rewritten for the actual audience —
