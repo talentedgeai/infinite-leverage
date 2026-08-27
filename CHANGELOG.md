@@ -23,6 +23,40 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.13] — 2026-08-27
+
+**The setup guide becomes a four-prompt journey.** Rewritten for the actual audience —
+CEOs, sales, marketing — after Khoa's feedback: everything prompt-driven, nothing that
+assumes the reader runs commands or wants to.
+
+### Changed
+- **Structure: four prompts, in order, each naming the next.** 0 Clean up (only if
+  they've used v1) → 1 Install → 2 Set up your accounts → 3 Create your project. Every
+  prompt ends with the same fixed handoff pattern ("copy the prompt called …"), and
+  Prompt 1 detects v1 leftovers itself and routes back to Prompt 0 before touching
+  anything. The old Prompt A/B split (hands-off vs guided) is gone — one journey, always
+  hands-off; the command table serves anyone technical
+- **Account creation is its own guided step (Prompt 2).** Previously buried as "things
+  only I can do" inside the install prompt. Now Claude acts as a patient guide per
+  account — one sentence on what it's for, numbered click-by-click steps, what to type,
+  then a verification before moving on (`gh auth status` for GitHub; Supabase project
+  exists; Vercel via the sign-in-with-GitHub button; Stripe asked about and skipped
+  unless the project takes payments). Keys are deliberately deferred to Prompt 3 so the
+  account step stays browser-only
+- **Prompt 3 (create your project) slims down** to what's left once accounts exist:
+  scaffold, connect keys one at a time, build check, optional GitHub push, and the
+  three-things-to-try ending
+
+### Added
+- **A plain-English command table** — every command the prompts run, with what it does
+  in one sentence ("Tells Claude Code where Infinite Leverage lives. Run once, ever."),
+  under the honest heading that nobody needs to memorise them: it exists so none of it
+  feels like magic
+- **A rescue prompt** in the troubleshooting section — paste-any-time `/il-doctor`
+  wrapper that reports in plain English and fixes what it can
+
+---
+
 ## [2.4.12] — 2026-08-27
 
 ### Changed
