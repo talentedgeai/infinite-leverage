@@ -7,8 +7,8 @@ typing. Each prompt ends by telling you which one to copy next, by name.
 | # | Prompt | When |
 |---|---|---|
 | 0 | **Clean up** | Only if you've used Infinite Leverage before. Never used it? Skip. |
-| 1 | **Install** | Everyone starts here. Takes a minute. |
-| 2 | **Set up your accounts** | Claude walks you through creating each account, click by click. |
+| 1 | **Set up your accounts** | Everyone starts here. Claude guides you click by click — starting with the browser itself. |
+| 2 | **Install** | Takes a minute. Claude does all of it. |
 | 3 | **Create your project** | Your website and your six-person AI team, built in front of you. |
 
 Every prompt follows the same rules: plain English, no jargon, no walls of output, one
@@ -95,9 +95,9 @@ Give me a short, friendly summary — three or four sentences, no jargon:
   case anything is ever needed back
 - that you're now on the current version and all checks passed
 Then my next step, worded like this: "Go back to the setup guide and copy
-the prompt called 2 - Set up your accounts. If you still have your GitHub,
-Supabase and Vercel accounts from before, you can skip ahead to 3 - Create
-your project instead. Paste it right here in this chat — or in a new one,
+the prompt called 3 - Create your project — your accounts and sign-ins
+from before still work. If you no longer have them, start with 1 - Set up
+your accounts instead. Paste it right here in this chat — or in a new one,
 both work."
 Then stop and wait. Don't start setting up a project on your own.
 
@@ -108,11 +108,79 @@ to get past an error, and don't tell me it worked if it didn't.
 
 ---
 
-## Prompt 1 — Install
+## Prompt 1 — Set up your accounts
+
+Everyone starts here — even before installing, because the install step needs this
+computer signed in to GitHub. Claude acts as a patient guide: it starts with the browser
+itself (Google Chrome), then each account, one at a time, exactly where to click,
+checking each step worked before moving on.
+
+```
+Help me set up the accounts my project needs, and connect this computer to
+them. I'm not a developer — be a patient guide. Plain English, one thing at
+a time, and don't move on until we've confirmed the current step works.
+
+For each step, use this exact shape:
+- one sentence on what it is and why my project needs it
+- numbered steps: exactly where to go and what to click
+- what to type into any field that isn't obvious
+- then confirm it worked — check it yourself where you can, otherwise ask
+  me what I see on screen
+
+Go in this order:
+
+1. Google Chrome — the browser we'll use for every sign-in below, so all
+   my accounts stay signed in in one place.
+   - Check whether it's already installed. If it is, just ask me to open it.
+   - If not, walk me through downloading it from google.com/chrome and
+     installing it, click by click.
+2. GitHub — where my project's files live, like a shared drive with full
+   history.
+   - Ask me first: "Do you already have a GitHub account?"
+   - If not: walk me through creating one at github.com in Chrome, step by
+     step, including the email verification.
+   - Either way, make sure I finish signed IN to github.com in Chrome —
+     that matters for the next step.
+3. Connect this computer to GitHub.
+   - If git or the GitHub tool (gh) is missing from this computer, install
+     what's missing — ask me once with a one-line reason first. If anything
+     needs my password, tell me when to type it; you never see it.
+   - Then run  gh auth login  and guide me through each question it asks
+     (GitHub.com, HTTPS, sign in with the web browser). The page it opens
+     will already be signed in from step 2 — I just click Authorize.
+   - You confirm it worked by running: gh auth status
+4. Supabase — my project's database and its sign-in system.
+   - Walk me through creating an account at supabase.com — "sign in with
+     GitHub" is one click now. Then create ONE new project: tell me exactly
+     what to click and what to name things.
+   - Tell me to save the database password it shows me somewhere safe. We
+     come back for the project's keys later — today it just needs to exist.
+5. Vercel — puts my website on the internet.
+   - Walk me through vercel.com — "sign up with GitHub" is one button, and
+     that's all we need today.
+6. Stripe — for taking payments. Ask me first: "Will your project charge
+   customers money? If no, or not sure yet, we skip this — it can be added
+   any time." Only walk me through stripe.com if I say yes.
+
+After each step, show me a short tick-list of what's done and what's next.
+When everything is done, tell me, exactly: "Accounts ready. Next: go back
+to the setup guide and copy the prompt called 2 - Install. Paste it right
+here."
+Then stop and wait.
+
+IF ANYTHING GOES WRONG
+Tell me what happened in plain English and what to try — never just show
+me an error.
+```
+
+---
+
+## Prompt 2 — Install
 
 The shortest one. Claude installs Infinite Leverage, checks everything is healthy, and
-tells you what to paste next. If it spots an old version 1 on the machine, it stops and
-sends you to Prompt 0 first.
+tells you what to paste next. If it spots the old version 1 on the machine, it sends you
+to Prompt 0; if the computer isn't signed in to GitHub yet, it sends you back to
+Prompt 1.
 
 ```
 Please install Infinite Leverage for me.
@@ -128,81 +196,26 @@ you truly need me.
    nothing and tell me: "You have an older version on this computer. Go
    back to the setup guide and copy the prompt called 0 - Clean up, and
    paste it right here." Then stop.
-2. Check the basic tools are present: git, the GitHub tool (gh), Node,
-   rsync, perl. If something's missing and you can install it safely with
-   my package manager, ask me once with a one-line reason, then handle it.
-3. Install the plugin:
+2. Confirm this computer is signed in to GitHub (gh auth status). If it
+   isn't, or if git or the GitHub tool is missing, don't fix it here —
+   tell me: "Run the prompt called 1 - Set up your accounts first." Then
+   stop.
+3. Check the remaining tools: Node, rsync, perl. If something's missing
+   and you can install it safely with my package manager, ask me once with
+   a one-line reason, then handle it.
+4. Install the plugin:
      claude plugin marketplace add talentedgeai/infinite-leverage
      claude plugin install infiniteleverage@infiniteleverage
    If it says the plugin is already installed, update it instead:
      claude plugin update infiniteleverage@infiniteleverage
-4. Run /il-doctor. If everything passes, just say "all checks passed."
-   (It may mention GitHub sign-in — that's fine, we handle it in the next
-   step. Don't try to sign me in now.)
-5. Then tell me, exactly: "Installed. Next: go back to the setup guide and
-   copy the prompt called 2 - Set up your accounts. Paste it right here."
+5. Run /il-doctor. If everything passes, just say "all checks passed."
+6. Then tell me, exactly: "Installed. Next: go back to the setup guide and
+   copy the prompt called 3 - Create your project. Paste it right here."
 Then stop and wait.
 
 IF YOU GET STUCK
 Stop and tell me in plain English what you need. Don't guess, and don't
 tell me it worked if it didn't.
-```
-
----
-
-## Prompt 2 — Set up your accounts
-
-The learning step. Your project needs a few free accounts, and this prompt turns Claude
-into a patient guide: what each account is for in one sentence, exactly where to click,
-one account at a time, checking each one worked before moving on. Nothing is installed
-or changed on your computer here — it's all in your web browser, except the GitHub
-sign-in at the end of step 1.
-
-```
-Help me set up the accounts my project needs. I'm not a developer — be a
-patient guide. Plain English, one account at a time, and don't move to the
-next until we've confirmed the current one works.
-
-For each account, do it in this exact shape:
-- one sentence on what it is and why my project needs it
-- numbered steps: exactly where to go and what to click
-- what to type into any field that isn't obvious
-- then confirm it worked — check it yourself where you can, otherwise ask
-  me what I see on screen
-
-Go in this order:
-
-1. GitHub — where my project's files live, like a shared drive with full
-   history.
-   - Ask me first: "Do you already have a GitHub account?" If not, walk me
-     through creating one at github.com, step by step.
-   - Then connect this computer to it: tell me to type  gh auth login  in
-     the terminal, and guide me through each question it asks (GitHub.com,
-     HTTPS, sign in with the web browser). Stay with me through it.
-   - You confirm it worked by running: gh auth status
-2. Supabase — my project's database and its sign-in system.
-   - Walk me through creating an account at supabase.com (signing in with
-     GitHub is the easy path), then creating ONE new project. Tell me
-     exactly what to click and what to name things.
-   - Tell me to save the database password it shows me somewhere safe, and
-     that we'll come back for the project's keys in the next prompt — today
-     we just need the project to exist.
-3. Vercel — puts my website on the internet.
-   - Walk me through creating an account at vercel.com. Signing up with my
-     GitHub account is one button, and that's all we need today.
-4. Stripe — for taking payments. Ask me first: "Will your project charge
-   customers money? If no, or not sure yet, we skip this — it can be added
-   any time." Only walk me through stripe.com if I say yes.
-
-After each account, show me a short tick-list of what's done and what's
-next. When everything is done, tell me, exactly: "Accounts ready. Next: go
-back to the setup guide and copy the prompt called 3 - Create your
-project. Paste it right here."
-Then stop and wait.
-
-IF ANYTHING GOES WRONG
-Tell me what happened in plain English and what to try — never just show
-me an error.
 ```
 
 ---
@@ -299,5 +312,5 @@ The most common causes, for the curious:
 | What you see | What it usually means |
 |---|---|
 | The teammates don't respond | They live inside each project — make sure you opened the project folder in Claude Code. |
-| Something about GitHub sign-in | Run through the GitHub step of Prompt 2 again — signing in is the one thing only you can do. |
+| Something about GitHub sign-in | Run the GitHub steps of Prompt 1 again — signing in is the one thing only you can do. |
 | The site won't build after setup | A key is missing or mistyped — Prompt 3's key step, run again, fixes it. |
