@@ -6,6 +6,24 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.9] — 2026-08-26
+
+### Added
+- **Prompt 0 in `docs/guide/CLIENT-SETUP.md` — recovering from an old install.** Detects
+  which of two cases applies and handles either: v1 residue in `~/.claude/` (agents,
+  hooks, the `il_telemetry` package, the version marker, ~95 globally-installed skills,
+  and — the part that matters — the `Bash(*)` permission grant plus `acceptEdits` default
+  in settings), or simply an out-of-date v2 plugin. Built from ground truth, not memory:
+  the v1 file list is generated from both repos' git history, and the settings surgery
+  mirrors what `migrate_v1.py` does in the private telemetry plugin. Safety properties:
+  look-only first pass; explicit "anything not on these lists is yours — leave it alone";
+  settings edited surgically with dated backups, never replaced; files archived into a
+  dated folder by rename, never deleted; locally-modified files reported, not moved.
+  Edge8-internal machines are pointed at `/edge8-telemetry` instead, which does this
+  hash-verified
+
+---
+
 ## [2.4.8] — 2026-08-26
 
 ### Added

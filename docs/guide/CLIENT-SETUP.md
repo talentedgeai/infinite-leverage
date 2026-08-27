@@ -121,6 +121,116 @@ ask, nothing is pushed to `main` directly (everything goes through a pull reques
 
 ---
 
+## Prompt 0 — already installed an older version?
+
+Use this **before** the install prompts if there's any chance an older Infinite Leverage
+is on the machine. It detects which of two situations applies and handles either:
+
+- **v1 residue** — v1 installed itself into `~/.claude/` (v2 never does; it only writes
+  inside your project). That residue includes a `Bash(*)` permission grant, which is the
+  reason v2 exists and the one thing worth fixing even if nothing else is touched.
+- **v2, just out of date** — nothing to clean, only a plugin update.
+
+**Edge8-internal only:** if `/edge8-telemetry` is installed, run that instead. It carries
+`migrate_v1.py`, which removes only byte-exact copies of files v1 shipped, verified by
+hash against a manifest built from both v1 repos' full git history, and reports anything
+locally modified instead of deleting it. The prompt below is the careful manual
+equivalent for everyone else.
+
+```
+I may have an older version of Infinite Leverage installed. Please check,
+explain what you find in plain English, and fix it.
+
+I'm not a developer. Plain English only, no raw errors, one question at a
+time, never ask me to edit a file myself — and never delete anything without
+showing me first and waiting for me to say yes.
+
+STEP 0 — LOOK ONLY. CHANGE NOTHING YET.
+
+Version 1 installed itself into my home folder. Version 2 never does — it
+only ever writes inside a project folder. So anything below in ~/.claude/ is
+v1 residue:
+
+- ~/.claude/agents/ containing any of: designer.md, developer.md, devops.md,
+  email-marketer.md, product-manager.md, qa.md, web-publisher.md, writer.md
+- ~/.claude/hooks/ containing any of: pre-bash, prompt-submit, session-start,
+  usage-context.py, update-project-status-usage.py, or an il_telemetry folder
+- ~/.claude/.infiniteleverage-version
+- ~/.claude/skills/ containing anything whose name starts with
+  infiniteleverage-, pm-, dev-, devops-, qa-, writer-, designer-,
+  web-publisher-, email-marketer-, scaffold-, or speckit- ... or is exactly
+  one of: pm, dev, devops, qa, writer, designer, web-publisher,
+  email-marketer, marketing-strategist, plan-protocol, github-flow,
+  global-caveman, seo-audit, session-ingest, use-dev-team,
+  use-marketing-team, create-agent, create-local-routine,
+  create-local-task, create-remote-routine
+- In ~/.claude/settings.json and ~/.claude/settings.local.json:
+    * a permission entry of exactly  Bash(*)        <-- most important
+    * "defaultMode": "acceptEdits"
+    * any hook pointing at ~/.claude/hooks/pre-bash, prompt-submit,
+      session-start, session-telemetry-*, or telemetry-privacy-guard
+
+Also check whether the v2 plugin is installed and current:
+    claude plugin list
+and compare against the newest release tag of
+talentedgeai/infinite-leverage.
+
+Now tell me, in plain English: what you found, what each thing does, and
+which of these two I'm in —
+  CASE A: v1 leftovers found        -> we clean up, then install v2
+  CASE B: no leftovers, just old/absent v2 -> we only install or update
+
+ANYTHING NOT ON THOSE LISTS IS MINE
+~/.claude/ is also where I keep my own settings, my own skills, and other
+plugins. If you can't match something to the lists above, it is mine — leave
+it alone, even if the name looks similar. When in doubt, ask me.
+
+CASE A — CLEAN UP FIRST
+
+1. The permission grant first, because it's the one that actually matters.
+   Back up both settings files (copy them next to themselves with today's
+   date in the name). Then remove ONLY:
+     - the  Bash(*)  entry from the permissions allow list
+     - "defaultMode": "acceptEdits"
+     - the v1 hook registrations listed above
+   Leave every other setting exactly as it is. Show me the before and after
+   for each file and explain what Bash(*) was letting through.
+
+2. Don't delete the leftover files — move them. Make one folder named
+   ~/.claude/il-v1-archive-<today's date> and move the v1 agents, hooks and
+   skills into it, keeping their folder names. Then tell me plainly:
+   "nothing was deleted, it's all in that folder if we need it back."
+
+3. If any file's name matches the list but you can tell I've edited it
+   myself, leave it where it is and tell me — don't move it.
+
+4. Write me a short list of what moved and what you changed.
+
+CASE B — JUST UPDATE
+
+     claude plugin update infiniteleverage@infiniteleverage
+
+BOTH CASES END THE SAME WAY
+
+5. Make sure the current version is installed:
+     claude plugin marketplace add talentedgeai/infinite-leverage
+     claude plugin install infiniteleverage@infiniteleverage
+6. Run /il-doctor and tell me whether every line passes.
+7. Tell me whether any project folder on my machine still needs its agents
+   refreshed, and how I'd do that. Don't do it without asking.
+
+IF YOU GET STUCK
+Stop and tell me. Don't guess, don't delete anything to get past an error,
+and don't tell me it worked if it didn't.
+```
+
+**What this deliberately does not do:** it never clears `~/.claude/skills/` wholesale.
+Most people keep their own skills there, and v1's had ordinary names — the only safe
+signal is the name pattern plus the location. It also archives by renaming rather than
+deleting, so a wrong guess costs a folder move, not your work.
+
+---
+
 ## Prompt A — hands-off (for a non-technical client)
 
 Paste this into Claude Code and it does everything it's allowed to do, stopping only for
