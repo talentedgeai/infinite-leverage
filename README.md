@@ -36,6 +36,7 @@ claude plugin update infiniteleverage@infiniteleverage
 |---|---|
 | `/il-project` | Scaffolds a new client project from `templates/project-scaffold/`, installs the 6 agents + skills **into the project's `.claude/`**, seeds `docs/product/` and `docs/brand/`, initializes git |
 | `/il-doctor` | Setup check: prerequisites, repo context, scaffolded-project layout |
+| `/il-memory-cleanup` | Human-in-the-loop cleanup of a multi-account memory mess: reads every memory file, narrates duplicates/conflicts/stale facts, then deletes/merges/re-indexes only what the operator approves — after a backup |
 
 ## Repo structure
 
@@ -43,7 +44,7 @@ claude plugin update infiniteleverage@infiniteleverage
 .claude-plugin/            ← marketplace manifest (this repo IS the marketplace)
 plugin/                    ← the shipped plugin payload
 ├── .claude-plugin/        ← plugin manifest
-└── skills/                ← il-project, il-doctor
+└── skills/                ← il-project, il-doctor, il-memory-cleanup
 .claude/
 ├── agents/                ← 6 agent definitions (per-project install source)
 ├── skills/                ← agent workflow skills (per-project install source)
@@ -54,7 +55,8 @@ docs/                      ← guides, plans, slides
 
 ## Where the skills live now
 
-The plugin itself exposes only `/il-project` and `/il-doctor`. Everything else
+The plugin itself exposes only `/il-project`, `/il-doctor`, and
+`/il-memory-cleanup`. Everything else
 is **project-scoped**: `/il-project` installs the 6 agents and all workflow
 skills below into the new project's own `.claude/`, so they are active only
 inside Infinite Leverage projects — never globally on a machine.

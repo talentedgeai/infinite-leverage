@@ -5,8 +5,9 @@ plugin, the 6 agent definitions, their skills, and the project scaffold.
 
 ## Structure
 - `.claude-plugin/marketplace.json` — this repo IS the plugin marketplace
-- `plugin/` — the shipped plugin payload: 2 skills (`il-project`, `il-doctor`).
-  No hooks. Telemetry + v1 cleanup live in the private `edge8-telemetry` repo
+- `plugin/` — the shipped plugin payload: 3 skills (`il-project`, `il-doctor`,
+  `il-memory-cleanup`). No hooks. Telemetry + v1 cleanup live in the private
+  `edge8-telemetry` repo
 - `.claude/agents/` — the 6 agent definitions (installed **per-project** by `il-project`)
 - `.claude/skills/` — agent workflow skills (installed **per-project** by `il-project`)
 - `.claude/rules/` — engineering guardrails copied into projects
@@ -14,7 +15,10 @@ plugin, the 6 agent definitions, their skills, and the project scaffold.
 
 ## Hard rules for edits here
 - **Nothing installs globally.** No file in this repo may write to `~/.claude/`.
-  Never add a `cp` into `~/.claude/` anywhere.
+  Never add a `cp` into `~/.claude/` anywhere. (The one carve-out:
+  `il-memory-cleanup` edits the operator's *own memory content* under `~/.claude/`
+  at their direction, with per-item approval and a backup first — it never installs
+  plugin files, agents, hooks, or settings there.)
 - **Never grant permissions.** No code or skill may touch `permissions` in any
   settings file (the v1 `Bash(*)` grant is the reason v2 exists).
 - Agent `.md` files stay thin — role + hard rules + skill index; workflow detail
