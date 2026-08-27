@@ -6,6 +6,18 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.7.2] — 2026-08-27
+
+### Removed
+- **Stripe dropped from the client setup guide.** The accounts prompt (Prompt 2) now
+  covers GitHub-check, Supabase and Vercel only; the ask-first Stripe step, the journey
+  table's "and Stripe if you take payments", and the intro's payments mention are gone.
+  Payments can be added later when a project actually needs them — the setup path
+  shouldn't carry an optional detour every client reads past. (No Resend/Brevo mentions
+  existed in the guide; verified.)
+
+---
+
 ## [2.7.1] — 2026-08-27
 
 **The v2.4 → v2.6 migration path for existing projects.** v2.6.0 removed the writer and
