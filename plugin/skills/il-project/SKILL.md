@@ -229,19 +229,43 @@ cp "$TMP/il-template/.claude/agents/"*.md "$TARGET/.claude/agents/"
 cp -R "$TMP/il-template/.claude/skills/." "$TARGET/.claude/skills/"
 rm -rf "$TARGET/.claude/skills/PH-skill-name"   # scaffold placeholder — not a real skill
 cp "$TMP/il-template/.claude/rules/global-engineering.md" "$TARGET/.claude/rules/"
+
+# Projects scaffolded on v2.4.x carry 2 agents and 8 skills that v2.6 retired
+# (writer/designer and their content pipeline). A refresh must clear them or
+# the 4-agent gate below fails on every legacy project. A client may have
+# edited one, so retire by MOVE into a dated folder — never delete. On a
+# fresh scaffold none of these exist and this block does nothing.
+RETIRED_AGENTS="writer.md designer.md"
+RETIRED_SKILLS="writer-seo-content writer-quality-critique marketing-strategist \
+  email-marketer-nurture designer-design-system designer-style-to-photo \
+  designer-image-generation designer-ui-ux"
+RET_DIR="$TARGET/.claude/retired-il-$(date +%Y%m%d)"
+for f in $RETIRED_AGENTS; do
+  [ -f "$TARGET/.claude/agents/$f" ] && mkdir -p "$RET_DIR/agents" && mv "$TARGET/.claude/agents/$f" "$RET_DIR/agents/"
+done
+for d in $RETIRED_SKILLS; do
+  [ -d "$TARGET/.claude/skills/$d" ] && mkdir -p "$RET_DIR/skills" && mv "$TARGET/.claude/skills/$d" "$RET_DIR/skills/"
+done
+[ -d "$RET_DIR" ] && echo "ℹ️  retired v2.4-era agents/skills moved to $RET_DIR — review, then delete the folder"
 ```
 
 Verify before moving on. This is a hard gate, not a print — a partial install is
 how a project silently ends up with no agents:
 
 ```bash
+# Assert the canonical 4 are PRESENT — not that nothing else exists. A project
+# may legitimately carry its own custom agents beside them, so an exact count
+# would fail every project that added one.
+MISSING=""
+for a in product-manager developer qa devops; do
+  [ -f "$TARGET/.claude/agents/$a.md" ] || MISSING="$MISSING $a.md"
+done
 # find, not a glob: under zsh a non-matching glob aborts the command instead of
-# returning nothing, so `ls dir/*.md` would error out rather than count zero.
-A=$(find "$TARGET/.claude/agents" -maxdepth 1 -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+# returning nothing.
 S=$(find "$TARGET/.claude/skills" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
-echo "agents: $A/4 · skills: $S/16"
-[ "$A" -eq 4 ] && [ "$S" -ge 16 ] || {
-  echo "❌ install incomplete — expected 4 agents and at least 16 skills"
+echo "agents: canonical 4 ${MISSING:+MISSING:$MISSING}${MISSING:-present} · skills: $S/16"
+[ -z "$MISSING" ] && [ "$S" -ge 16 ] || {
+  echo "❌ install incomplete — expected the 4 canonical agents and at least 16 skills"
   echo "   check that \$TMP/il-template/.claude/ exists and the mkdir -p above ran"
   exit 1
 }

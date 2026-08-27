@@ -69,6 +69,20 @@ if [ -f "FOLDER-STRUCTURE.md" ]; then
   else
     fail "project skills installed" "found $SKILLS (expected 16) — fix: re-run /il-project step 6 to refresh"
   fi
+  RETIRED=""
+  for f in writer designer; do
+    [ -f ".claude/agents/$f.md" ] && RETIRED="$RETIRED agents/$f.md"
+  done
+  for d in writer-seo-content writer-quality-critique marketing-strategist \
+           email-marketer-nurture designer-design-system designer-style-to-photo \
+           designer-image-generation designer-ui-ux; do
+    [ -d ".claude/skills/$d" ] && RETIRED="$RETIRED skills/$d/"
+  done
+  if [ -n "$RETIRED" ]; then
+    fail "no retired v2.4 agents/skills" "found:$RETIRED — fix: re-run /il-project step 6 (moves them to .claude/retired-il-<date>/)"
+  else
+    pass "no retired v2.4 agents/skills" ""
+  fi
   if grep -q "BEGIN: AGENT-DELEGATION" CLAUDE.md 2>/dev/null; then
     pass "CLAUDE.md delegation block" ""
   else
