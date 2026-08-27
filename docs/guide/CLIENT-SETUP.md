@@ -31,6 +31,12 @@ claude plugin marketplace add talentedgeai/infinite-leverage
 claude plugin install infiniteleverage@infiniteleverage
 ```
 
+Already have it installed? `install` won't upgrade an existing plugin — update instead:
+
+```bash
+claude plugin update infiniteleverage@infiniteleverage
+```
+
 ## Step 2 — Check the install
 
 Open Claude Code and run:
@@ -215,6 +221,8 @@ BOTH CASES END THE SAME WAY
 5. Make sure the current version is installed:
      claude plugin marketplace add talentedgeai/infinite-leverage
      claude plugin install infiniteleverage@infiniteleverage
+   If it says the plugin is already installed, update it instead:
+     claude plugin update infiniteleverage@infiniteleverage
 6. Run /il-doctor and tell me whether every line passes.
 7. Tell me whether any project folder on my machine still needs its agents
    refreshed, and how I'd do that. Don't do it without asking.
@@ -286,6 +294,8 @@ THEN
 1. Install the plugin:
      claude plugin marketplace add talentedgeai/infinite-leverage
      claude plugin install infiniteleverage@infiniteleverage
+   If it says the plugin is already installed, update it instead:
+     claude plugin update infiniteleverage@infiniteleverage
 2. Run /il-doctor. Fix whatever you can fix yourself. For anything you can't,
    walk me through it, then run it again until every line passes.
 3. Run /il-project to build my project:
@@ -326,6 +336,8 @@ Install the Infinite Leverage plugin and set up my first project.
 2. Add the marketplace and install the plugin:
      claude plugin marketplace add talentedgeai/infinite-leverage
      claude plugin install infiniteleverage@infiniteleverage
+   If it says the plugin is already installed, update it instead:
+     claude plugin update infiniteleverage@infiniteleverage
 
 3. Run /il-doctor and show me the output as-is. If anything FAILs, tell me the fix
    and stop — don't work around it.

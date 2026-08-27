@@ -23,6 +23,20 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.11] — 2026-08-27
+
+### Fixed
+- **Every install site now carries the update path.** `claude plugin install` does not
+  upgrade an existing plugin, but three of the four places a client meets the install
+  commands (Prompt A, Prompt B, and Prompt 0's closing step) only said `install` — an
+  already-installed client following any of them stayed on their old version while the
+  conversation reported success. All three prompts now add: "If it says the plugin is
+  already installed, update it instead: `claude plugin update
+  infiniteleverage@infiniteleverage`", and the manual Step 1 in the guide gains the same
+  under "Already have it installed?"
+
+---
+
 ## [2.4.10] — 2026-08-27
 
 ### Changed
