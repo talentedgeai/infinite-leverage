@@ -6,6 +6,19 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.10] — 2026-08-27
+
+### Changed
+- **Prompt 0 now hands the client to the next prompt when it finishes.** Whether it
+  cleaned anything or found nothing to clean, it ends by telling the client — in fixed
+  wording — to go back to the setup guide, copy Prompt A (or B), fill in their project
+  name, and paste it into the chat, then stops and waits. Previously the cleanup
+  conversation just ended, leaving a non-technical client without a next move. Cleanup
+  and setup remain two separate prompts on purpose: one conversation that both deletes
+  old files and scaffolds a new project is harder to follow and harder to stop halfway
+
+---
+
 ## [2.4.9] — 2026-08-26
 
 ### Added

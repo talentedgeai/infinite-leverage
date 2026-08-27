@@ -219,10 +219,26 @@ BOTH CASES END THE SAME WAY
 7. Tell me whether any project folder on my machine still needs its agents
    refreshed, and how I'd do that. Don't do it without asking.
 
+WHEN YOU'RE DONE
+Finish with a short message that tells me, in plain English:
+- what you found and what you changed — or "nothing needed cleaning up"
+- that my machine is now ready for a fresh setup
+- my exact next step, worded like this: "Go back to the setup guide and
+  copy the prompt called A - Hands-off (or B - Guided if you'd rather run
+  the commands yourself). Fill in your project name, then paste it right
+  here in this chat — or in a new one, both work."
+Then stop and wait. Don't start setting up a project on your own — the
+next prompt handles that.
+
 IF YOU GET STUCK
 Stop and tell me. Don't guess, don't delete anything to get past an error,
 and don't tell me it worked if it didn't.
 ```
+
+**When it finishes**, it hands the client to the next step itself: it tells them to come
+back to this guide and copy Prompt A (or B). Cleanup and setup stay two separate prompts
+on purpose — one conversation that both deletes old files and scaffolds a new project is
+harder for a non-technical client to follow, and harder to stop halfway.
 
 **What this deliberately does not do:** it never clears `~/.claude/skills/` wholesale.
 Most people keep their own skills there, and v1's had ordinary names — the only safe
