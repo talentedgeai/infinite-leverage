@@ -1,6 +1,6 @@
 {
   "name": "infiniteleverage",
-  "version": "2.4.13",
+  "version": "2.4.14",
   "description": "Infinite Leverage v2 \u2014 the AI-team product plugin. /il-project scaffolds a client project with a project-scoped 6-agent team; /il-doctor checks the setup; /il-memory-cleanup tidies a multi-account memory mess with the human in the loop. No hooks, no telemetry, no writes outside the project you scaffold.",
   "author": {
     "name": "Edge8",
