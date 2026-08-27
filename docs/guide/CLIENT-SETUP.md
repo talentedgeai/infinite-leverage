@@ -20,10 +20,7 @@ tells you what it did.
 ## Prompt 0 — Clean up (only if you've used Infinite Leverage before)
 
 The old version 1 installed itself into a shared folder on your computer. Version 2
-doesn't. This prompt quietly removes the old version's leftovers — and only those. It
-tells you the plan in three sentences, then handles everything itself. "Removed" really
-means moved to a dated backup folder, so nothing is ever truly gone, and anything it
-can't positively identify as the old version is left alone.
+doesn't. This prompt removes the old version's leftovers — and only those.
 
 ```
 I think I have an old version of Infinite Leverage on my computer. Please
