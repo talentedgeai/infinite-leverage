@@ -144,18 +144,24 @@ locally modified instead of deleting it. The prompt below is the careful manual
 equivalent for everyone else.
 
 ```
-I may have an older version of Infinite Leverage installed. Please check,
-explain what you find in plain English, and fix it.
+I think I have an old version of Infinite Leverage on my computer. Please
+clean it up for me and get me onto the current version.
 
-I'm not a developer. Plain English only, no raw errors, one question at a
-time, never ask me to edit a file myself — and never delete anything without
-showing me first and waiting for me to say yes.
+I'm not a developer. Talk to me in plain, friendly English — no technical
+terms, no file paths, no raw output. And I don't want to approve every
+little step: for anything on the old-version lists below, just do it.
 
-STEP 0 — LOOK ONLY. CHANGE NOTHING YET.
+FIRST, TELL ME THE PLAN — THREE SENTENCES, TOPS
+Have a quiet look around first (change nothing yet), then tell me simply:
+- whether you found leftovers from the old version, or not
+- what you're going to do about it, in one plain sentence — something like
+  "I'll remove the old version's files and one leftover setting, then get
+  you onto the current version."
+- that nothing of mine will be touched
+Then get on with it. Don't list files at me, and don't wait for a yes.
 
-Version 1 installed itself into my home folder. Version 2 never does — it
-only ever writes inside a project folder. So anything below in ~/.claude/ is
-v1 residue:
+WHAT COUNTS AS THE OLD VERSION
+(This list is for you — never read it back to me.)
 
 - ~/.claude/agents/ containing any of: designer.md, developer.md, devops.md,
   email-marketer.md, product-manager.md, qa.md, web-publisher.md, writer.md
@@ -171,82 +177,62 @@ v1 residue:
   use-marketing-team, create-agent, create-local-routine,
   create-local-task, create-remote-routine
 - In ~/.claude/settings.json and ~/.claude/settings.local.json:
-    * a permission entry of exactly  Bash(*)        <-- most important
+    * a permission entry of exactly  Bash(*)
     * "defaultMode": "acceptEdits"
     * any hook pointing at ~/.claude/hooks/pre-bash, prompt-submit,
       session-start, session-telemetry-*, or telemetry-privacy-guard
 
-Also check whether the v2 plugin is installed and current:
-    claude plugin list
-and compare against the newest release tag of
-talentedgeai/infinite-leverage.
-
-Now tell me, in plain English: what you found, what each thing does, and
-which of these two I'm in —
-  CASE A: v1 leftovers found        -> we clean up, then install v2
-  CASE B: no leftovers, just old/absent v2 -> we only install or update
-
-ANYTHING NOT ON THOSE LISTS IS MINE
-~/.claude/ is also where I keep my own settings, my own skills, and other
-plugins. If you can't match something to the lists above, it is mine — leave
-it alone, even if the name looks similar. When in doubt, ask me.
-
-CASE A — CLEAN UP FIRST
-
-1. The permission grant first, because it's the one that actually matters.
-   Back up both settings files (copy them next to themselves with today's
-   date in the name). Then remove ONLY:
-     - the  Bash(*)  entry from the permissions allow list
-     - "defaultMode": "acceptEdits"
-     - the v1 hook registrations listed above
-   Leave every other setting exactly as it is. Show me the before and after
-   for each file and explain what Bash(*) was letting through.
-
-2. Don't delete the leftover files — move them. Make one folder named
-   ~/.claude/il-v1-archive-<today's date> and move the v1 agents, hooks and
-   skills into it, keeping their folder names. Then tell me plainly:
-   "nothing was deleted, it's all in that folder if we need it back."
-
-3. If any file's name matches the list but you can tell I've edited it
-   myself, leave it where it is and tell me — don't move it.
-
-4. Write me a short list of what moved and what you changed.
-
-CASE B — JUST UPDATE
-
-     claude plugin update infiniteleverage@infiniteleverage
-
-BOTH CASES END THE SAME WAY
-
-5. Make sure the current version is installed:
+WHAT TO DO — QUIETLY, WITHOUT ASKING ME STEP BY STEP
+1. Fix the settings: make dated backup copies of both settings files next
+   to the originals, then remove only the old-version entries listed above.
+   Change nothing else in those files. Don't show me the edits — just do it.
+2. Remove the old files: move everything matching the lists above into one
+   folder, ~/.claude/il-v1-archive-<today>. When you talk to me, call this
+   "removed" — the folder is just a safety net, and you'll mention it once
+   at the end.
+3. If something matches an old-version name but looks like I changed it
+   myself, leave it where it is and note it for the summary. Don't
+   interrupt me about it.
+4. Get me onto the current version:
      claude plugin marketplace add talentedgeai/infinite-leverage
      claude plugin install infiniteleverage@infiniteleverage
    If it says the plugin is already installed, update it instead:
      claude plugin update infiniteleverage@infiniteleverage
-6. Run /il-doctor and tell me whether every line passes.
-7. Tell me whether any project folder on my machine still needs its agents
-   refreshed, and how I'd do that. Don't do it without asking.
+5. Run /il-doctor. If everything passes, just tell me "all checks passed."
+   If something fails, tell me what it means in plain English and what you
+   need from me — one thing at a time.
+
+THE ONE RULE THAT NEVER BENDS
+Anything in ~/.claude/ that is not on the lists above is MINE — my own
+settings, my own skills, other tools I use. Leave all of it completely
+alone. If you're not sure whether something is old Infinite Leverage or
+mine, treat it as mine. That is the one thing worth stopping to ask me
+about. Everything else, just handle.
 
 WHEN YOU'RE DONE
-Finish with a short message that tells me, in plain English:
-- what you found and what you changed — or "nothing needed cleaning up"
-- that my machine is now ready for a fresh setup
-- my exact next step, worded like this: "Go back to the setup guide and
-  copy the prompt called A - Hands-off (or B - Guided if you'd rather run
-  the commands yourself). Fill in your project name, then paste it right
-  here in this chat — or in a new one, both work."
-Then stop and wait. Don't start setting up a project on your own — the
-next prompt handles that.
+Give me a short, friendly summary — three or four sentences, no jargon:
+- what you cleaned up, or "your machine was already clean"
+- that everything of yours was untouched, and a backup folder exists in
+  case anything is ever needed back
+- that you're now on the current version and all checks passed
+Then my next step, worded like this: "Go back to the setup guide and copy
+the prompt called A - Hands-off (or B - Guided if you'd rather run the
+commands yourself). Fill in your project name, then paste it right here in
+this chat — or in a new one, both work."
+Then stop and wait. Don't start setting up a project on your own.
 
 IF YOU GET STUCK
-Stop and tell me. Don't guess, don't delete anything to get past an error,
-and don't tell me it worked if it didn't.
+Stop and tell me in plain English. Don't guess, don't remove anything extra
+to get past an error, and don't tell me it worked if it didn't.
 ```
 
-**When it finishes**, it hands the client to the next step itself: it tells them to come
-back to this guide and copy Prompt A (or B). Cleanup and setup stay two separate prompts
-on purpose — one conversation that both deletes old files and scaffolds a new project is
-harder for a non-technical client to follow, and harder to stop halfway.
+**How it behaves:** one plain-English plan up front (three sentences), then it runs the
+whole cleanup quietly — no step-by-step approvals, no file lists, no jargon. "Removed"
+really means moved to a dated backup folder, so a wrong guess is recoverable; the client
+hears about the folder once, at the end. The single thing it will still stop and ask
+about is anything it cannot positively identify as v1 — that rule never bends. When it
+finishes, it hands the client to Prompt A (or B) itself. Cleanup and setup stay two
+separate prompts on purpose.
 
 **What this deliberately does not do:** it never clears `~/.claude/skills/` wholesale.
 Most people keep their own skills there, and v1's had ordinary names — the only safe
