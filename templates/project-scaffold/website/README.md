@@ -1,6 +1,6 @@
 # Website — Next.js
 
-This folder ships a **starter kit** — feature modules (chat, billing, notifications, markdown rendering), Supabase migrations, and vitest tests — with **no `package.json`**. It is completed at bootstrap by merging a fresh `create-next-app` install underneath it:
+This folder ships a **starter kit** — feature modules (chat, notifications, markdown rendering), Supabase migrations, and vitest tests — with **no `package.json`**. It is completed at bootstrap by merging a fresh `create-next-app` install underneath it:
 
 ```bash
 # Scaffold Next.js in a temp dir — root-level app/, matching this starter kit
@@ -22,10 +22,10 @@ Structure after the merge:
 
 ```
 website/
-├── app/               ← App Router pages + API routes (chat, billing, auth, sessions)
+├── app/               ← App Router pages + API routes (chat, auth, sessions)
 │   └── providers.tsx  ← QueryClientProvider — must be wired into app/layout.tsx
-├── components/        ← chat/, billing/, dashboard/, markdown/, notifications/, editor/
-├── lib/               ← auth/, billing/, chat/, supabase/, seo/, perf/, upload/
+├── components/        ← chat/, dashboard/, markdown/, notifications/, editor/
+├── lib/               ← auth/, chat/, supabase/, seo/, perf/, upload/
 ├── supabase/
 │   └── migrations/    ← chat, notifications, subscriptions tables
 ├── docs/              ← per-module setup notes

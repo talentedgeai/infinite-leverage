@@ -23,9 +23,6 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<publishable-key>
 SUPABASE_SECRET_KEY=<secret-key>            # server-side only — never NEXT_PUBLIC
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-# Optional — only if using billing:
-# STRIPE_SECRET_KEY=
-# STRIPE_WEBHOOK_SECRET=
 EOF
 ```
 
@@ -64,7 +61,7 @@ Ask Claude Code from the repo root — the agent team routes the work
 - `@product-manager` + `pm-client-interview` — capture what you're building
 - "add an epic for <feature>" — PM writes the spec, developer builds from it
 - The `website/` starter kit already ships auth-ready Supabase clients, chat,
-  notifications, billing, markdown rendering, and vitest tests to build on.
+  notifications, markdown rendering, and vitest tests to build on.
 
 ## Folder structure
 
