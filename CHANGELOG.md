@@ -6,6 +6,23 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.5.0] — 2026-08-27
+
+### Added
+- **New skill `/il-memory-cleanup`** — for operators who switch between several
+  Claude accounts on one machine and end up with a messy global `CLAUDE.md` and
+  memory index. Unlike batch memory consolidators, it is a conversation: the agent
+  reads every memory file in full, narrates duplicates / conflicts / stale facts /
+  index drift / cross-account bleed back to the operator (quoting both sides of
+  each conflict and saying which the evidence favors), and only acts on explicit
+  per-item approval. Safety properties: tar backup before the first write with the
+  restore command printed; conflicts are always decided by the human, never the
+  agent; stale claims require an actual verification check; scope is memory
+  content only — settings, permissions, and installs stay untouched (v1 residue is
+  routed to `/il-doctor` instead).
+
+---
+
 ## [2.4.9] — 2026-08-26
 
 ### Added
