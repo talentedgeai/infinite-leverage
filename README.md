@@ -34,7 +34,7 @@ claude plugin update infiniteleverage@infiniteleverage
 
 | Piece | What it does |
 |---|---|
-| `/il-project` | Scaffolds a new client project from `templates/project-scaffold/`, installs the 6 agents + skills **into the project's `.claude/`**, seeds `docs/product/` and `docs/brand/`, initializes git |
+| `/il-project` | Scaffolds a new client project from `templates/project-scaffold/`, installs the 4 agents + skills **into the project's `.claude/`**, seeds `docs/product/` and `docs/brand/`, initializes git |
 | `/il-doctor` | Setup check: prerequisites, repo context, scaffolded-project layout |
 | `/il-memory-cleanup` | Human-in-the-loop cleanup of a multi-account memory mess: reads every memory file, narrates duplicates/conflicts/stale facts, then deletes/merges/re-indexes only what the operator approves — after a backup |
 
@@ -46,7 +46,7 @@ plugin/                    ← the shipped plugin payload
 ├── .claude-plugin/        ← plugin manifest
 └── skills/                ← il-project, il-doctor, il-memory-cleanup
 .claude/
-├── agents/                ← 6 agent definitions (per-project install source)
+├── agents/                ← 4 agent definitions (per-project install source)
 ├── skills/                ← agent workflow skills (per-project install source)
 └── rules/                 ← engineering guardrails
 templates/project-scaffold/ ← canonical new-project layout
@@ -57,7 +57,7 @@ docs/                      ← guides, plans, slides
 
 The plugin itself exposes only `/il-project`, `/il-doctor`, and
 `/il-memory-cleanup`. Everything else
-is **project-scoped**: `/il-project` installs the 6 agents and all workflow
+is **project-scoped**: `/il-project` installs the 4 agents and all workflow
 skills below into the new project's own `.claude/`, so they are active only
 inside Infinite Leverage projects — never globally on a machine.
 
@@ -74,11 +74,11 @@ The v1 setup skills are retired and replaced:
 Machines still carrying the v1 copies keep working until they migrate; the
 private `edge8-telemetry` plugin cleans them up on its first run.
 
-## The 6 agents
+## The 4 agents
 
-**Build team**: product-manager, developer, qa, devops · **GTM team**: writer, designer.
-(The developer owns publishing; the writer owns email — the old web-publisher and
-email-marketer roles were folded in as skills.)
+**Build team**: product-manager, developer, qa, devops.
+(The developer owns publishing — the old web-publisher role was folded in as a
+skill. The writer and designer agents were removed in v2.6.0.)
 
 Each agent is a thin definition in [`.claude/agents/`](.claude/agents) listing
 the workflow skills it uses; the skills themselves live in

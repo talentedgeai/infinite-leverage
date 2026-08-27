@@ -10,7 +10,7 @@ Quick fixes for the most common problems operators run into. Written for non-tec
 
 1. Make sure you addressed the agent directly: `@developer fix this bug` or `@product-manager write an epic`.
 2. If you didn't use `@`, Claude picks the most relevant agent automatically. If it picks wrong, add the `@agent-name` prefix.
-3. If no agents respond at all, run `/il-doctor` — it reports whether the 6 agents are actually installed in `.claude/agents/`, and how to refresh them.
+3. If no agents respond at all, run `/il-doctor` — it reports whether the 4 agents are actually installed in `.claude/agents/`, and how to refresh them.
 
 ---
 
@@ -20,8 +20,8 @@ Skills are **per project** — they live in this project's `.claude/skills/`, ne
 `~/.claude/`. Check what's installed:
 
 ```bash
-ls .claude/skills/     # expect 24 skill folders
-ls .claude/agents/     # expect 6 agent definitions
+ls .claude/skills/     # expect 16 skill folders
+ls .claude/agents/     # expect 4 agent definitions
 ```
 
 Run `/il-doctor` for a full check. If agents or skills are missing, re-run step 6 of
@@ -70,29 +70,6 @@ Then tell `@developer` what happened and ask it to investigate on a branch.
 This is blocked by design. All changes go through a pull request. If Claude tries to push to main, it will be blocked by the `pre-bash` hook with an explanation.
 
 If you see this: tell Claude "open a PR instead of pushing directly."
-
----
-
-## Images & Content
-
-### "Image generation failed"
-
-The Designer will give you the exact prompt it tried. You can paste it into one of these free tools:
-- [Ideogram](https://ideogram.ai) — best for text in images
-- [Midjourney](https://midjourney.com) — best for photography style
-- [Adobe Firefly](https://firefly.adobe.com) — good for brand-consistent images
-
-The prompt is also saved to `content/topics/{slug}/image-prompts.md` so you can find it later.
-
----
-
-### "The email went out without my approval"
-
-This should never happen — email is owned by the **writer** agent, and both the agent
-definition and `email-marketer-nurture` state that emails are drafted only; the operator
-runs the send command. If a send happened without approval, check
-`agents/writer/context/outreach-log.md` to see what went out, then contact Resend or
-Brevo support to cancel any queued sends.
 
 ---
 

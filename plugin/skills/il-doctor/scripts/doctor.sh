@@ -58,16 +58,16 @@ if [ -f "FOLDER-STRUCTURE.md" ]; then
   echo "[ C · Project Layout ]"
   pass "FOLDER-STRUCTURE.md present" ""
   AGENTS=$(ls .claude/agents/*.md 2>/dev/null | wc -l | tr -d ' ')
-  if [ "$AGENTS" -ge 6 ]; then
+  if [ "$AGENTS" -ge 4 ]; then
     pass "project agents installed" "$AGENTS agents in .claude/agents/"
   else
-    fail "project agents installed" "found $AGENTS/6 — fix: re-run /il-project step 6 to refresh"
+    fail "project agents installed" "found $AGENTS/4 — fix: re-run /il-project step 6 to refresh"
   fi
   SKILLS=$(ls -d .claude/skills/*/ 2>/dev/null | wc -l | tr -d ' ')
-  if [ "$SKILLS" -ge 20 ]; then
+  if [ "$SKILLS" -ge 16 ]; then
     pass "project skills installed" "$SKILLS skills in .claude/skills/"
   else
-    fail "project skills installed" "found $SKILLS (expected 24) — fix: re-run /il-project step 6 to refresh"
+    fail "project skills installed" "found $SKILLS (expected 16) — fix: re-run /il-project step 6 to refresh"
   fi
   if grep -q "BEGIN: AGENT-DELEGATION" CLAUDE.md 2>/dev/null; then
     pass "CLAUDE.md delegation block" ""

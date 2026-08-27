@@ -261,12 +261,9 @@ picks it up.
 | **developer** | building features, fixing bugs, putting posts on the site |
 | **qa** | "check this works", testing, sorting out bug reports |
 | **devops** | "is the site up", deployments, rolling back a bad release |
-| **writer** | blog posts, marketing copy, email campaigns |
-| **designer** | brand look and feel, images, "does this page look right" |
 
 House rules they all follow, so you don't have to police them: nothing is saved to the
-project history unless you ask, nothing goes live without a review step, and **no email
-is ever sent** — the writer drafts, you press send.
+project history unless you ask, and nothing goes live without a review step.
 
 ## What the commands actually do
 

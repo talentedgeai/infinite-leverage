@@ -6,6 +6,30 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.6.0] — 2026-08-27
+
+**The team slims to 4 agents.** The writer and designer agents are removed — they were
+not being used.
+
+### Removed
+- Agents `writer` and `designer` (`.claude/agents/`), plus their scaffold personas
+  (`templates/project-scaffold/agents/{writer,designer}/`).
+- Their skills: `writer-seo-content`, `writer-quality-critique`,
+  `email-marketer-nurture`, `marketing-strategist`, `designer-design-system`,
+  `designer-image-generation`, `designer-style-to-photo`, `designer-ui-ux`
+  (24 → 16 skills).
+- Scaffold artifacts of the content/email chain: `emails/` and
+  `content/topics/{slug}/image-prompts.md`.
+
+### Changed
+- Publishing stays with the developer (`web-publisher-publish`) — the operator now
+  supplies the finished post + hero image in `content/topics/{slug}/`.
+- Counts updated everywhere the tooling asserts them: CI (`plugin-ci.yml`),
+  `doctor.sh`, `/il-doctor`, `/il-project` install gate and delegation block,
+  routing rules, README, guides, and the slide deck.
+
+---
+
 ## [2.5.0] — 2026-08-27
 
 ### Added

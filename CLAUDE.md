@@ -1,14 +1,14 @@
 # Infinite Leverage — canonical repo (v2)
 
 Single source of truth for the Infinite Leverage system: the v2 Claude Code
-plugin, the 6 agent definitions, their skills, and the project scaffold.
+plugin, the 4 agent definitions, their skills, and the project scaffold.
 
 ## Structure
 - `.claude-plugin/marketplace.json` — this repo IS the plugin marketplace
 - `plugin/` — the shipped plugin payload: 3 skills (`il-project`, `il-doctor`,
   `il-memory-cleanup`). No hooks. Telemetry + v1 cleanup live in the private
   `edge8-telemetry` repo
-- `.claude/agents/` — the 6 agent definitions (installed **per-project** by `il-project`)
+- `.claude/agents/` — the 4 agent definitions (installed **per-project** by `il-project`)
 - `.claude/skills/` — agent workflow skills (installed **per-project** by `il-project`)
 - `.claude/rules/` — engineering guardrails copied into projects
 - `templates/project-scaffold/` — the canonical new-project layout

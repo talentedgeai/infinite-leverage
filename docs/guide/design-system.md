@@ -171,10 +171,7 @@ code { padding: 2px 6px; }
 | Developer | Mint green | `var(--accent)` = `#6ff2c1` |
 | QA | Amber | `var(--amber)` = `#f0a500` |
 | DevOps | Pink | `var(--pink)` = `#d1458b` |
-| Writer | Mint green | `#6ff2c1` |
-| Designer | Pink | `#d1458b` |
 | Web Publisher | Orange | `var(--orange)` = `#e8682b` |
-| Email Marketer | Blue | `var(--accent-2)` = `#287be8` |
 
 ---
 

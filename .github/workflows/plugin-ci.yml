@@ -53,8 +53,8 @@ jobs:
           import glob, re, pathlib
           agents = sorted(glob.glob(".claude/agents/*.md"))
           skills = sorted(glob.glob(".claude/skills/*/SKILL.md"))
-          assert len(agents) == 6, f"expected 6 agents, found {len(agents)}"
-          assert len(skills) == 24, f"expected 24 skills, found {len(skills)}"
+          assert len(agents) == 4, f"expected 4 agents, found {len(agents)}"
+          assert len(skills) == 16, f"expected 16 skills, found {len(skills)}"
           # il-doctor hard-codes these counts; drift there is how "found 6/8" shipped
           doc = pathlib.Path("plugin/skills/il-doctor/scripts/doctor.sh").read_text()
           a = re.search(r'AGENTS"?\s*-ge\s*(\d+)', doc)

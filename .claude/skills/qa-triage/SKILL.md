@@ -69,7 +69,7 @@ Record the raw score alongside the floored priority so the override is visible:
 | `regression` | Developer → fix on same branch that caused it |
 | `new-defect` | Developer → fix on feature branch |
 | `performance` | Developer → profile before fixing |
-| `ux-degradation` | PM review → designer if needed → developer |
+| `ux-degradation` | PM review → developer |
 
 ## Step 4 — Output
 

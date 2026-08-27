@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Infinite Leverage — 6-Agent Template · Introduction</title>
+<title>Infinite Leverage — 4-Agent Template · Introduction</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..500,0..100,0..1;1,9..144,300..500,0..100,0..1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -134,11 +134,11 @@
 
   <!-- 1 — TITLE -->
   <section class="slide center" data-bg="dark">
-    <div class="eyebrow">The 6-Agent Template</div>
+    <div class="eyebrow">The 4-Agent Template</div>
     <h1>An autonomous<br><span class="em">AI company</span> in a box.</h1>
-    <p class="lead">One repository that turns Claude Code into a complete product &amp; marketing org — eight specialist agents, 70+ skills, and a stack that ships itself.</p>
+    <p class="lead">One repository that turns Claude Code into a complete product org — four specialist agents, 70+ skills, and a stack that ships itself.</p>
     <div class="badgeRow" style="justify-content:center">
-      <span class="pill">6 Agents</span>
+      <span class="pill">4 Agents</span>
       <span class="pill">70+ Skills</span>
       <span class="pill">9 Scaffolds</span>
       <span class="pill">18 Protocols</span>
@@ -152,7 +152,7 @@
     <h2>Humans orchestrate.<br><span class="em">Agents act.</span></h2>
     <p class="lead">Most "AI tools" wait for prompts. This template installs a <b>standing team</b> of role-based agents that each own a job, follow hard rules, and hand work to one another — like a real company, running on your machine.</p>
     <div class="grid g3">
-      <div class="card"><div class="tag">Not a chatbot</div><h3>A team of roles</h3><p>Eight fixed agents — PM, Developer, QA, DevOps, Writer, Designer, Publisher, Email — each with its own remit.</p></div>
+      <div class="card"><div class="tag">Not a chatbot</div><h3>A team of roles</h3><p>Four fixed agents — PM, Developer, QA, DevOps — each with its own remit.</p></div>
       <div class="card"><div class="tag">Not magic</div><h3>Agents are folders</h3><p>Every agent is a plain Markdown file plus skills. Transparent, versioned, editable in git.</p></div>
       <div class="card"><div class="tag">Not throwaway</div><h3>Work outlives you</h3><p>Context lives in the repo, not the chat. Any machine or session picks up exactly where the last left off.</p></div>
     </div>
@@ -165,7 +165,7 @@
     <div class="two">
       <div>
         <ul class="clean">
-          <li><b>Solo operators can't staff a team.</b> One person can't be PM, engineer, QA, designer and marketer at once.</li>
+          <li><b>Solo operators can't staff a team.</b> One person can't be PM, engineer, QA and ops at once.</li>
           <li><b>AI help is inconsistent.</b> Ad-hoc prompting gives ad-hoc results — no process, no memory, no guardrails.</li>
           <li><b>Context evaporates.</b> Every new chat starts from zero. Decisions and history get lost.</li>
         </ul>
@@ -222,12 +222,9 @@
         </ul>
       </div>
       <div class="card">
-        <div class="tag">Go-To-Market Team</div>
+        <div class="tag">Publishing</div>
         <ul class="clean" style="margin-top:16px">
-          <li><b>Writer</b> — SEO blog posts, social copy, brand voice</li>
-          <li><b>Designer</b> — hero images, design system, UI mockups</li>
-          <li><b>Web Publisher</b> — turns content into live pages</li>
-          <li><b>Email Marketer</b> — nurtures every lead, drafts campaigns</li>
+          <li><b>Web Publisher</b> (a Developer skill) — turns content into live pages</li>
         </ul>
       </div>
     </div>
@@ -251,23 +248,19 @@
     <p class="sub">Bugs found by QA loop straight back to the Developer, then re-verify — until green.</p>
   </section>
 
-  <!-- 8 — GTM CHAIN -->
+  <!-- 8 — PUBLISHING CHAIN -->
   <section class="slide" data-bg="dark">
-    <div class="eyebrow">How Work Flows · GTM</div>
-    <h2>The Marketing chain</h2>
-    <p class="lead">Copy is approved before images; images before publishing; campaigns are <b>always drafted</b>, never auto-sent.</p>
+    <div class="eyebrow">How Work Flows · Publishing</div>
+    <h2>The Publishing chain</h2>
+    <p class="lead">Content is approved before it ships; nothing lands on <code>main</code> directly.</p>
     <div class="flow">
-      <div class="node">Writer<small>approved copy</small></div>
+      <div class="node">Operator<small>approved content</small></div>
       <span class="arrow">→</span>
-      <div class="node">Designer<small>approved images</small></div>
+      <div class="node">Web Publisher<small>branch + PR</small></div>
       <span class="arrow">→</span>
-      <div class="node">Web Publisher<small>committed to git</small></div>
-      <span class="arrow">→</span>
-      <div class="node">Email Marketer<small>draft campaign</small></div>
-      <span class="arrow">→</span>
-      <div class="node" style="border-color:var(--pink)">Operator<small>approves → send</small></div>
+      <div class="node" style="border-color:var(--pink)">Operator<small>merges → live</small></div>
     </div>
-    <p class="sub">Hard rules keep humans in the loop exactly where it matters — publishing and sending.</p>
+    <p class="sub">Hard rules keep humans in the loop exactly where it matters — publishing.</p>
   </section>
 
   <!-- 9 — SKILLS (paper) -->
@@ -280,9 +273,7 @@
       <div class="card"><div class="tag">Dev</div><p style="margin-top:8px">planning · tdd · diagnose · prototype · improve-arch · multi-agent · handoff</p></div>
       <div class="card"><div class="tag">QA</div><p style="margin-top:8px">triage · best-practices · planning · documentation</p></div>
       <div class="card"><div class="tag">DevOps</div><p style="margin-top:8px">cicd · pre-commit · git-guardrails · ops runbook</p></div>
-      <div class="card"><div class="tag">Writer</div><p style="margin-top:8px">seo-content · marketing-strategist</p></div>
-      <div class="card"><div class="tag">Designer</div><p style="margin-top:8px">image-generation · design-system · ui-ux · style-to-photo</p></div>
-      <div class="card"><div class="tag">Publish</div><p style="margin-top:8px">web-publisher-publish · email-nurture</p></div>
+      <div class="card"><div class="tag">Publish</div><p style="margin-top:8px">web-publisher-publish</p></div>
       <div class="card"><div class="tag">Spec Kit</div><p style="margin-top:8px">specify · plan · tasks · implement · analyze</p></div>
     </div>
   </section>
@@ -311,7 +302,7 @@
     <h2>One repo. It <span class="em">is</span> the marketplace.</h2>
     <p class="lead">Agents, skills, rules and the project scaffold live in <b>one</b> repo, which also serves the plugin. Client machines are consumers — never hand-edited.</p>
     <div class="grid" style="margin-top:24px;gap:12px">
-      <div class="repo"><span class="git">📦</span><div><b>talentedgeai/infinite-leverage</b><br><small>canonical &amp; public — 6 agents · 24 workflow skills · rules · scaffold · the plugin itself</small></div></div>
+      <div class="repo"><span class="git">📦</span><div><b>talentedgeai/infinite-leverage</b><br><small>canonical &amp; public — 4 agents · 16 workflow skills · rules · scaffold · the plugin itself</small></div></div>
       <div class="repo"><span class="git">🔒</span><div><b>talentedgeai/edge8-telemetry</b><br><small>private, Edge8-internal — effort tracking, kept entirely out of the product</small></div></div>
     </div>
     <p class="sub">Merge to <code>main</code> → the marketplace serves the new version → installed plugins update themselves. Never edit agents on a client laptop.</p>
@@ -322,11 +313,11 @@
     <div class="eyebrow">Getting Started</div>
     <h2>Two skills. That's the whole plugin.</h2>
     <div class="grid g3" style="margin-top:26px">
-      <div class="card"><div class="tag">Start a project</div><h3>/il-project</h3><p>Zero → scaffolded repo: canonical folder layout, a 6-agent team in the project's own <code>.claude/</code>, seeded product &amp; brand docs, Next.js app, first commit.</p></div>
+      <div class="card"><div class="tag">Start a project</div><h3>/il-project</h3><p>Zero → scaffolded repo: canonical folder layout, a 4-agent team in the project's own <code>.claude/</code>, seeded product &amp; brand docs, Next.js app, first commit.</p></div>
       <div class="card"><div class="tag">Check the setup</div><h3>/il-doctor</h3><p>Read-only health check: prerequisites, repo context, and whether the agents and skills actually landed in this project.</p></div>
       <div class="card"><div class="tag">Stay in sync</div><h3>Automatic</h3><p>Installed plugins update through the marketplace. No patch command, no zips, nothing written to <code>~/.claude/</code>.</p></div>
     </div>
-    <p class="sub">Everything else is a workflow skill the six agents reach for — installed per project, never globally.</p>
+    <p class="sub">Everything else is a workflow skill the four agents reach for — installed per project, never globally.</p>
   </section>
 
   <!-- 13 — SETUP STEPS -->
@@ -357,7 +348,7 @@
 <span class="c"># Then work by intent — agents route automatically</span>
 <span class="s">"write an epic for the onboarding flow"</span>   <span class="c">→ Product Manager</span>
 <span class="s">"add Stripe billing"</span>                       <span class="c">→ Developer · scaffold-payments</span>
-<span class="s">"draft a launch blog post"</span>                  <span class="c">→ Writer → Designer → Publisher</span>
+<span class="s">"publish the launch blog post"</span>              <span class="c">→ Developer · web-publisher-publish</span>
     </div>
   </section>
 
