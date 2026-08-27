@@ -27,6 +27,25 @@ they are always project-scoped).
 
 ---
 
+## [2.6.1] — 2026-08-27
+
+### Fixed
+- **Prompt 1 skipped Homebrew — which just moved the wall to Prompt 3.** Khoa's catch:
+  the install prompt later tells Claude Code to add Node/rsync "with my package manager",
+  and on a Mac that package manager *is* Homebrew — whose own installation needs an
+  interactive password only the client can type, in their own Terminal, during the
+  ordinary-Claude phase. New STEP 4 in "Get ready": the brew.sh install command, with the
+  two warnings that actually matter to a non-technical person (it will ask for your
+  password and nothing shows while you type — that's normal; it takes a few minutes), and
+  the instruction to paste the installer's printed "Next steps" commands so the Terminal
+  can find brew afterwards. Verified done via `brew --version`
+- With Homebrew present, the flow simplifies: git arrives with the developer tools
+  Homebrew installs, and gh becomes `brew install gh` instead of a website download.
+  Prompt 3 now names Homebrew (and winget on Windows) instead of "my package manager"
+- Command table gains the brew.sh install command and `brew install gh`
+
+---
+
 ## [2.6.0] — 2026-08-27
 
 **The team slims to 4 agents.** The writer and designer agents are removed — they were

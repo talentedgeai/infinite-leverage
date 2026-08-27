@@ -58,28 +58,40 @@ Tell me in one sentence what this window is — the place I'll paste the
 next few commands — and reassure me: nothing we paste here can break my
 computer.
 
-STEP 4 — Install git (the tool that tracks my project's history)
-Mac: have me paste   git --version   — if a popup offers to install
-developer tools, I click Install and wait for it to finish, then paste
-git --version again. Windows: walk me through the installer from
-git-scm.com, default choices all the way.
+STEP 4 — Install Homebrew (Mac only — Windows skips to step 5)
+Homebrew is the app store for developer tools; later steps use it to
+install things for me, so it has to exist first — and installing it needs
+my password, which only I can type.
+- Give me the one install command from brew.sh to paste into the Terminal.
+- Warn me before I run it: it will ask for my computer password, nothing
+  shows up while I type it — that's normal — and then it works for a few
+  minutes. It also installs Apple's developer tools, which include git.
+- When it finishes, it prints a short "Next steps" section with one or two
+  commands to paste. Tell me to paste exactly those — they let the
+  Terminal find Homebrew from now on.
+It's done when   brew --version   pastes back a version number.
+
+STEP 5 — Check git (the tool that tracks my project's history)
+Mac: have me paste   git --version   — Homebrew's installer usually set it
+up in step 4; if a popup offers to install developer tools instead, I
+click Install and wait, then paste it again.
+Windows: walk me through the installer from git-scm.com, default choices
+all the way.
 It's done when I paste back a line with a version number.
 
-STEP 5 — Install the GitHub tool (gh)
-Send me to cli.github.com and guide me to the installer for my system —
-on a Mac use the downloadable installer (only use Homebrew if I already
-have it; don't make me install Homebrew for this). Windows: the .msi
-installer, default choices.
+STEP 6 — Install the GitHub tool (gh)
+Mac: have me paste   brew install gh
+Windows: the .msi installer from cli.github.com, default choices.
 It's done when   gh --version   pastes back a version number. (I may need
 to close the Terminal and open a new one first — tell me if so.)
 
-STEP 6 — Sign this computer in to GitHub
+STEP 7 — Sign this computer in to GitHub
 Have me paste   gh auth login   and stay with me through each question it
 asks: GitHub.com, HTTPS, sign in with the web browser. The page it opens
 is already signed in from step 2 — I just click Authorize.
 It's done when   gh auth status   pastes back that I'm logged in.
 
-STEP 7 — Install Claude Code (where everything else happens)
+STEP 8 — Install Claude Code (where everything else happens)
 Send me to claude.ai/download, walk me through installing the Claude
 desktop app and signing in with my Claude account, then have me open the
 Claude Code tab. When it asks which folder to work in, my home folder or
@@ -172,9 +184,10 @@ you truly need me.
    isn't, or if git or the GitHub tool is missing, don't fix it here —
    tell me: "Run the prompt called 1 - Get ready first — in the ordinary
    Claude app, not here." Then stop.
-3. Check the remaining tools: Node, rsync, perl. If something's missing
-   and you can install it safely with my package manager, ask me once with
-   a one-line reason, then handle it.
+3. Check the remaining tools: Node, rsync, perl. If something's missing,
+   install it with Homebrew (set up back in the Get ready prompt; on
+   Windows use winget) — ask me once with a one-line reason, then handle
+   it.
 4. Install the plugin:
      claude plugin marketplace add talentedgeai/infinite-leverage
      claude plugin install infiniteleverage@infiniteleverage
@@ -350,6 +363,8 @@ paste. This table exists so none of it feels like magic.
 | Command | In plain English |
 |---|---|
 | `git --version` | Asks git to introduce itself. On a Mac, the first time also offers to install it. |
+| the install command from **brew.sh** | Installs Homebrew, the app store for developer tools. Asks for your password once — nothing shows while you type it, that's normal. |
+| `brew install gh` | Uses Homebrew to install the GitHub tool. |
 | `gh auth login` | Signs this computer in to your GitHub account — it opens your browser to prove it's really you. |
 | `gh auth status` | Asks: is this computer signed in to GitHub? |
 | `claude plugin marketplace add talentedgeai/infinite-leverage` | Tells Claude Code where Infinite Leverage lives. Run once, ever. |
