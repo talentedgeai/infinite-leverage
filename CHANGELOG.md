@@ -23,6 +23,23 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.12] — 2026-08-27
+
+### Changed
+- **Prompt 0 rewritten to run quietly.** The first version was built for caution — show
+  every settings edit, list what moves, wait for a yes at each step. For a non-technical
+  client that reads as alarming, not safe. Now: one plain-English plan up front (three
+  sentences — found leftovers or not, what happens next, nothing of yours will be
+  touched), then the whole cleanup runs without step-by-step approvals, file lists, or
+  jargon; the client hears "removed", and about the dated backup folder once, at the end.
+  The safety net is unchanged underneath — dated settings backups, archive-by-rename
+  instead of deletion, locally-modified files left in place — it just stopped narrating
+  itself. The one rule that never bends is now the prompt's loudest section: anything not
+  on the v1 lists is the client's own and is the only thing worth stopping to ask about.
+  The detection lists are explicitly marked "for you — never read this back to me"
+
+---
+
 ## [2.4.11] — 2026-08-27
 
 ### Fixed
