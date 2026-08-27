@@ -121,10 +121,74 @@ ask, nothing is pushed to `main` directly (everything goes through a pull reques
 
 ---
 
-## The install prompt
+## Prompt A — hands-off (for a non-technical client)
 
-If you'd rather not run the commands yourself, paste this into a Claude Code session and
-it will walk you through it:
+Paste this into Claude Code and it does everything it's allowed to do, stopping only for
+the handful of things that genuinely need a human.
+
+**What Claude cannot do for you, no matter how the prompt is worded:** sign in to GitHub
+(`gh auth login` is an interactive flow), create accounts, or copy keys out of a
+dashboard. Those need you. The prompt front-loads them so you're not interrupted later.
+
+```
+I'm not a developer. Please set up Infinite Leverage for me, and do as much of
+it yourself as you can.
+
+HOW TO WORK WITH ME
+- Plain English only. No jargon. Never paste a raw error at me — tell me what
+  it means and what you need from me.
+- Don't show me long command output. Just tell me what happened.
+- One question at a time, then wait for my answer.
+- Never ask me to edit a file. Tell me what to paste, and you make the change.
+- If you need my permission to run something, say in one sentence what it does,
+  then go ahead.
+
+THINGS ONLY I CAN DO
+You're not allowed to do these for me. When you reach one, stop, give me
+click-by-click instructions, and wait for me:
+- Signing in to GitHub (gh auth login)
+- Creating accounts — GitHub, Supabase, Vercel, and Stripe if I need payments
+- Copying keys out of those dashboards
+
+Everything else is yours.
+
+START HERE
+Before anything else, tell me which accounts I'll need and let me go create
+them. Don't start installing until I say I'm ready.
+
+THEN
+1. Install the plugin:
+     claude plugin marketplace add talentedgeai/infinite-leverage
+     claude plugin install infiniteleverage@infiniteleverage
+2. Run /il-doctor. Fix whatever you can fix yourself. For anything you can't,
+   walk me through it, then run it again until every line passes.
+3. Run /il-project to build my project:
+   - Call it: <PROJECT NAME>
+   - Folder name: <project-name-with-dashes>
+   <Describe your business here in a few sentences — what it does, who it's
+   for, what you want to build first. Mention a website you like the look of
+   if you have one. Delete this line if you'd rather answer questions later.>
+4. Set up my keys. Tell me exactly where to click to find each one, I'll paste
+   the values to you, and you put them in the right file. Confirm afterwards
+   that the file with my keys in it is not going to end up on GitHub.
+5. Check that the project builds.
+6. Do not put anything on GitHub until you've asked me first.
+
+WHEN YOU'RE DONE
+Tell me, in plain English: what you built, where it is on my computer, and the
+three things I should try first. Keep it short.
+
+IF YOU GET STUCK
+Stop and tell me. Don't guess, don't invent a workaround, and don't tell me
+something worked when it didn't.
+```
+
+Replace `<PROJECT NAME>`, `<project-name-with-dashes>`, and the description block. Nothing
+else needs editing.
+
+## Prompt B — guided (you run the commands)
+
+If you'd rather stay in control and just be walked through it:
 
 ```
 Install the Infinite Leverage plugin and set up my first project.

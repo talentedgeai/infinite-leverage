@@ -6,6 +6,21 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.4.8] — 2026-08-26
+
+### Added
+- **A hands-off install prompt for non-technical clients** in
+  `docs/guide/CLIENT-SETUP.md`. The existing prompt assumed someone comfortable running
+  commands and reading output; this one hands Claude the whole job. It sets working rules
+  (plain English, no raw errors, one question at a time, never ask the client to edit a
+  file), names the three things Claude genuinely cannot do for them — `gh auth login` is
+  an interactive flow, accounts must be created by a person, dashboard keys must be copied
+  by a person — and front-loads those so the client isn't interrupted mid-install. It also
+  tells Claude to confirm the key file is gitignored, and to stop rather than invent a
+  workaround. The original is kept as the guided alternative.
+
+---
+
 ## [2.4.7] — 2026-08-26
 
 **The setup instructions named a key the code does not read.** Writing the client setup
