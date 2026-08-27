@@ -583,7 +583,7 @@ Rules:
 
 This always runs — every Infinite Leverage project ships a Next.js app at `website/`.
 
-**Important:** the canonical scaffold ships a starter kit inside `website/` (chat, billing, notifications, markdown rendering, Supabase migrations, vitest tests) with **no `package.json`** — it is designed to sit on top of a fresh `create-next-app` install. `create-next-app` refuses to install into a non-empty directory, so scaffold Next.js in a temp directory and merge it **underneath** the starter files. The starter uses a root-level `app/` layout, so create-next-app must run with `--no-src-dir`.
+**Important:** the canonical scaffold ships a starter kit inside `website/` (chat, notifications, markdown rendering, Supabase migrations, vitest tests) with **no `package.json`** — it is designed to sit on top of a fresh `create-next-app` install. `create-next-app` refuses to install into a non-empty directory, so scaffold Next.js in a temp directory and merge it **underneath** the starter files. The starter uses a root-level `app/` layout, so create-next-app must run with `--no-src-dir`.
 
 ```bash
 # 9a. Scaffold Next.js in a temp dir (root-level app/, matching the starter kit)
@@ -607,7 +607,7 @@ cd "$TARGET/website"
 npm install @ai-sdk/react @mdxeditor/editor @supabase/ssr @supabase/supabase-js \
   @tanstack/react-form @tanstack/react-query @uiw/react-md-editor ai date-fns \
   lucide-react react-markdown rehype-external-links rehype-highlight rehype-slug \
-  remark-gfm stripe unified zustand
+  remark-gfm unified zustand
 npm install -D vitest @vitejs/plugin-react @testing-library/react \
   @testing-library/user-event @testing-library/jest-dom jsdom
 ```

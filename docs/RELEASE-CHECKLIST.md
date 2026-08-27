@@ -116,5 +116,5 @@ The ones that matter in a room full of people:
 
 Runs 0–3 and most of 5 are verified and automated as of v2.4.6. **Runs 6, 7 and 8 have
 never been executed end to end** — the agent and content chains are reviewed for internal
-consistency, not observed working against a live Supabase/Vercel/Stripe project. Do those
+consistency, not observed working against a live Supabase/Vercel project. Do those
 before the first client session, and record what breaks here.

@@ -111,7 +111,7 @@ These files have hard-coded names that skills and agents reference by path:
 ├── resources/                                  ← Design system, brand assets, masters
 │   └── README.md
 │
-├── website/                                    ← Next.js app: starter kit (chat, billing, notifications,
+├── website/                                    ← Next.js app: starter kit (chat, notifications,
 │   ├── app/                                     markdown, Supabase migrations, tests) merged with a
 │   ├── components/                              fresh create-next-app install (--no-src-dir) — see
 │   ├── lib/                                     il-project SKILL.md Step 9

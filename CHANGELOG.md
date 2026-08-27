@@ -6,6 +6,34 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.8.0] — 2026-08-27
+
+**Billing stripped from the web template.** Follow-up to 2.7.2 (which removed Stripe
+from the client guide): the scaffold no longer ships payments code at all. A project
+that later takes money adds it then — the template shouldn't carry a feature no first
+build uses.
+
+### Removed
+- `app/api/billing/` (checkout, portal, webhook), `components/billing/`
+  (PricingCard, UpgradeButton), `lib/billing/` (guards, queries, stripe client)
+- `lib/supabase/service.ts` — the service-role client existed solely for billing
+  writes; with no privileged writers left it goes too, and with it
+  `SUPABASE_SECRET_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` and
+  `NEXT_PUBLIC_APP_URL` (read only by the Stripe return URLs) from
+  `.env.local.example` — 7 env vars down to 3
+- The `subscriptions` migration and `docs/billing/setup-notes.md`
+- `stripe` from il-project step 9c's dependency install
+
+### Verified
+- Nothing outside the billing tree imported it (NotificationBell's "subscription" is a
+  Supabase realtime channel; untouched)
+- All 12 CI guards recomputed clean: 16 query sites against 3 tables, 3 env vars all
+  read and none stale, 21 imports all declared
+- Full scaffold rebuild from scratch without stripe: lint, tsc, build and vitest all
+  exit 0 — 15 routes (billing's three gone), 20 tests
+
+---
+
 ## [2.7.2] — 2026-08-27
 
 ### Removed
