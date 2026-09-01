@@ -1,7 +1,7 @@
 ---
 name: il-adopt
 description: This skill should be used when the operator says "il adopt", "il init", "install the agents", "add the agent team to this repo", "init the agents in this project", "set up infinite leverage here", "adopt infinite leverage", or has an already-established repository that needs the 4-agent team. Installs the canonical 4 agent definitions, the workflow skills, and the engineering rules into the CURRENT repo's `.claude/`, injects the AGENT-DELEGATION block into the repo's CLAUDE.md, and seeds only the missing doc anchors — without touching any existing project file. The existing-repo counterpart of `/il-project` (which scaffolds a brand-new project).
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Infinite Leverage — Adopt the Agent Team into an Existing Repo
@@ -121,14 +121,25 @@ newer than the skill instructions running.
 TMP=$(mktemp -d)
 REPO=talentedgeai/infinite-leverage
 
-IL_VERSION=$(python3 -c "import json,os,sys; print(json.load(open(os.path.join(os.environ['CLAUDE_PLUGIN_ROOT'],'.claude-plugin','plugin.json')))['version'])" 2>/dev/null)
+# sed, not python3 — python3 is not a prerequisite, and when it was missing the
+# version came back empty and the clone silently fell back to main.
+IL_VERSION=$(sed -nE 's/^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p' \
+  "${CLAUDE_PLUGIN_ROOT:-}/.claude-plugin/plugin.json" 2>/dev/null | head -1)
 
-if [ -n "$IL_VERSION" ] && git ls-remote --tags "https://github.com/$REPO" "refs/tags/v$IL_VERSION" | grep -q .; then
-  gh repo clone "$REPO" "$TMP/il-canonical" -- --depth 1 --branch "v$IL_VERSION"
-  echo "✅ canonical content pinned to v$IL_VERSION — matches the installed plugin"
+PIN=""
+if [ -z "$IL_VERSION" ]; then
+  echo "⚠️  could not read the installed plugin's version (CLAUDE_PLUGIN_ROOT unset?) — falling back to main."
+elif git ls-remote --tags "https://github.com/$REPO" "refs/tags/v$IL_VERSION" | grep -q .; then
+  PIN="v$IL_VERSION"
+else
+  echo "⚠️  no tag v$IL_VERSION on $REPO — the release was not tagged; falling back to main."
+fi
+
+if [ -n "$PIN" ]; then
+  gh repo clone "$REPO" "$TMP/il-canonical" -- --depth 1 --branch "$PIN"
+  echo "✅ canonical content pinned to $PIN — matches the installed plugin"
 else
   gh repo clone "$REPO" "$TMP/il-canonical" -- --depth 1
-  echo "⚠️  no tag v${IL_VERSION:-?} on $REPO — falling back to main."
   echo "   The installed files may be newer than this skill. Report it if something looks wrong."
 fi
 ```
@@ -144,18 +155,41 @@ cp "$TMP/il-canonical/.claude/agents/"*.md "$TARGET/.claude/agents/"
 cp -R "$TMP/il-canonical/.claude/skills/." "$TARGET/.claude/skills/"
 rm -rf "$TARGET/.claude/skills/PH-skill-name"   # scaffold placeholder — not a real skill
 cp "$TMP/il-canonical/.claude/rules/global-engineering.md" "$TARGET/.claude/rules/"
+
+# A repo whose team was installed on v2.4.x carries 2 agents and 8 skills that
+# v2.6 retired (writer/designer and their content pipeline). Retire them by
+# MOVE into a dated folder — never delete, the operator may have edited one.
+# On a first install none of these exist and this block does nothing.
+RETIRED_AGENTS="writer.md designer.md"
+RETIRED_SKILLS="writer-seo-content writer-quality-critique marketing-strategist \
+  email-marketer-nurture designer-design-system designer-style-to-photo \
+  designer-image-generation designer-ui-ux"
+RET_DIR="$TARGET/.claude/retired-il-$(date +%Y%m%d)"
+MOVED=""
+for f in $RETIRED_AGENTS; do
+  [ -f "$TARGET/.claude/agents/$f" ] && mkdir -p "$RET_DIR/agents" && mv "$TARGET/.claude/agents/$f" "$RET_DIR/agents/" && MOVED="$MOVED agents/$f"
+done
+for d in $RETIRED_SKILLS; do
+  [ -d "$TARGET/.claude/skills/$d" ] && mkdir -p "$RET_DIR/skills" && mv "$TARGET/.claude/skills/$d" "$RET_DIR/skills/" && MOVED="$MOVED skills/$d"
+done
+[ -n "$MOVED" ] && echo "ℹ️  retired v2.4-era agents/skills moved to $RET_DIR:$MOVED — review, then delete the folder"
 ```
 
 Verify — hard gate, same as `/il-project`:
 
 ```bash
+# Assert the canonical 4 are PRESENT — not that exactly 4 exist. An exact count
+# fails a legacy repo mid-migration and any repo that added its own custom agent.
+MISSING=""
+for a in product-manager developer qa devops; do
+  [ -f "$TARGET/.claude/agents/$a.md" ] || MISSING="$MISSING $a.md"
+done
 # find, not a glob: under zsh a non-matching glob aborts the command instead of
 # returning nothing, so `ls dir/*.md` would error out rather than count zero.
-A=$(find "$TARGET/.claude/agents" -maxdepth 1 -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
 S=$(find "$TARGET/.claude/skills" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
-echo "agents: $A/4 · skills: $S/16"
-[ "$A" -eq 4 ] && [ "$S" -ge 16 ] || {
-  echo "❌ install incomplete — expected 4 agents and at least 16 skills"
+echo "agents: canonical 4 ${MISSING:+MISSING:$MISSING}${MISSING:-present} · skills: $S/16"
+[ -z "$MISSING" ] && [ "$S" -ge 16 ] || {
+  echo "❌ install incomplete — expected the 4 canonical agents and at least 16 skills"
   echo "   check that \$TMP/il-canonical/.claude/ exists and the mkdir -p above ran"
   exit 1
 }

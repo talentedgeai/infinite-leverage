@@ -19,11 +19,14 @@ It prints PASS/FAIL lines for:
   exactly what `/il-project` runs (perl for placeholder substitution, node + rsync for
   the Next.js scaffold in step 9)
 - **Repo context** — git remote + author email of the current directory
-- **Project layout** — when run inside a scaffolded project: `FOLDER-STRUCTURE.md`,
-  4 agents in `.claude/agents/`, 16 skills in `.claude/skills/`, no retired v2.4-era
-  agents/skills lingering (writer/designer and their content pipeline — re-running
-  `/il-project` step 6 moves them to `.claude/retired-il-<date>/`), `CLAUDE.md`
-  delegation block present
+- **Project layout** — inside a project scaffolded by `/il-project` **or** adopted
+  with `/il-adopt` (detected by `FOLDER-STRUCTURE.md`, `.claude/agents/`, or the
+  delegation block): the 4 canonical agents present in `.claude/agents/` (custom
+  extras are fine), 16 skills in `.claude/skills/`, `global-engineering.md` in
+  `.claude/rules/`, no retired v2.4-era agents/skills lingering (writer/designer and
+  their content pipeline), and a `CLAUDE.md` delegation block that is present **and
+  current** (a v2.4 block still routes to writer/designer)
+- **Plugin version** — installed vs. newest release tag; names the update command
 - **Companion plugin** — whether `edge8-telemetry` is installed (Edge8-internal; not needed by outside users)
 
 ## Interpreting results
@@ -32,9 +35,11 @@ It prints PASS/FAIL lines for:
   read-only or local operation (installing a CLI, setting git config).
 - `gh` not authenticated → tell the user to run `gh auth login` themselves
   (interactive; never run it for them).
-- Missing agents / delegation block inside a project → offer to run `/il-adopt`
-  (installs/refreshes the team in an existing repo — the same content as
-  `/il-project` step 6).
+- Any project-layout FAIL (missing agents, skills, rules, retired leftovers, stale
+  or missing delegation block) → offer to run `/il-adopt`. It is the one refresh
+  path for scaffolded and adopted repos alike: it reinstalls the canonical files,
+  retires the v2.4 set by moving it to `.claude/retired-il-<date>/`, and replaces
+  only the managed block in `CLAUDE.md`.
 
 ## Hard rules
 

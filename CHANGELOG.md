@@ -6,6 +6,58 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.8.1] — 2026-09-02
+
+**`/il-adopt` catches up with 2.7.1, and `/il-doctor` finally checks adopted repos.**
+2.7.1 fixed `/il-project`'s refresh path — retire the v2.4 set, assert the canonical 4
+instead of counting to exactly 4 — but `/il-adopt` shipped a week earlier with the old
+gate and no migration, and nothing cross-checked the two. Meanwhile `/il-doctor` keyed
+its whole project-layout section on `FOLDER-STRUCTURE.md`, which an adopted repo never
+has, so the one command told to "run after adopting to verify" verified nothing.
+
+### Fixed
+- **`il-adopt` step 5 retires the v2.4-era set on refresh** (writer/designer + 8
+  skills, moved to `.claude/retired-il-<date>/`, never deleted) and **asserts the
+  canonical 4 are present** rather than requiring exactly 4 — same block and same gate
+  as `il-project` step 6. Before this, refreshing a v2.4.x repo through `/il-adopt`
+  failed its own gate after a successful copy, and so did any repo with a custom agent
+- **`il-doctor` runs its layout section for adopted repos** — detected by
+  `.claude/agents/` or the delegation block, not only `FOLDER-STRUCTURE.md` (whose
+  absence is now an info line, not a failure). It names the missing canonical agents
+  instead of counting (six agents with `qa` missing used to pass), checks
+  `global-engineering.md` is installed, and flags a **stale v2.4 delegation block** that
+  still routes to writer/designer — a refreshed team under the old block sends work to
+  agents that no longer exist. Every project-layout `fix:` now says `run /il-adopt`, the
+  one refresh path, instead of "re-run /il-project step 6"
+- **No more silent `python3` dependency.** All three skills read the plugin's version
+  with `sed`; `python3` was never a checked prerequisite, and when it was missing the
+  version came back empty, the clone fell back to `main` under a misleading
+  "no tag v?" message, and the doctor reported `vunknown`. The fallback now says which
+  of the two causes applied (version unreadable vs. release untagged)
+
+### Added
+- **CI: canonical team in lockstep** — the agent names in `il-project`'s gate,
+  `il-adopt`'s gate and `doctor.sh` must equal `.claude/agents/`; the skills threshold
+  must equal the shipped count; the retired v2.4 lists must be identical in all three
+  and name nothing that still ships. The old check only compared one regex against
+  `doctor.sh`, which is how the `il-adopt` drift went unnoticed for a release
+- **CI: AGENT-DELEGATION block parity** — byte-identical in `il-project`, `il-adopt`
+  and the scaffold's `CLAUDE.md`, and its rows route exactly the shipped agents
+- **CI: `il-doctor` smoke test** (`.github/scripts/doctor-smoke.sh`) — 26 assertions
+  over synthetic scaffolded, adopted, legacy-v2.4, missing-`qa`, partial and plain
+  trees, plus the `sed` version parse. Before this the doctor's layout checks had never
+  executed under CI at all
+
+### Changed
+- `il-doctor/SKILL.md` documents the adopted-repo detection, the stale-block check and
+  the single `/il-adopt` fix path; `RELEASE-CHECKLIST.md` Run 1 shows the current gate
+  output (it still said `6/6 · 24/24`), Run 4 exercises `/il-adopt` on both a scaffolded
+  and a never-scaffolded repo; `il-project/references/quick-prompts.md` rewritten to
+  match the skill it documents (it still asked whether to scaffold Next.js, which has
+  been mandatory since 2.x, and carried the pre-rename skill name)
+
+---
+
 ## [2.8.0] — 2026-08-27
 
 **Billing stripped from the web template.** Follow-up to 2.7.2 (which removed Stripe

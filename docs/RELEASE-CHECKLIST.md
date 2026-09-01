@@ -17,7 +17,9 @@ green.
 |---|---|
 | Manifests parse; versions in lockstep | a broken manifest disables the plugin silently |
 | No writes to `~/.claude/`, no telemetry in the payload | **nothing installs globally** — the reason v2 exists |
-| 4 agents / 16 skills, cross-checked against `doctor.sh` | the counts the tooling asserts match reality |
+| 4 agents / 16 skills, in lockstep across il-project's gate, il-adopt's gate and `doctor.sh` — retired v2.4 lists too | the names the tooling asserts match reality, in every place they are hard-coded |
+| `AGENT-DELEGATION` block identical in il-project, il-adopt and the scaffold; routes exactly the shipped agents | `/il-project` and `/il-adopt` install the same routing |
+| `doctor.sh` parses; smoke test drives its layout section over scaffolded, adopted, legacy-v2.4 and partial trees | the check a client reads actually fires — its adopted-repo path had never run |
 | Skill frontmatter `name` matches its directory | a mismatched skill is silently unroutable |
 | Plan-protocol engine suite (32 tests) | the enforcement engine still enforces |
 | Plan-protocol ships no domain vocabulary | the engine stays stack-neutral |
@@ -37,7 +39,7 @@ Passes when:
 
 - [ ] Step 1 blocks on any missing prerequisite rather than failing later
 - [ ] Step 3 prints `scaffold pinned to vX.Y.Z` — **not** the fallback warning
-- [ ] Step 6's gate reports `agents: 6/6 · skills: 24/24` and does not continue if it can't
+- [ ] Step 6's gate reports `agents: canonical 4 present · skills: 16/16` and does not continue if it can't
 - [ ] Step 9e is green on all four: `lint`, `tsc --noEmit`, `build`, `vitest`
 - [ ] Step 10's first commit contains no `node_modules`, `.next`, or `.env*`
 - [ ] `/il-doctor` inside the new project is all-PASS
@@ -61,10 +63,14 @@ skills clone at run time.
 
 ## Run 4 — refresh an existing project **[rel]**
 
-Re-run step 6 of `/il-project` against a project scaffolded from the previous release.
+Run `/il-adopt` against a project scaffolded from the previous release, and once against
+a repo that was never scaffolded (no `FOLDER-STRUCTURE.md`).
 
 - [ ] agents and skills are refreshed to the new counts, nothing else is clobbered
 - [ ] the `AGENT-DELEGATION` block in `CLAUDE.md` is replaced, not duplicated
+- [ ] on a v2.4.x tree, writer/designer and their 8 skills land in
+      `.claude/retired-il-<date>/` and a custom agent beside them survives
+- [ ] `/il-doctor` in the adopted repo prints the `Project Layout` section, all PASS
 
 ## Run 5 — the guardrails actually bite **[rel]**
 

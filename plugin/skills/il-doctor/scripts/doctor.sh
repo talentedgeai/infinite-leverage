@@ -6,6 +6,18 @@ pass() { printf "  ✅  PASS  %-46s %s\n" "$1" "$2"; }
 fail() { printf "  ❌  FAIL  %-46s %s\n" "$1" "$2"; }
 info() { printf "  ·   %s\n" "$1"; }
 
+# The canonical team. CI keeps these in lockstep with il-project step 6 and
+# il-adopt step 5 — drift here is how "found 6/8" once shipped.
+CANON_AGENTS="product-manager developer qa devops"
+MIN_SKILLS=16
+# Retired in v2.6 — a project scaffolded on v2.4.x carries them until refreshed.
+RETIRED_AGENTS="writer designer"
+RETIRED_SKILLS="writer-seo-content writer-quality-critique marketing-strategist \
+  email-marketer-nurture designer-design-system designer-style-to-photo \
+  designer-image-generation designer-ui-ux"
+# One refresh path for every project, scaffolded or adopted.
+REFRESH="run /il-adopt (refreshes the team in place)"
+
 echo ""
 echo "=== INFINITE LEVERAGE — DOCTOR ==="
 
@@ -52,41 +64,71 @@ else
   fail "git author email" "fix: git config --global user.email you@company.com"
 fi
 
-# ── C. Project layout (only inside a scaffolded project) ─────────────────────
-if [ -f "FOLDER-STRUCTURE.md" ]; then
+# ── C. Project layout (inside a scaffolded OR adopted project) ───────────────
+# /il-project leaves FOLDER-STRUCTURE.md behind; /il-adopt installs into a repo
+# that has none. Detect either — keyed on the marker file alone, an adopted
+# repo never got its layout checked at all.
+if [ -f "FOLDER-STRUCTURE.md" ] || [ -d ".claude/agents" ] \
+   || grep -q "BEGIN: AGENT-DELEGATION" CLAUDE.md 2>/dev/null; then
   echo ""
   echo "[ C · Project Layout ]"
-  pass "FOLDER-STRUCTURE.md present" ""
-  AGENTS=$(ls .claude/agents/*.md 2>/dev/null | wc -l | tr -d ' ')
-  if [ "$AGENTS" -ge 4 ]; then
-    pass "project agents installed" "$AGENTS agents in .claude/agents/"
+  if [ -f "FOLDER-STRUCTURE.md" ]; then
+    pass "FOLDER-STRUCTURE.md present" "scaffolded by /il-project"
   else
-    fail "project agents installed" "found $AGENTS/4 — fix: re-run /il-project step 6 to refresh"
+    info "no FOLDER-STRUCTURE.md — an adopted repo (/il-adopt); that's fine"
   fi
-  SKILLS=$(ls -d .claude/skills/*/ 2>/dev/null | wc -l | tr -d ' ')
-  if [ "$SKILLS" -ge 16 ]; then
+
+  # Assert the canonical agents are PRESENT — not a bare count. A count of 4
+  # passes writer+designer+2 customs with qa missing; a count of "exactly 4"
+  # fails every project that legitimately added its own agent.
+  MISSING=""
+  for a in $CANON_AGENTS; do
+    [ -f ".claude/agents/$a.md" ] || MISSING="$MISSING $a"
+  done
+  AGENTS=$(find .claude/agents -maxdepth 1 -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+  if [ -z "$MISSING" ]; then
+    pass "canonical agents installed" "$AGENTS agents in .claude/agents/ (all 4 canonical present)"
+  else
+    fail "canonical agents installed" "missing:$MISSING — fix: $REFRESH"
+  fi
+
+  SKILLS=$(find .claude/skills -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$SKILLS" -ge "$MIN_SKILLS" ]; then
     pass "project skills installed" "$SKILLS skills in .claude/skills/"
   else
-    fail "project skills installed" "found $SKILLS (expected 16) — fix: re-run /il-project step 6 to refresh"
+    fail "project skills installed" "found $SKILLS (expected $MIN_SKILLS) — fix: $REFRESH"
   fi
+
+  if [ -f ".claude/rules/global-engineering.md" ]; then
+    pass "engineering rules installed" ".claude/rules/global-engineering.md"
+  else
+    fail "engineering rules installed" "missing .claude/rules/global-engineering.md — fix: $REFRESH"
+  fi
+
   RETIRED=""
-  for f in writer designer; do
+  for f in $RETIRED_AGENTS; do
     [ -f ".claude/agents/$f.md" ] && RETIRED="$RETIRED agents/$f.md"
   done
-  for d in writer-seo-content writer-quality-critique marketing-strategist \
-           email-marketer-nurture designer-design-system designer-style-to-photo \
-           designer-image-generation designer-ui-ux; do
+  for d in $RETIRED_SKILLS; do
     [ -d ".claude/skills/$d" ] && RETIRED="$RETIRED skills/$d/"
   done
   if [ -n "$RETIRED" ]; then
-    fail "no retired v2.4 agents/skills" "found:$RETIRED — fix: re-run /il-project step 6 (moves them to .claude/retired-il-<date>/)"
+    fail "no retired v2.4 agents/skills" "found:$RETIRED — fix: $REFRESH (moves them to .claude/retired-il-<date>/)"
   else
     pass "no retired v2.4 agents/skills" ""
   fi
+
   if grep -q "BEGIN: AGENT-DELEGATION" CLAUDE.md 2>/dev/null; then
-    pass "CLAUDE.md delegation block" ""
+    # The v2.4 block routed to writer/designer. A refreshed team under a stale
+    # block still sends requests to agents that no longer exist on disk.
+    if sed -n '/BEGIN: AGENT-DELEGATION/,/END: AGENT-DELEGATION/p' CLAUDE.md \
+         | grep -qE '\*\*(writer|designer)\*\*'; then
+      fail "CLAUDE.md delegation block current" "block still routes to writer/designer (v2.4) — fix: $REFRESH"
+    else
+      pass "CLAUDE.md delegation block" "present and current"
+    fi
   else
-    fail "CLAUDE.md delegation block" "fix: re-run /il-project step 7 to inject it"
+    fail "CLAUDE.md delegation block" "fix: $REFRESH"
   fi
 fi
 
@@ -97,9 +139,12 @@ echo ""
 echo "[ C2 · Plugin Version ]"
 PJ="${CLAUDE_PLUGIN_ROOT:-}/.claude-plugin/plugin.json"
 if [ -f "$PJ" ]; then
-  LOCAL_V=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['version'])" "$PJ" 2>/dev/null)
+  # sed, not python3: python3 is not a prerequisite and its absence used to make
+  # this silently report "unknown".
+  LOCAL_V=$(sed -nE 's/^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p' "$PJ" | head -1)
   pass "installed plugin" "v${LOCAL_V:-unknown}"
-  REMOTE_V=$(git ls-remote --tags https://github.com/talentedgeai/infinite-leverage 'refs/tags/v*' 2>/dev/null     | sed 's#.*refs/tags/v##' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+  REMOTE_V=$(git ls-remote --tags https://github.com/talentedgeai/infinite-leverage 'refs/tags/v*' 2>/dev/null \
+    | sed 's#.*refs/tags/v##' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
   if [ -z "$REMOTE_V" ]; then
     info "could not reach the marketplace to compare versions (offline is fine)"
   elif [ "$REMOTE_V" != "$LOCAL_V" ] && [ "$(printf '%s\n%s' "$LOCAL_V" "$REMOTE_V" | sort -V | tail -1)" = "$REMOTE_V" ]; then

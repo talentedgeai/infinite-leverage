@@ -47,21 +47,96 @@ jobs:
           fi
           echo "no global-install or telemetry regressions"
 
-      - name: Agent and skill counts match what the tooling asserts
+      - name: Canonical team in lockstep across il-project, il-adopt and il-doctor
         run: |
           python3 - <<'PY'
-          import glob, re, pathlib
-          agents = sorted(glob.glob(".claude/agents/*.md"))
+          import glob, os, re, sys, pathlib
+          # Three places hard-code the team: il-project step 6's gate, il-adopt
+          # step 5's gate, and doctor.sh. Drift between them is how "found 6/8"
+          # shipped, and how il-adopt kept an exact-count gate for a release
+          # after il-project's was declared wrong.
+          agents = sorted(os.path.basename(p)[:-3] for p in glob.glob(".claude/agents/*.md"))
           skills = sorted(glob.glob(".claude/skills/*/SKILL.md"))
-          assert len(agents) == 4, f"expected 4 agents, found {len(agents)}"
+          assert len(agents) == 4, f"expected 4 agents, found {len(agents)}: {agents}"
           assert len(skills) == 16, f"expected 16 skills, found {len(skills)}"
-          # il-doctor hard-codes these counts; drift there is how "found 6/8" shipped
-          doc = pathlib.Path("plugin/skills/il-doctor/scripts/doctor.sh").read_text()
-          a = re.search(r'AGENTS"?\s*-ge\s*(\d+)', doc)
-          assert a and int(a.group(1)) == len(agents), \
-              f"doctor.sh asserts {a and a.group(1)} agents, repo has {len(agents)}"
-          print(f"{len(agents)} agents / {len(skills)} skills, doctor.sh in agreement")
+          read = lambda f: pathlib.Path(f).read_text(encoding="utf-8")
+          DOCTOR, PROJECT, ADOPT = ("plugin/skills/il-doctor/scripts/doctor.sh",
+                                    "plugin/skills/il-project/SKILL.md",
+                                    "plugin/skills/il-adopt/SKILL.md")
+          bad = []
+          doc = read(DOCTOR)
+          m = re.search(r'^CANON_AGENTS="([^"]+)"', doc, re.M)
+          if not m or sorted(m.group(1).split()) != agents:
+              bad.append(f"{DOCTOR}: CANON_AGENTS={m and m.group(1)!r}, repo has {agents}")
+          m = re.search(r'^MIN_SKILLS=(\d+)', doc, re.M)
+          if not m or int(m.group(1)) != len(skills):
+              bad.append(f"{DOCTOR}: MIN_SKILLS={m and m.group(1)}, repo has {len(skills)}")
+          for f in (PROJECT, ADOPT):
+              t = read(f)
+              g = re.search(r'for a in ([^;\n]+); do\s*\n\s*\[ -f "\$TARGET/\.claude/agents/\$a\.md" \]', t)
+              if not g:
+                  bad.append(f"{f}: canonical-agent gate not found (exact-count gate crept back?)")
+              elif sorted(g.group(1).split()) != agents:
+                  bad.append(f"{f}: gate names {sorted(g.group(1).split())}, repo has {agents}")
+              c = re.search(r'\[ "\$S" -ge (\d+) \]', t)
+              if not c or int(c.group(1)) != len(skills):
+                  bad.append(f"{f}: skills gate {c and c.group(1)}, repo has {len(skills)}")
+          # The retired v2.4 set must be the same list everywhere it is migrated or detected.
+          def retired(f):
+              t = read(f)
+              a = re.search(r'RETIRED_AGENTS="([^"]+)"', t)
+              s = re.search(r'RETIRED_SKILLS="([^"]+)"', t)
+              if not (a and s):
+                  bad.append(f"{f}: RETIRED_AGENTS/RETIRED_SKILLS missing"); return None
+              return (sorted(x.replace(".md", "") for x in a.group(1).split()),
+                      sorted(s.group(1).replace("\\", " ").split()))
+          sets = {f: retired(f) for f in (DOCTOR, PROJECT, ADOPT)}
+          if None not in sets.values() and len({str(v) for v in sets.values()}) != 1:
+              bad.append("retired v2.4 lists differ:\n" + "\n".join(f"  {k}: {v}" for k, v in sets.items()))
+          ra, rs = sets[DOCTOR] or ([], [])
+          for a in ra:
+              if a in agents: bad.append(f"{a} is listed as retired but is a live agent")
+          for s in rs:
+              if os.path.isdir(f".claude/skills/{s}"): bad.append(f"{s} is listed as retired but still ships")
+          if bad:
+              print("\n".join(bad)); sys.exit(1)
+          print(f"{len(agents)} agents / {len(skills)} skills; gates, doctor thresholds and retired lists agree")
           PY
+
+      - name: AGENT-DELEGATION block identical everywhere it is embedded
+        run: |
+          python3 - <<'PY'
+          import difflib, glob, os, re, sys
+          # The block is hand-duplicated in il-project step 7, il-adopt step 7 and
+          # the scaffold's CLAUDE.md. Step 7 re-applies the skill's copy, so a
+          # drifted template only misleads readers — but drift between the two
+          # skills means /il-project and /il-adopt install different routing.
+          files = ["plugin/skills/il-project/SKILL.md", "plugin/skills/il-adopt/SKILL.md",
+                   "templates/project-scaffold/CLAUDE.md"]
+          def block(f):
+              t = open(f, encoding="utf-8").read()
+              m = re.search(r'<!-- BEGIN: AGENT-DELEGATION.*?<!-- END: AGENT-DELEGATION -->', t, re.S)
+              assert m, f"{f}: no AGENT-DELEGATION block"
+              return m.group(0)
+          ref = block(files[0]); bad = False
+          for f in files[1:]:
+              b = block(f)
+              if b != ref:
+                  bad = True
+                  print(f"--- {files[0]}\n+++ {f}")
+                  print("\n".join(difflib.unified_diff(ref.splitlines(), b.splitlines(), lineterm="", n=1)))
+          agents = sorted(os.path.basename(p)[:-3] for p in glob.glob(".claude/agents/*.md"))
+          routed = sorted(re.findall(r'^\| \*\*([a-z-]+)\*\* \|', ref, re.M))
+          if routed != agents:
+              bad = True; print(f"block routes to {routed}, repo ships {agents}")
+          if bad: sys.exit(1)
+          print(f"delegation block identical in {len(files)} files; routes exactly the {len(agents)} shipped agents")
+          PY
+
+      - name: il-doctor parses and its layout checks fire
+        run: |
+          bash -n plugin/skills/il-doctor/scripts/doctor.sh
+          bash .github/scripts/doctor-smoke.sh
 
       - name: Every skill has frontmatter whose name matches its directory
         run: |
