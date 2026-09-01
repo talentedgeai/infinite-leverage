@@ -1,7 +1,7 @@
 ---
 name: il-project
 description: This skill should be used when the operator says "il project", "new project", "scaffold a project", "create infinite leverage project", "init new project", "start new client project", or "bootstrap project folder". Scaffolds a brand-new project directory from the canonical `templates/project-scaffold/` in `talentedgeai/infinite-leverage`, substitutes placeholders, wires the agent team into `.claude/`, seeds `docs/product/` (product.md, epics.md, epic-status.md) from any rich description the operator provides, seeds `docs/brand/` styling from a chosen or random getdesign.md reference, initializes git, and prints next steps. All operations are inline — no bundled scripts.
-version: 3.2.0
+version: 3.2.1
 ---
 
 # Infinite Leverage — New Project Scaffold
@@ -155,15 +155,26 @@ running the same command minutes apart get different scaffolds if `main` moves.
 TMP=$(mktemp -d)
 REPO=talentedgeai/infinite-leverage
 
-# The running plugin knows its own version.
-IL_VERSION=$(python3 -c "import json,os,sys; print(json.load(open(os.path.join(os.environ['CLAUDE_PLUGIN_ROOT'],'.claude-plugin','plugin.json')))['version'])" 2>/dev/null)
+# The running plugin knows its own version. sed, not python3 — python3 is not a
+# prerequisite, and when it was missing the version came back empty and the
+# clone silently fell back to main.
+IL_VERSION=$(sed -nE 's/^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p' \
+  "${CLAUDE_PLUGIN_ROOT:-}/.claude-plugin/plugin.json" 2>/dev/null | head -1)
 
-if [ -n "$IL_VERSION" ] && git ls-remote --tags "https://github.com/$REPO" "refs/tags/v$IL_VERSION" | grep -q .; then
-  gh repo clone "$REPO" "$TMP/il-template" -- --depth 1 --branch "v$IL_VERSION"
-  echo "✅ scaffold pinned to v$IL_VERSION — matches the installed plugin"
+PIN=""
+if [ -z "$IL_VERSION" ]; then
+  echo "⚠️  could not read the installed plugin's version (CLAUDE_PLUGIN_ROOT unset?) — falling back to main."
+elif git ls-remote --tags "https://github.com/$REPO" "refs/tags/v$IL_VERSION" | grep -q .; then
+  PIN="v$IL_VERSION"
+else
+  echo "⚠️  no tag v$IL_VERSION on $REPO — the release was not tagged; falling back to main."
+fi
+
+if [ -n "$PIN" ]; then
+  gh repo clone "$REPO" "$TMP/il-template" -- --depth 1 --branch "$PIN"
+  echo "✅ scaffold pinned to $PIN — matches the installed plugin"
 else
   gh repo clone "$REPO" "$TMP/il-template" -- --depth 1
-  echo "⚠️  no tag v${IL_VERSION:-?} on $REPO — falling back to main."
   echo "   The scaffold may be newer than this skill. Report it if the scaffold looks wrong."
 fi
 
@@ -240,13 +251,14 @@ RETIRED_SKILLS="writer-seo-content writer-quality-critique marketing-strategist 
   email-marketer-nurture designer-design-system designer-style-to-photo \
   designer-image-generation designer-ui-ux"
 RET_DIR="$TARGET/.claude/retired-il-$(date +%Y%m%d)"
+MOVED=""
 for f in $RETIRED_AGENTS; do
-  [ -f "$TARGET/.claude/agents/$f" ] && mkdir -p "$RET_DIR/agents" && mv "$TARGET/.claude/agents/$f" "$RET_DIR/agents/"
+  [ -f "$TARGET/.claude/agents/$f" ] && mkdir -p "$RET_DIR/agents" && mv "$TARGET/.claude/agents/$f" "$RET_DIR/agents/" && MOVED="$MOVED agents/$f"
 done
 for d in $RETIRED_SKILLS; do
-  [ -d "$TARGET/.claude/skills/$d" ] && mkdir -p "$RET_DIR/skills" && mv "$TARGET/.claude/skills/$d" "$RET_DIR/skills/"
+  [ -d "$TARGET/.claude/skills/$d" ] && mkdir -p "$RET_DIR/skills" && mv "$TARGET/.claude/skills/$d" "$RET_DIR/skills/" && MOVED="$MOVED skills/$d"
 done
-[ -d "$RET_DIR" ] && echo "ℹ️  retired v2.4-era agents/skills moved to $RET_DIR — review, then delete the folder"
+[ -n "$MOVED" ] && echo "ℹ️  retired v2.4-era agents/skills moved to $RET_DIR:$MOVED — review, then delete the folder"
 ```
 
 Verify before moving on. This is a hard gate, not a print — a partial install is
