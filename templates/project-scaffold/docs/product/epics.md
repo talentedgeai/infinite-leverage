@@ -1,5 +1,14 @@
 # Epics — {Project Name}
 
-> **Fixed filename.** Created and maintained by `pm-epic-writing`. Dan Shipper format: problem / mechanism / bundles / success / why-first. Each epic is written only after a feature spec exists in `.specify/features/{slug}/spec.md`.
+> **Fixed filename.** Maintained by `pm-epic-writing` — add or change epics through the PM
+> agent, which also writes the matching spec at `.specify/features/{slug}/spec.md`.
 
-<!-- This file is empty until pm-epic-writing writes the first epic. Do not fill in manually. -->
+These are thematic bundles of work. Each epic makes a bet on user behaviour — a specific
+problem that, if solved, unlocks a meaningful outcome. Epics are not a sprint backlog.
+
+<!-- pm-epic-writing appends one `## E<N> · <Epic Name>` entry per epic above the Sequence argument. -->
+
+## Sequence argument
+
+No epics yet. When there are two or more, this section holds one short paragraph on why
+this ordering and not another — dependencies, risk reduction, or learning velocity.

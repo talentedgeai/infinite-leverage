@@ -20,12 +20,13 @@ task list. Requires no client input after handoff.
 git rev-parse --abbrev-ref HEAD
 ```
 
-A feature branch matches `^[0-9]{3,}-` (sequential, `001-feature-name`) or
-`^[0-9]{8}-[0-9]{6}-` (timestamp). On a feature branch → confirm and check the
-matching `.specify/features/{prefix}-*` directory exists. Not on one → warn
-("Feature branches look like 001-feature-name") and recommend creating one,
-but **do not block** — the developer may proceed deliberately. No git repo →
-skip with a warning.
+A feature branch is what `pm-epic-writing` created: `NNN-{slug}` (`^[0-9]{3,}-`).
+The spec directory carries **no** prefix — it is `.specify/features/{slug}/`, where
+`{slug}` is the branch name minus its numeric prefix. On a feature branch → confirm
+and check that directory exists. Not on one → warn ("Feature branches look like
+001-{slug}; `pm-epic-writing` creates them") and recommend switching to it, but
+**do not block** — the developer may proceed deliberately. No git repo → skip with a
+warning.
 
 ## Step 2 — Load context
 
@@ -74,7 +75,15 @@ description, testable acceptance criteria, grouped by phase:
 
 Mark `[P]` on tasks that can run in parallel. Order by dependency.
 
-## Step 6 — Summary
+## Step 6 — Mark the epic in flight
+
+In `docs/product/epic-status.md`: set the epic's At-a-glance row to `🔄 in flight`,
+pipeline `●●○○○` (stage 2 reached), and add one line to its Drilldown subsection —
+`Plan: .specify/features/{slug}/impl-plan.md · {n} tasks in {m} phases · {date}`.
+The file is PM-owned, but this is the one field the developer is expected to move;
+the PM's `pm-project-status` reads it to redraw the dashboard.
+
+## Step 7 — Summary
 
 ```
 FEATURE PLAN COMPLETE

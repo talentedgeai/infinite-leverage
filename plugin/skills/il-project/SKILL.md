@@ -386,50 +386,34 @@ Collect every planning attachment into a single working context. Acceptable sour
 
 #### 8.6a — Write `docs/product/product.md`
 
-Replace the placeholder template at `$TARGET/docs/product/product.md` with content extracted from the attachments. Honor the canonical heading structure exactly — the `pm-documentation` skill enforces this format:
+Fill the scaffold's `$TARGET/docs/product/product.md` **in place** — it already carries
+the 14 numbered sections that `pm-documentation` maintains (`## 1. The problem` …
+`## 14. Open decisions`), each holding a single `OPEN QUESTION:` line, and the closing
+line. Working through it:
 
-```markdown
-# Product Vision — <Project Name>
-
-> Synthesized from operator-supplied planning docs on <FIRST_DATE>. Owned by the PM agent — re-run `pm-client-interview` to refine.
-
-## Problem
-<Who hurts, how badly, why now — pulled from the attachments. If the attachment doesn't say, write "OPEN QUESTION: …" instead of guessing.>
-
-## Audience
-<Who we serve.>
-
-## Mechanism
-<How we solve it.>
-
-## Success
-<Measurable outcomes / KPIs the attachments call out.>
-
-## Non-goals
-<Anything the operator explicitly excluded.>
-
-## Source material
-- <list every attachment used, with a one-line summary each>
-```
+- Replace the H1 with `# <Project Name> · Written by <owner named in the material, else "operator brief"> · Draft v0.1 · <FIRST_DATE>`
+- Keep the blockquote and the italic framing sentence under it
+- For each section the attachments cover, replace its `OPEN QUESTION:` line with the
+  content, in the shape `pm-documentation` describes for that section (two paragraphs
+  for the problem, bold verb-noun phrases for what we deliver, the differentiation
+  table with real rows, and so on)
+- For each section they do not cover, leave the `OPEN QUESTION:` line exactly as it is
+- Keep the closing `---` and *"What this doc deliberately does not do…"* line
 
 Rules:
-- Never invent facts. If the attachments don't cover a section, write `OPEN QUESTION: <specific question>` so the PM agent picks it up in the next session.
-- Keep the five canonical H2s (`Problem`, `Audience`, `Mechanism`, `Success`, `Non-goals`) — adding new ones breaks the PM skill's parser.
-- Preserve the `# Product Vision — <Project Name>` H1 exactly (with `$PROJECT_NAME` substituted).
+- Never invent facts. A section the material is silent on stays an `OPEN QUESTION:` so the PM agent picks it up in `pm-client-interview`.
+- Keep all 14 H2s, their numbers and their order — `pm-documentation` and `pm-epic-writing` read the file by these headings.
+- The raw attachments themselves go to `docs/product/sources/` (8.6d) — do not paste them into product.md.
 
 #### 8.6b — Write `docs/product/epics.md` (strict Dan Shipper format)
 
 If the attachments list features / epics / bundles, write them into `$TARGET/docs/product/epics.md` using the **exact** format enforced by `pm-epic-writing`. No deviations — `pm-grill-with-docs` and `pm-epic-writing` parse this file by structure and will reject non-conforming entries.
 
-**Header + opening block** (write once, at the top of the file):
-
-```markdown
-# Epics — <Project Name>
-
-> Seeded from operator-supplied planning docs on <FIRST_DATE>. Owned by `pm-epic-writing`. Each epic must eventually have a matching spec at `.specify/features/<slug>/spec.md`.
-
-These are thematic bundles of work. Each epic makes a bet on user behavior — a specific problem that, if solved, unlocks a meaningful outcome. Epics are not a sprint backlog.
-```
+**Header + opening block** — the scaffold's `epics.md` already carries the H1, the
+blockquote, the "These are thematic bundles of work…" paragraph, an HTML comment marking
+where entries go, and a trailing `## Sequence argument` section. Keep all of that; replace
+the HTML comment with the epic entries (so they sit **above** `## Sequence argument`) and
+rewrite the Sequence argument section. Do not add a second header.
 
 **Epic entry format** (strict — one H2 per epic, numbered sequentially `E1`, `E2`, `E3`…):
 
@@ -447,7 +431,7 @@ These are thematic bundles of work. Each epic makes a bet on user behavior — a
 _Spec: `.specify/features/<slug>/spec.md`_
 ```
 
-**Sequence argument** (append after the last epic — one short paragraph):
+**Sequence argument** (the existing last section — rewrite its body, one short paragraph):
 
 ```markdown
 ## Sequence argument
@@ -507,7 +491,7 @@ Status glyphs: 🔄 in flight · ✅ done · ⏳ partially done · ☐ planned �
 - Both `## Drilldown` and `## Obsolete / won't fix` sections are required even when empty — `pm-project-status` keys on these headings.
 - Epic identifier in the table (`E1 · <Name>`) must match the H2 in `epics.md` byte-for-byte.
 
-If no epics were written in 8.6b, leave `epic-status.md` as the empty placeholder.
+If no epics were written in 8.6b, leave `epic-status.md` as shipped (its At-a-glance table empty).
 
 #### 8.6d — Stash the raw source material
 
@@ -626,6 +610,8 @@ npm install @ai-sdk/react @mdxeditor/editor @supabase/ssr @supabase/supabase-js 
   remark-gfm unified zustand
 npm install -D vitest @vitejs/plugin-react @testing-library/react \
   @testing-library/user-event @testing-library/jest-dom jsdom
+# create-next-app ships no test script; the agents and dev-tdd run `npm test`
+npm pkg set scripts.test="vitest run"
 ```
 
 **9c-note. create-next-app also writes `website/AGENTS.md` and `website/CLAUDE.md`.**
@@ -635,11 +621,14 @@ them, and do not confuse them with the repo-root `CLAUDE.md` that carries the ag
 delegation block from Step 7. They sit in `website/`, so they only load when an agent is
 working inside the app.
 
-**9d. Wire the React Query provider into the root layout.** The starter ships `app/providers.tsx` (QueryClientProvider); `app/layout.tsx` comes from create-next-app and must be edited to use it — the chat and notifications features fail to prerender otherwise:
+**9d. Wire the root layout to the starter kit.** `app/layout.tsx` comes from create-next-app and needs two edits. The starter ships `app/providers.tsx` (QueryClientProvider) — without it the chat and notifications features fail to prerender. It also ships `lib/seo/metadata.ts` with `baseMetadata`, whose `metadataBase` is what makes canonical URLs and OG images resolve against `NEXT_PUBLIC_SITE_URL` instead of `localhost:3000` — create-next-app's own `metadata` export must be replaced by it:
 
 ```tsx
 // app/layout.tsx — add:
 import { Providers } from "./providers";
+import { baseMetadata } from "@/lib/seo/metadata";
+// replace create-next-app's `export const metadata = {...}` with:
+export const metadata = baseMetadata;
 // ...and wrap the body children:
 <body>
   <Providers>{children}</Providers>
@@ -684,8 +673,9 @@ Next steps locally:
 5. Invoke @product-manager — if docs/product/ was seeded by Step 8.6, run pm-grill-with-docs to validate; otherwise run pm-client-interview to fill product.md
 6. Invoke pm-epic-writing for each feature idea — creates/refines epics.md, epic-status.md, .specify/ specs
 7. Review docs/brand/style-guide.md (seeded by Step 8.7) — adjust palette/fonts, then fill voice/tone in pm-client-interview
-8. Rename PH- placeholders deliberately as you start real work
-9. Read FOLDER-STRUCTURE.md once — canonical layout spec
+8. Before the first feature: invoke @devops → devops-cicd (the developer's auto-merge rule needs a green CI, and none ships) and the developer's plan-protocol install
+9. Rename PH- placeholders deliberately as you start real work
+10. Read FOLDER-STRUCTURE.md once — canonical layout spec
 ```
 
 ### Step 12 — Tail-end question: push to GitHub now? (interactive, optional)

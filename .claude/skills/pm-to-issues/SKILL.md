@@ -49,11 +49,23 @@ Slice the spec yourself: for each distinct piece of user-visible behaviour —
 {issue numbers that must merge first, if any}
 ```
 
-Create with `gh issue create --title … --body … --label {epic-label} --assignee "@me"`.
+**Label first.** A fresh repo has no epic labels and `gh issue create --label` fails on a
+label that does not exist. The convention is `epic:E{N}-{slug}` (e.g.
+`epic:E1-opening-hours`); create it once, idempotently:
+
+```bash
+gh label create "epic:E{N}-{slug}" --color 1D76DB --description "E{N} · {Epic Name}" 2>/dev/null || true
+```
+
+Then create each issue with
+`gh issue create --title "E{N}-{k}: {slice}" --body-file … --label "epic:E{N}-{slug}" --assignee "@me"`.
+Write each body to a temp file rather than inline — issue bodies contain backticks and
+quotes that break shell quoting.
 
 ## Close out
 
-Update `docs/product/epic-status.md` with the issue numbers under the epic, then report:
+In `docs/product/epic-status.md`, under the epic's `### E{N} · …` subsection in
+`## Drilldown`, add one line `Issues: #{n}, #{n}, … · pickup order {…}`, then report:
 
 ```
 ISSUES CREATED: {n} · EPIC: {name}

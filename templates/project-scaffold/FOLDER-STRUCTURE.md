@@ -30,13 +30,14 @@ These files have hard-coded names that skills and agents reference by path:
 │   ├── agents/                                 ← Project-scoped agent overrides (.md files)
 │   │   └── PH-project-agent.md
 │   ├── rules/
-│   │   └── global-engineering.md               ← Engineering guardrails
+│   │   ├── global-engineering.md               ← Engineering guardrails
+│   │   └── agent-routing.md                    ← Which agent/skill handles what
 │   ├── skills/                                 ← Project-scoped skills
 │   │   └── PH-skill-name/
 │   │       └── SKILL.md
 │   └── worktrees/                              ← git-worktree workspaces (gitignored)
 │
-├── .specify/                                   ← spec-kit working directory (gitignored internals)
+├── .specify/                                   ← spec-kit working directory (committed — specs are the record of what was agreed)
 │   ├── features/                               ← One folder per feature slug
 │   │   └── {slug}/
 │   │       ├── spec.md                         ← Written by pm-epic-writing
@@ -87,6 +88,7 @@ These files have hard-coded names that skills and agents reference by path:
 │   │   ├── product.md                           [FIXED]
 │   │   ├── epics.md                             [FIXED — created/updated by pm-epic-writing]
 │   │   ├── epic-status.md                       [FIXED — created/updated by pm-epic-writing]
+│   │   ├── sources/                             ← Raw briefs/PRDs the PM synthesised from (il-project 8.6d, pm-client-interview)
 │   │   └── constitution.md                      [copy of .specify/memory/constitution.md — pm-constitution-sync]
 │   ├── project-status.html                      [FIXED — single-file dashboard]
 │   ├── architecture/
@@ -106,7 +108,9 @@ These files have hard-coded names that skills and agents reference by path:
 │   ├── plans/PH-plan-name.md
 │   └── qa/
 │       ├── qa-plan.md
-│       └── PH-regression-report.md
+│       ├── PH-regression-report.md
+│       ├── <date>-<slug>-qa-report.md              ← One per QA verification (qa agent)
+│       └── <date>-<slug>-triage.md                 ← One per triaged bug (qa-triage)
 │
 ├── resources/                                  ← Design system, brand assets, masters
 │   └── README.md
