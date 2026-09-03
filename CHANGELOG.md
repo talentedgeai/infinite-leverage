@@ -6,6 +6,174 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.8.3] — 2026-09-03
+
+**The release checklist is executed, not eyeballed.** Runs 1, 6 (PM half) and 8 were driven
+for real on a throwaway project; each found instructions that could not be followed as
+written. Everything below is what they surfaced.
+
+### Fixed — found by Run 1 and Run 8 (scaffold and negative cases)
+- **Step 7 could not run under macOS `/bin/bash` (3.2).** Both skills wrapped the
+  delegation-block heredoc in `$(cat <<'EOF' … )`; bash 3.2 scans that body for quotes
+  and dies on the apostrophe in "don't" with `unexpected EOF`. Found by the first real
+  Run 1 of the checklist. The block is now written straight to a temp file. CI runs
+  `bash -n` on every bash block in the shipped skills and bans the construct
+- **`il-adopt` step 8 was pseudo-shell** (`perl … <each copied file>`), so it could
+  never be run as written. It now tracks the anchors it seeded and substitutes only
+  those. Verified: an existing `product.md` is untouched, seeded files carry the name
+  verbatim, no placeholder left
+- **Offline, the pinning step said "the release was not tagged".** A failed
+  `git ls-remote` is now told apart from an empty result: both skills stop with
+  "cannot reach github.com" and write nothing
+- **Happy-path exit codes.** `il-project` step 2 and the retire block in both skills
+  ended in `[ cond ] && …`, which returns 1 whenever the condition is false — the Bash
+  tool reported a failed command on every fresh scaffold. Inverted to `|| …`
+
+### Fixed — found by Run 6 (the PM half of the agent chain)
+- **The scaffold's `product.md` had 5 headings; `pm-documentation` mandates 14.** The
+  template now ships the 14 numbered sections, each holding one `OPEN QUESTION:` line,
+  the header line and the closing sentence — and `il-project` step 8.6a fills that file
+  in place instead of writing a five-section one over it. CI asserts the template's
+  headings equal the skill's list
+- **`epics.md` and `epic-status.md` were empty placeholders that told the reader "do not
+  fill in manually"** while `pm-epic-writing` said "update the Sequence argument section"
+  and "add the new epic's row" — neither existed, and the five pipeline stages were
+  defined nowhere. The templates now carry the opening block, a `## Sequence argument`
+  section, the pipeline-stages table, glyph legend, At-a-glance table, Drilldown and
+  Obsolete sections; `pm-epic-writing` step 7 names that exact shape and starts a new
+  epic at `●○○○○` (the spec exists)
+- **`pm-client-interview` could never trigger as written** ("run when product.md does not
+  exist" — the scaffold always ships one). Now: missing *or* still the placeholder. It
+  also gains the async-client path (a brief stands in for both rounds; uncovered
+  questions become `OPEN QUESTION:` lines) and fills the PM persona stub at synthesis,
+  which the stub claimed happened but no skill did
+- **`pm-epic-writing` now branches before it writes the spec** (the spec used to be born
+  as an untracked file carried across a checkout), stops referencing a spec-kit script
+  the scaffold ships an empty directory for, and has an async-client path in the
+  clarification step and the HIGH-finding gate instead of deadlocking on "amend the spec
+  with the client's input"
+- **`pm-grill-with-docs` now has a spec mode.** It was written for implementation plans
+  ("all files/components affected") but the PM chain runs it on an epic before any plan
+  exists; it asked for "acceptance criteria in the epic", which `pm-epic-writing` forbids.
+  It names the mode, sends plan-only questions to plan mode, reads criteria from the
+  spec, tolerates the never-regenerated dashboard, and records its verdict in the
+  epic's Drilldown — it previously defined no output at all
+- **`pm-to-issues` creates the epic label first.** `gh issue create --label` fails on a
+  label that does not exist in a fresh repo; the skill now defines the convention
+  (`epic:E{N}-{slug}`), creates it idempotently, writes bodies via temp files, and
+  says exactly where in `epic-status.md` the issue numbers go
+
+### Fixed — found by Run 6 (the developer half of the agent chain)
+- **Three branch conventions, one branch.** `developer.md` said `feat/<slug>` off fresh
+  `main`, `dev-feature-plan` expected `001-feature-name` and a spec directory named
+  `001-*` (which `pm-epic-writing` never creates), `agent-routing.md` said `publish/`.
+  Now: the epic branch is `NNN-{slug}` created once by `pm-epic-writing`, the developer
+  works on it, `feat/` is only for work with no spec, `publish/` for posts; the plan
+  skill checks `.specify/features/{slug}/` without a prefix
+- **"Never commit unless instructed" vs "commit and push" vs "do not commit".**
+  `global-engineering.md`, `developer.md` and `dev-tdd` disagreed; a PM leaving
+  uncommitted docs on the branch would have blocked a literal developer. `developer.md`
+  and `dev-tdd` now say an approved plan item is the instruction to commit on its branch
+  (never on `main`), and `pm-epic-writing` prints the commit commands for its own docs
+- **`developer.md` told the developer to update `project-status.html`**, which
+  `FOLDER-STRUCTURE.md` gives to the PM via `pm-project-status`, and nothing moved
+  `epic-status.md` once planning started. The developer now hands the dashboard update
+  to the PM and `dev-feature-plan` marks the epic `🔄 in flight ●●○○○` itself
+- **`dev-tdd`'s "must fail for the right reason, not a compile error" was unsatisfiable**
+  for the first test of a new module; it now allows the missing-import red once
+- **Scaffold:** `vitest.config.mts` lacked the `@/` alias `tsconfig.json` defines, so any
+  test importing like the app fails; `npm test` did not exist (create-next-app ships no
+  test script — `il-project` step 9c now sets `vitest run`); `.specify/` was labelled
+  "gitignored internals" while nothing ignored it — it is committed, and the tree now
+  says so and lists `agent-routing.md`; next steps tell a new project to run
+  `devops-cicd` before the first feature, since the auto-merge rule needs a CI that
+  does not ship
+
+### Fixed — found by Run 6 (the QA half of the agent chain)
+- **`qa-triage` told QA to edit `docs/project-status.html`** ("add to the Bugs table"),
+  which has no such table and which `pm-project-status` regenerates — a hand-added table
+  would be erased. QA now moves the `Open bugs` count in `epic-status.md` and tells the
+  PM; the dashboard is derived from that. `qa.md`'s "update the status dashboard" says
+  the same
+- **No classification fitted a bug that does not reproduce** — the skill demanded
+  "exactly one" of six. `unconfirmed` is now a class with its own route (back to the
+  reporter via the PM, re-triage on reply, counted as open meanwhile)
+- **"Close every task with a short QA report" named no path or shape.** `qa.md` now
+  defines `docs/qa/{date}-{slug}-qa-report.md` (PR + head commit, per-criterion
+  pass / fail / needs-a-human, gaps, sign-off), says missing test cases go back to the
+  developer as a list rather than into their PR, and has QA fill its own persona stub
+  on first run; the developer's handoff names the PR head
+
+### Fixed — found by Run 7 (the publishing chain)
+- **`web-publisher-publish` verified a stranger's deployment.** In a repo not linked to
+  Vercel, `vercel ls --limit 1` lists the whole account, and following the skill
+  literally "confirmed READY" on an unrelated project. Phase 7 now requires
+  `website/.vercel/project.json`, stops with a plain message when unlinked, and inspects
+  the deployment for *this branch* when linked
+- **The skill assumed a blog already existed** ("follow existing posts", "the existing
+  card pattern") and never defined `{slug}` (the folder is `{date}-{slug}`) or which
+  style guide to read. It now takes the slug from `seo.md`, names
+  `docs/brand/style-guide.md`, and specifies the first post page and the first index
+- **It cut the branch after doing the work on `main`**, contradicting `developer.md`'s
+  branch-first rule, and its staging list left the source content behind. Phase 0 now
+  branches first (`publish/{slug}` — `developer.md`'s `feat/` is for feature work) and
+  the topic folder ships with the post
+- **Its auto-merge precondition "CI green" can never hold on a scaffolded project** (no
+  workflows ship). The skill says so and points at `devops-cicd`; "log in the daily
+  plan" (no such file) becomes a row in `publish-log.md`, whose table format the skill
+  now matches; "brief the Developer" (the skill *is* the developer) becomes "fix it"
+- **Scaffold gaps the run exposed:** `context/…/blog-index.md` pointed at a Pages Router
+  path (`website/pages/blog/index.jsx`); `app/layout.tsx` never exported the starter's
+  `baseMetadata`, so canonical and OG URLs rendered as `localhost:3000` — `il-project`
+  step 9d now wires it; the style guide had no blog category list for the quality gate
+  to check — it does now; the sitemap never learned about `/blog` — the skill adds the
+  route; `tsc` fails on a fresh clone until the first `next build` generates route
+  types — the skill builds first
+
+### Added
+- **Release checklist Run 8 is executed, not eyeballed** — `.github/scripts/negative-cases.sh`
+  runs the skills' own step 1/2/3 blocks, extracted from `SKILL.md`, under each fault
+  (existing target, unauthenticated `gh`, missing `rsync`, no network for `il-doctor` and
+  for the pinning step) and asserts the promised stop message. 23 assertions, in CI on
+  every PR
+- CI: PM templates carry the structure the PM skills read (product.md sections ==
+  `pm-documentation`'s list; epic-status/epics sections `pm-epic-writing` names;
+  `il-project` 8.6a describes the same file)
+
+### Verified
+- **Release checklist Run 1 executed for real**, driving steps 2–10 from the SKILL.md
+  blocks as written under macOS `/bin/bash` 3.2 with the project name `Mom & Pop / Co`:
+  lint, `tsc`, `next build` (15 routes) and vitest (20/20) green, first commit free of
+  `node_modules`/`.next`/`.env`, name landed verbatim, `/il-doctor` all-PASS inside the
+  new project. It is what surfaced the bash 3.2 step 7 failure above
+- **Release checklist Run 6, PM half, executed for real** on `dnakhoa/il-rehearsal-mom-pop-co`
+  from a written brief: `pm-client-interview` → `pm-documentation` → `pm-epic-writing` →
+  `pm-grill-with-docs` → `pm-to-issues` produced product.md, spec v0.2.0 with dev findings,
+  epic E1, an APPROVED verdict and GitHub issues #1–#4 — and a 13-item defect list, all
+  addressed above. No agent committed anything
+- **Release checklist Run 6, developer half, executed for real** on the same repo:
+  `dev-feature-plan` resolved the HIGH rendering finding with a stated default, `dev-tdd`
+  delivered issues #1 and #2 in four red→green cycles (38 tests, lint/tsc/build green),
+  the QA agent was called, and PR #6 was opened and correctly left unmerged. 13 defects,
+  addressed above
+- **Release checklist Run 6, QA half, executed for real** on the same repo: the QA agent
+  verified PR #6 against the spec's acceptance criteria (38 tests green, three criteria
+  correctly left to a human), ran `qa-triage` on a seeded bug report, wrote the QA and
+  triage reports under `docs/qa/`, moved the epic's bug count, and established from the
+  code that the report was unreproducible (a UTC-for-local misread). 10 defects,
+  addressed above. Nothing committed
+- **Release checklist Run 7 executed for real** on the same repo: `web-publisher-publish`
+  took a finished post to PR #5 on `publish/welcome-launch` with build, lint and `tsc`
+  green and `main` untouched; the merge rule correctly held it open (no CI, first
+  index); Phase 7 was exercised up to its unlinked-repo stop. 14 defects, addressed above
+
+### Not done
+- Run 7's Vercel preview verification against a **linked** project, and Run 6 against a
+  feature that touches Supabase — the throwaway rehearsal repo had neither. Every step up
+  to those points has now run for real; the remaining gap is a live project, not an
+  unread skill
+---
+
 ## [2.8.2] — 2026-09-03
 
 **The release stops depending on a human remembering the mirror, and the scaffold stops
@@ -38,28 +206,7 @@ releases and the documented command failed on the first machine without an SSH k
   placeholder exists in the template. `{project-slug}` likewise. CI now asserts the set
   of tokens step 4 substitutes equals the set the template carries
 
-- **Step 7 could not run under macOS `/bin/bash` (3.2).** Both skills wrapped the
-  delegation-block heredoc in `$(cat <<'EOF' … )`; bash 3.2 scans that body for quotes
-  and dies on the apostrophe in "don't" with `unexpected EOF`. Found by the first real
-  Run 1 of the checklist. The block is now written straight to a temp file. CI runs
-  `bash -n` on every bash block in the shipped skills and bans the construct
-- **`il-adopt` step 8 was pseudo-shell** (`perl … <each copied file>`), so it could
-  never be run as written. It now tracks the anchors it seeded and substitutes only
-  those. Verified: an existing `product.md` is untouched, seeded files carry the name
-  verbatim, no placeholder left
-- **Offline, the pinning step said "the release was not tagged".** A failed
-  `git ls-remote` is now told apart from an empty result: both skills stop with
-  "cannot reach github.com" and write nothing
-- **Happy-path exit codes.** `il-project` step 2 and the retire block in both skills
-  ended in `[ cond ] && …`, which returns 1 whenever the condition is false — the Bash
-  tool reported a failed command on every fresh scaffold. Inverted to `|| …`
-
 ### Added
-- **Release checklist Run 8 is executed, not eyeballed** — `.github/scripts/negative-cases.sh`
-  runs the skills' own step 1/2/3 blocks, extracted from `SKILL.md`, under each fault
-  (existing target, unauthenticated `gh`, missing `rsync`, no network for `il-doctor` and
-  for the pinning step) and asserts the promised stop message. 23 assertions, in CI on
-  every PR
 - **`mirror-release` workflow** — on a `v*` tag push, checks the tag matches
   `plugin.json`, then pushes `.claude-plugin` + `plugin` to the private distribution
   repo. Requires the `MIRROR_TOKEN` repo secret (fine-grained PAT, *Contents: read and
@@ -68,18 +215,6 @@ releases and the documented command failed on the first machine without an SSH k
   machines without a registered key
 - CI: scaffold-rules parity guard; placeholder-coverage and hostile-name substitution
   test; `RELEASE-CHECKLIST.md` Run 3 checks the mirror run
-
-### Verified
-- **Release checklist Run 1 executed for real**, driving steps 2–10 from the SKILL.md
-  blocks as written under macOS `/bin/bash` 3.2 with the project name `Mom & Pop / Co`:
-  lint, `tsc`, `next build` (15 routes) and vitest (20/20) green, first commit free of
-  `node_modules`/`.next`/`.env`, name landed verbatim, `/il-doctor` all-PASS inside the
-  new project. It is what surfaced the bash 3.2 step 7 failure above
-
-### Not done
-- Runs 6 and 7 of the release checklist (the agent chain and the publishing chain against
-  a live Supabase/Vercel project) remain unexecuted end to end. They need a person at the
-  keyboard — an interview, real GitHub issues, a linked Vercel project
 
 ---
 

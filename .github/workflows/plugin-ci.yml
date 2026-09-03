@@ -169,6 +169,40 @@ jobs:
           # where the checklist says it will. Never executed before 2.8.2.
           bash .github/scripts/negative-cases.sh
 
+      - name: PM templates carry the structure the PM skills read
+        run: |
+          python3 - <<'PY'
+          import re, sys, pathlib
+          # Run 6 of the release checklist found the scaffold's product.md with 5
+          # headings while pm-documentation mandated 14, and epic-status.md with
+          # no table while pm-epic-writing said "add the new epic's row". The
+          # templates and the skills that parse them must agree.
+          read = lambda f: pathlib.Path(f).read_text(encoding="utf-8")
+          bad = []
+          skill = read(".claude/skills/pm-documentation/SKILL.md")
+          want = re.findall(r'^\d+\. `(## \d+\. [^`]+)`', skill, re.M)
+          have = re.findall(r'^(## \d+\. .+)$', read("templates/project-scaffold/docs/product/product.md"), re.M)
+          if len(want) < 10: bad.append("could not parse pm-documentation's numbered section list")
+          if want != have:
+              bad.append("product.md template headings != pm-documentation sections:\n  skill:    %s\n  template: %s" % (want, have))
+          es = read("templates/project-scaffold/docs/product/epic-status.md")
+          for h in ("## Pipeline stages", "## At a glance", "## Drilldown", "## Obsolete / won't fix",
+                    "| Epic | Status | % done (est) | Pipeline | Open bugs | Closed bugs | Notes |"):
+              if h not in es: bad.append(f"epic-status.md template lacks {h!r} (pm-epic-writing step 7 relies on it)")
+          if not re.search(r'^# \{Project Name\} · Epic Status · Last updated: .* · Phase in flight: ', es, re.M):
+              bad.append("epic-status.md template H1 is not the `Project · Epic Status · Last updated · Phase in flight` line")
+          ep = read("templates/project-scaffold/docs/product/epics.md")
+          if "## Sequence argument" not in ep or "These are thematic bundles of work" not in ep:
+              bad.append("epics.md template lacks the opening block or the Sequence argument section pm-epic-writing step 6 expects")
+          # the il-project seeding step must describe the same 14-section file
+          ilp = read("plugin/skills/il-project/SKILL.md")
+          if "14 numbered sections" not in ilp or "Product Vision —" in ilp:
+              bad.append("il-project step 8.6a does not describe the 14-section product.md")
+          if bad:
+              print("\n".join(bad)); sys.exit(1)
+          print(f"product.md: {len(have)} sections match pm-documentation; epic-status/epics templates carry the sections the PM skills read")
+          PY
+
       - name: Scaffold rules identical to the canonical rules; no global-install advice
         run: |
           # il-project step 6 / il-adopt step 5 copy these from .claude/rules/; the

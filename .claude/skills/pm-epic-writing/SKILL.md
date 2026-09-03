@@ -25,10 +25,26 @@ Read `docs/product/product.md` in full: the core problem, the target user, and
 what the product is explicitly NOT building. If `docs/product/constitution.md`
 exists, read it too — constitution violations are a hard gate later.
 
-## Step 2 — Write the spec
+## Step 2 — Create the feature branch
 
-Write `.specify/features/{slug}/spec.md` (derive the slug from the idea if not
-given). The spec is **complete, unambiguous, verifiable, and
+Branch first, so the spec is born on it rather than carried across a checkout as an
+untracked file. Derive `{slug}` from the idea if not given.
+
+```bash
+NEXT_NUM=$(git branch --list '[0-9][0-9][0-9]-*' | wc -l | tr -d ' ')
+BRANCH_NAME="$(printf '%03d' $((NEXT_NUM + 1)))-{slug}"
+git checkout -b "$BRANCH_NAME"
+```
+
+(If spec-kit's `.specify/extensions/git/scripts/bash/create-new-feature.sh` is present
+it does the same thing — either is fine. The scaffold ships that directory empty.)
+
+Create the branch **once per feature**. If there's no git repo, warn and
+continue on the current branch — never block the workflow.
+
+## Step 3 — Write the spec
+
+Write `.specify/features/{slug}/spec.md`. The spec is **complete, unambiguous, verifiable, and
 technology-agnostic** — outcomes, never implementation ("the system SHALL
 present products in a sortable list", not "use React"). Treat the client's
 words as *intent*, not spec text.
@@ -54,20 +70,6 @@ Every section must be substantive — no placeholders. If the feature directory
 already exists, load the current spec, show its version, and ask whether to
 update it or create a variant.
 
-## Step 3 — Create the feature branch
-
-If `.specify/extensions/git/scripts/bash/create-new-feature.sh` exists, run it:
-`… --json --short-name "<2-4-word-slug>" "<feature description>"`. Otherwise:
-
-```bash
-NEXT_NUM=$(git branch --list '[0-9][0-9][0-9]-*' | wc -l | tr -d ' ')
-BRANCH_NAME="$(printf '%03d' $((NEXT_NUM + 1)))-<short-name>"
-git checkout -b "$BRANCH_NAME"
-```
-
-Create the branch **once per feature**. If there's no git repo, warn and
-continue on the current branch — never block the workflow.
-
 ## Step 4 — Clarify (business-level only)
 
 **4a — Generate candidate questions.** From the spec's unclear, incomplete, or
@@ -89,6 +91,11 @@ technical questions. For each candidate:
   results instantly, within a few seconds, or is a short wait fine?")
 
 Cap at 5–8 questions. Never tell the client questions were filtered.
+
+**Client not available live?** Answer each kept question from the material on hand
+(`docs/product/product.md`, `docs/product/sources/*`, the brief). Where it is silent,
+state a sensible default in the spec and list the question under **Open Questions** with
+that default — do not block the workflow waiting for a reply.
 
 **4c — Write answers back.** Tighten acceptance criteria, resolve ambiguities,
 bump the spec version (semver), and append:
@@ -129,7 +136,10 @@ Severity: **HIGH** blocks implementation · **MEDIUM** slows it · **LOW** polis
   clean table (`ID | Issue | Severity | What We Need From You`) with all
   jargon stripped. **Gate: every HIGH PM-layer finding must be resolved before
   Step 6** — amend the spec with the client's input and re-analyze until none
-  remain. MEDIUM/LOW: note, offer, don't block.
+  remain. MEDIUM/LOW: note, offer, don't block. When the client cannot answer
+  live, a HIGH finding that has a safe default is resolved by writing that default
+  into the spec and listing the question under Open Questions (it becomes MEDIUM);
+  a HIGH finding with no safe default stops here — report it to the operator.
 - **Dev layer (never surface to client)**: missing data models, criteria
   requiring implementation knowledge, NFRs without technical constraints,
   ambiguous technical assumptions. Write to
@@ -139,8 +149,10 @@ Severity: **HIGH** blocks implementation · **MEDIUM** slows it · **LOW** polis
 ## Step 6 — Write the epic entry
 
 Read `docs/product/epics.md`; if an existing epic covers the same problem,
-propose merging — never duplicate. Append (creating the file with its opening
-block if needed — "These are thematic bundles of work…"):
+propose merging — never duplicate. The scaffold ships the file with its header,
+the opening block ("These are thematic bundles of work…") and a trailing
+`## Sequence argument` section. Insert the new entry **above** `## Sequence argument`,
+after the last existing epic (create the file with that shape if it is missing):
 
 ```
 ## E{N} · {Epic Name}
@@ -158,13 +170,30 @@ _Spec: `.specify/features/{slug}/spec.md`_
 
 Never use: Thesis, Hypothesis, Acceptance criteria, Definition of done,
 Priority signal — those belong in task plans. Epic numbers are sequential.
-Update the **Sequence argument** section explaining the ordering.
+Then rewrite the **Sequence argument** section (kept last in the file): one short
+paragraph on why this order and not another — dependencies, risk reduction, or
+learning velocity. With a single epic, one sentence on why it goes first.
 
-## Step 7 — Create or update epic-status.md
+## Step 7 — Update epic-status.md
 
-Create `docs/product/epic-status.md` (pipeline stages table, status glyphs,
-At-a-glance table, Drilldown, Obsolete sections) if missing; otherwise add the
-new epic's row: status `☐ planned`, pipeline `○○○○○`.
+The scaffold ships `docs/product/epic-status.md` with this shape (create it with
+the same shape if it is missing):
+
+- H1: `# {Project} · Epic Status · Last updated: {YYYY-MM-DD} · Phase in flight: {phase or —}`
+- `## Pipeline stages` — 1 · Specified, 2 · In flight, 3 · Feature-complete, 4 · Tested, 5 · Shipped
+- Status glyphs: `🔄 in flight · ✅ done · ⏳ partially done · ☐ planned · 🛑 paused`;
+  pipeline column is five circles, `○` not reached / `●` reached
+- `## At a glance` — table `Epic | Status | % done (est) | Pipeline | Open bugs | Closed bugs | Notes`
+- `## Drilldown` — one `### E{N} · {Epic Name}` subsection per epic
+- `## Obsolete / won't fix`
+
+For the new epic: add the row
+`| E{N} · {Epic Name} | ☐ planned | 0% | ●○○○○ | 0 | 0 | spec v{X.Y.Z} |`
+(stage 1 is reached — the spec exists), add a Drilldown subsection holding the
+spec path and dev-findings count (`pm-to-issues` adds issue numbers,
+`pm-grill-with-docs` its verdict, `qa-triage` bug counts), and set
+`Last updated` in the H1 to today. The epic identifier must match the H2 in
+`epics.md` byte for byte — `pm-project-status` joins the two files on it.
 
 ## Step 8 — Hand off to the developer
 
@@ -178,7 +207,16 @@ Dev findings : .specify/features/{slug}/dev-findings.md ({n} findings, {n} HIGH)
 
 TO START: invoke dev-feature-plan with the spec path — it resolves the dev
 findings and produces impl-plan.md + tasks.md.
+
+Nothing was committed. To record the spec and docs on the feature branch
+(staging by name — never `git add .`):
+  git add .specify/features/{slug} docs/product agents/product-manager/context/persona.md
+  git commit -m "docs: E{N} {slug} — spec, dev findings, epic, product docs"
 ```
+
+Print those commands every time. The developer inherits this branch; uncommitted PM
+files there are how a literal reading of `global-engineering.md` ("stop and report if
+there are uncommitted changes") blocks the next agent.
 
 ## Epic writing rules
 

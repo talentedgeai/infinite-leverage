@@ -1,7 +1,7 @@
 ---
 name: qa-triage
 description: >-
-  Classifies every incoming bug by severity (P0 = site completely down, P1 = major feature broken, P2 = significant issue, P3 = minor cosmetic), scores its priority, and routes it to the right person. Always run this first for any new bug report — nothing gets worked on without being triaged. Output goes to docs/qa/ and the project status dashboard.
+  Classifies every incoming bug by severity (P0 = site completely down, P1 = major feature broken, P2 = significant issue, P3 = minor cosmetic), scores its priority, and routes it to the right person. Always run this first for any new bug report — nothing gets worked on without being triaged. Output goes to docs/qa/ and the bug counts in docs/product/epic-status.md, which the PM's dashboard reads.
   Use for every new bug report, or when the operator says "triage", "classify this bug", or "prioritise this bug".
 credits: |
   Adapted from mattpocock/skills (triage)
@@ -25,6 +25,10 @@ Assign exactly one classification to the bug:
 | `ux-degradation` | Works technically but creates a poor user experience |
 | `data-integrity` | Incorrect data stored, returned, or lost |
 | `security` | Potential data exposure, auth bypass, or injection |
+| `unconfirmed` | Could not be reproduced from the report — priority is provisional until it is |
+
+Pick `unconfirmed` honestly rather than forcing a fit: record what you tried, what the code
+does at that input, and what you need from the reporter (exact time, device, screenshot).
 
 ## Step 2 — Priority Score
 
@@ -70,6 +74,7 @@ Record the raw score alongside the floored priority so the override is visible:
 | `new-defect` | Developer → fix on feature branch |
 | `performance` | Developer → profile before fixing |
 | `ux-degradation` | PM review → developer |
+| `unconfirmed` | Back to the reporter (via the PM) with the questions from Step 1; re-triage on reply. Counts as an open bug meanwhile |
 
 ## Step 4 — Output
 
@@ -108,16 +113,20 @@ Write a triage report to `docs/qa/{YYYY-MM-DD}-{slug}-triage.md`:
 
 After writing the report:
 
-1. Update `docs/product/epic-status.md`:
-   - **At a glance** table — increment the epic's `Open bugs` count.
+1. Update `docs/product/epic-status.md` (the scaffold ships the columns; a project whose
+   table predates them adds `Open bugs | Closed bugs` once):
+   - **At a glance** table — increment the epic's `Open bugs` count (and move a count
+     from Open to Closed when QA validates a fix).
    - **Drilldown** — under that epic's heading (create `### E{N} · {Epic Name}` if it has
      no drilldown entry yet), append a line:
      `- P{n} · {classification} · {bug title} → docs/qa/{YYYY-MM-DD}-{slug}-triage.md`
 
    Those are the only sections the file has — do not invent a "Known Issues" heading;
    `pm-project-status` keys on the existing structure and will miss anything else.
-2. Update `docs/project-status.html` — add to the "Bugs" table with priority,
-   classification, and assignee.
+2. Do **not** edit `docs/project-status.html` yourself — the PM owns it and
+   `pm-project-status` regenerates it from `epic-status.md`, which would erase a
+   hand-added table. Tell the PM a bug was triaged so the dashboard is refreshed; the
+   `Open bugs` count you just changed is what it reads.
 
 ---
 

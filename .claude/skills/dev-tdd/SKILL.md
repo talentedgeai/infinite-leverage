@@ -25,7 +25,7 @@ Repeat. One cycle at a time. No skipping steps.
 - **No implementation without a failing test.** If you write code before a test, stop. Delete the code. Write the test first.
 - **No horizontal slicing.** Do not build "the data layer" then "the business layer" then "the UI layer". Build one complete vertical slice (input → output) at a time, tested end-to-end.
 - **No green shortcuts.** Do not hard-code return values to pass tests (unless as a deliberate step in triangulation — but you must write another test that forces real logic within the same cycle).
-- **Test must fail for the right reason.** Before writing implementation, confirm the test fails with the expected failure message — not a compile error, not a wrong error.
+- **Test must fail for the right reason.** Before writing implementation, confirm the test fails with the expected failure message — not a wrong error. One exception: the first test of a brand-new module can only fail on the missing import; that counts as red. From the second test on, the failure must be an assertion.
 
 ## Vertical Slice Pattern
 
@@ -60,9 +60,10 @@ TDD requires running tests. Running `npm test` is not "starting a localhost serv
 1. Write test → run → confirm RED (right failure)
 2. Write impl → run → confirm GREEN
 3. Refactor → run → confirm still GREEN
-4. Stage the slice (`git add` by name) and note the commit messages it earns —
-   `test: {behaviour}` then `feat: {behaviour}`. Do not commit unless the operator
-   asked you to; `.claude/rules/global-engineering.md` reserves that call for them.
+4. Commit the slice on the feature branch, files staged by name — `test: {behaviour}`
+   then `feat: {behaviour}`. An approved plan item is the operator's instruction to
+   commit there (`developer.md`, Git workflow); what `global-engineering.md` forbids is
+   an unrequested commit and any commit on `main`.
 5. Next slice
 ```
 

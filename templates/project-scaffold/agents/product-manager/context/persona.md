@@ -4,7 +4,8 @@ Project-level rules for the product-manager agent. These override or extend glob
 
 ## Purpose
 Use this file to capture project-specific PM rules every session must follow.
-The PM agent populates this during `pm-client-interview` and `pm-documentation`.
+Filled by the PM agent at the end of `pm-client-interview` (its Synthesis step) — the
+interview is when this information is fresh. The agent reads it on every invocation.
 
 ## Project-specific rules
 <!-- What the PM must always do for this project -->

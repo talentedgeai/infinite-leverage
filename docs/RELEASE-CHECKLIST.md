@@ -99,16 +99,32 @@ Not "the files exist" — the checks fire.
 
 One feature, all the way through, on the scaffolded project:
 
-- [ ] `pm-client-interview` → `pm-documentation` fills `docs/product/product.md`
-- [ ] `pm-epic-writing` → `pm-grill-with-docs` → `pm-to-issues` produces real GitHub issues
-- [ ] `dev-feature-plan` → `dev-tdd` produces a tested vertical slice
-- [ ] `qa-triage` on a seeded bug writes `docs/qa/` and updates `epic-status.md`
-- [ ] the PR is opened, not merged by the agent (except under `developer.md` auto-merge)
-- [ ] no agent committed anything the operator did not ask for
+- [x] `pm-client-interview` → `pm-documentation` fills `docs/product/product.md`
+      (2026-09-03, brief-sourced interview on the throwaway repo
+      `dnakhoa/il-rehearsal-mom-pop-co`; 13 defects found, fixed in 2.8.3)
+- [x] `pm-epic-writing` → `pm-grill-with-docs` → `pm-to-issues` produces real GitHub issues
+      (same run: epic E1, spec v0.2.0, APPROVED verdict, issues #1–#4 with labels)
+- [x] `dev-feature-plan` → `dev-tdd` produces a tested vertical slice
+      (same run: issues #1 and #2, 4 red→green cycles, 38 tests, lint/tsc/build green;
+      13 defects found, fixed in 2.8.3)
+- [x] `qa-triage` on a seeded bug writes `docs/qa/` and updates `epic-status.md`
+      (same run: verification report + triage report written, epic-status bug count
+      moved, bug correctly found unreproducible at HEAD; 10 defects found, fixed in 2.8.3)
+- [x] the PR is opened, not merged by the agent (except under `developer.md` auto-merge)
+      (PR #6 left open: feature-sized change, no CI in the repo)
+- [x] no agent committed anything the operator did not ask for
+      (the developer committed the PM's docs as a separate `docs:` commit under the
+      operator's explicit authorization and flagged it; `pm-epic-writing` now prints the
+      commit commands so this never falls to the next agent)
 
 ## Run 7 — the publishing chain **[teach]**
 
-- [ ] `web-publisher-publish` opens a PR; nothing lands on `main` directly
+- [x] `web-publisher-publish` opens a PR; nothing lands on `main` directly
+      (2026-09-03 on `dnakhoa/il-rehearsal-mom-pop-co`: PR #5 from `publish/welcome-launch`,
+      build/lint/tsc green, left open because the repo has no CI and the first index is a
+      new route; 14 defects found, fixed in 2.8.3)
+- [ ] the Vercel preview step against a **linked** project — the rehearsal repo had no
+      Vercel project, so Phase 7 was exercised only up to its "unlinked → stop" branch
 
 ## Run 8 — the negative cases **[ci]**
 
@@ -139,10 +155,16 @@ message.
 
 ## Honest status
 
-Runs 0 and 8 are automated on every PR. Run 1 was executed for 2.8.2 (see its note). Runs
-2–5 were verified as of v2.4.6 and have not been repeated since. **Runs 6 and 7 have never
-been executed end to end** — the agent and publishing chains are reviewed for internal
-consistency, not observed working against a live Supabase/Vercel project. They need a
-person at the keyboard: `pm-client-interview` is an interview, `pm-to-issues` creates real
-GitHub issues, `web-publisher-publish` needs a linked Vercel project. Do those before the
-first client session, and record what breaks here.
+As of v2.8.3 every run has been executed at least once. Runs 0, 1 and 8 are automated in CI
+(Run 1's scaffold steps are driven from the SKILL.md blocks; Run 8's negative cases are a
+script). Runs 6 and 7 were executed on 2026-09-03 against a throwaway GitHub repo with a
+brief-sourced client and no database or Vercel project — three agents, three PRs, 50
+defects fixed. What has **not** been observed:
+
+- Run 7's Phase 7 against a repo actually linked to Vercel (only the "unlinked → stop"
+  branch ran)
+- Run 6 on a feature that touches Supabase (the rehearsal feature needed no database), and
+  the human-only acceptance checks (visual, editability by a non-developer)
+- Run 5's `doctor --heal` case for a non-executable hook
+
+Do those before the first client session, and record what breaks here.

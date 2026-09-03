@@ -87,6 +87,7 @@
 ## Content formats
 
 **Blog posts:**
+- Categories: (e.g. News, Guides, Behind the counter — the only values a post's category tag may take; `web-publisher-publish` checks against this list)
 - Length: (e.g. 1,200–1,800 words)
 - Structure: (e.g. Hook → Problem → Framework → Story → CTA)
 - Opening: (e.g. Start with a specific story or surprising fact — never a definition)

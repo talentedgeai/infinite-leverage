@@ -7,7 +7,14 @@ description: >-
 
 # PM: Client Interview
 
-Run when `docs/product/product.md` does not exist. Ask in two rounds — do not proceed to scaffolding until both are complete.
+Run when `docs/product/product.md` is missing or is still the scaffold placeholder (its
+sections read `OPEN QUESTION:`). Ask in two rounds — do not proceed to scaffolding until
+both are complete.
+
+**Client not available live?** A brief, transcript, PRD, or `docs/product/sources/*`
+file stands in for both rounds. Read it as the answers; every question it does not cover
+becomes one `OPEN QUESTION:` line in the document `pm-documentation` writes — never an
+invented answer. Do not block waiting for a reply.
 
 ## Round 1 — Core Story (ask all at once)
 
@@ -28,6 +35,11 @@ Run when `docs/product/product.md` does not exist. Ask in two rounds — do not 
 ## Synthesis
 
 After both rounds, pass all answers to `pm-documentation` to scaffold the product docs.
+
+Then record what the interview revealed about *how to work with this client* in
+`agents/product-manager/context/persona.md` (project-specific rules, stakeholder context,
+product context) — the PM agent reads that file at the start of every session, and this
+interview is the only time the information is fresh.
 
 ## Edge Cases
 - Stakeholder gives vague answers: ask "Can you give me a concrete example?"
