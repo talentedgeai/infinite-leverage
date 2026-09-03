@@ -1,7 +1,7 @@
 ---
 name: il-project
 description: This skill should be used when the operator says "il project", "new project", "scaffold a project", "create infinite leverage project", "init new project", "start new client project", or "bootstrap project folder". Scaffolds a brand-new project directory from the canonical `templates/project-scaffold/` in `talentedgeai/infinite-leverage`, substitutes placeholders, wires the agent team into `.claude/`, seeds `docs/product/` (product.md, epics.md, epic-status.md) from any rich description the operator provides, seeds `docs/brand/` styling from a chosen or random getdesign.md reference, initializes git, and prints next steps. All operations are inline — no bundled scripts.
-version: 3.2.1
+version: 3.3.0
 ---
 
 # Infinite Leverage — New Project Scaffold
@@ -18,7 +18,7 @@ version: 3.2.1
 | Folder structure spec | `templates/project-scaffold/FOLDER-STRUCTURE.md` |
 | 4 agent definitions | `.claude/agents/*.md` |
 | Project skills | `.claude/skills/*/SKILL.md` |
-| Engineering rules | `.claude/rules/global-engineering.md` |
+| Engineering rules | `.claude/rules/global-engineering.md`, `.claude/rules/agent-routing.md` |
 | AGENT-DELEGATION block content | embedded below in this SKILL.md — single source for the routing table |
 
 **Rules:**
@@ -42,8 +42,6 @@ The operator wants a fresh project folder that follows the canonical Infinite Le
 | Parent directory | `~/code-projects` | yes (default `~/code-projects`) | |
 | First topic date | `2026-05-20` | optional (defaults to today) | |
 | First topic slug | `welcome-launch` | optional | |
-| Owner name | `Dave Hajdu` | optional | |
-| Primary author for content | `Dave Hajdu` | optional | |
 | GitHub placement | personal vs org | **interactive** | resolved during Step 12 — never assume |
 | Planning / product attachments | PRD, brief, vision doc, transcripts, epic list, **or a rich inline description of the product** | optional | anything the operator pasted or attached in the chat invoking this skill. Used by Step 8.6 to populate `docs/product/`. |
 | Desired styling / design reference | "make it like Linear", brand colors + fonts, an existing style guide, or nothing | optional | Used by Step 8.7 to fill `docs/brand/`. If absent, Step 8.7 pulls a random DESIGN.md from getdesign.md. |
@@ -138,7 +136,7 @@ echo "✅ prerequisites OK"
 
 ```bash
 TARGET="$HOME/code-projects/<project-slug>"   # substitute real value
-[ -e "$TARGET" ] && { echo "❌ $TARGET exists — pick a different slug or remove the directory"; exit 1; }
+[ ! -e "$TARGET" ] || { echo "❌ $TARGET exists — pick a different slug or remove the directory"; exit 1; }
 ```
 
 ### Step 3 — Fetch the canonical scaffold
@@ -164,7 +162,9 @@ IL_VERSION=$(sed -nE 's/^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"([^"]+)"
 PIN=""
 if [ -z "$IL_VERSION" ]; then
   echo "⚠️  could not read the installed plugin's version (CLAUDE_PLUGIN_ROOT unset?) — falling back to main."
-elif git ls-remote --tags "https://github.com/$REPO" "refs/tags/v$IL_VERSION" | grep -q .; then
+elif ! TAGS=$(git ls-remote --tags "https://github.com/$REPO" "refs/tags/v$IL_VERSION" 2>/dev/null); then
+  echo "❌ cannot reach github.com to fetch the canonical repo — check the connection and re-run"; exit 1
+elif [ -n "$TAGS" ]; then
   PIN="v$IL_VERSION"
 else
   echo "⚠️  no tag v$IL_VERSION on $REPO — the release was not tagged; falling back to main."
@@ -185,12 +185,15 @@ cp -R "$TMP/il-template/templates/project-scaffold/." "$TARGET"
 
 No external script — Claude runs this perl block directly. Only text files are touched; binaries are skipped by the find filter.
 
+The values reach perl **through the environment**, never by interpolating them into
+the perl program: a name containing `/`, `@`, `&` or `$` would otherwise break the
+substitution or be silently mangled ("Team@Work" became "Team"). CI runs this block
+against the template with exactly such a name.
+
 ```bash
-PROJECT_NAME="Acme Bookstore"
-PROJECT_SLUG="acme-bookstore"
-FIRST_DATE="2026-05-20"       # YYYY-MM-DD, real first publish date
-OWNER="Dave Hajdu"
-AUTHOR="Dave Hajdu"
+export PROJECT_NAME="Acme Bookstore"
+export PROJECT_SLUG="acme-bookstore"
+export FIRST_DATE="2026-05-20"       # YYYY-MM-DD, real first publish date
 
 # 4a. Replace branded placeholders everywhere
 find "$TARGET" -type f \
@@ -198,12 +201,7 @@ find "$TARGET" -type f \
   \( -name '*.md' -o -name '*.html' -o -name '*.json' \
      -o -name '*.txt' -o -name '*.example' -o -name '.gitignore' \
      -o -name '.env*' -o -name 'CLAUDE.md' -o -name 'README.md' \) \
-  -exec perl -i -pe "
-    s/\Q{Project Name}\E/$PROJECT_NAME/g;
-    s/\Q{project-slug}\E/$PROJECT_SLUG/g;
-    s/\QPH-author\E/$AUTHOR/g;
-    s/\QPH-Author\E/$AUTHOR/g;
-  " {} +
+  -exec perl -i -pe 's/\Q{Project Name}\E/$ENV{PROJECT_NAME}/g' {} +
 
 # 4b. Replace YYYY-MM-DD ONLY inside folders where it represents a real date
 for scope in \
@@ -211,7 +209,7 @@ for scope in \
   "$TARGET/docs/engineering/changes"; do
   [ -d "$scope" ] || continue
   find "$scope" -type f \( -name '*.md' -o -name '*.html' -o -name '*.json' \) \
-    -exec perl -i -pe "s/\QYYYY-MM-DD\E/$FIRST_DATE/g" {} +
+    -exec perl -i -pe 's/\QYYYY-MM-DD\E/$ENV{FIRST_DATE}/g' {} +
 done
 ```
 
@@ -239,7 +237,8 @@ mkdir -p "$TARGET/.claude/agents" "$TARGET/.claude/skills" "$TARGET/.claude/rule
 cp "$TMP/il-template/.claude/agents/"*.md "$TARGET/.claude/agents/"
 cp -R "$TMP/il-template/.claude/skills/." "$TARGET/.claude/skills/"
 rm -rf "$TARGET/.claude/skills/PH-skill-name"   # scaffold placeholder — not a real skill
-cp "$TMP/il-template/.claude/rules/global-engineering.md" "$TARGET/.claude/rules/"
+cp "$TMP/il-template/.claude/rules/global-engineering.md" \
+   "$TMP/il-template/.claude/rules/agent-routing.md" "$TARGET/.claude/rules/"
 
 # Projects scaffolded on v2.4.x carry 2 agents and 8 skills that v2.6 retired
 # (writer/designer and their content pipeline). A refresh must clear them or
@@ -258,7 +257,7 @@ done
 for d in $RETIRED_SKILLS; do
   [ -d "$TARGET/.claude/skills/$d" ] && mkdir -p "$RET_DIR/skills" && mv "$TARGET/.claude/skills/$d" "$RET_DIR/skills/" && MOVED="$MOVED skills/$d"
 done
-[ -n "$MOVED" ] && echo "ℹ️  retired v2.4-era agents/skills moved to $RET_DIR:$MOVED — review, then delete the folder"
+[ -z "$MOVED" ] || echo "ℹ️  retired v2.4-era agents/skills moved to $RET_DIR:$MOVED — review, then delete the folder"
 ```
 
 Verify before moving on. This is a hard gate, not a print — a partial install is
@@ -291,9 +290,13 @@ The scaffold ships with the block already (between `BEGIN: AGENT-DELEGATION` / `
 
 ```bash
 TARGET_CLAUDE_MD="$TARGET/CLAUDE.md"
+touch "$TARGET_CLAUDE_MD"
 
 # Canonical block content — single source of truth lives here in the SKILL.md.
-BLOCK=$(cat <<'BLOCK_EOF'
+# Written straight to a temp file: wrapping this heredoc in $(...) trips bash 3.2
+# (macOS /bin/bash) on the apostrophe in "don't" — unexpected EOF, step never runs.
+BLOCK_FILE=$(mktemp)
+cat > "$BLOCK_FILE" <<'BLOCK_EOF'
 <!-- BEGIN: AGENT-DELEGATION (managed by infiniteleverage skills — do not delete this block) -->
 ## Agent delegation (auto-routing)
 
@@ -315,18 +318,16 @@ When you receive a request, **delegate to the right specialist agent** before do
 6. Trigger phrases: `@product-manager`, `@developer`, etc. — but auto-route even without the `@` when intent is clear.
 <!-- END: AGENT-DELEGATION -->
 BLOCK_EOF
-)
 
 if grep -q 'BEGIN: AGENT-DELEGATION' "$TARGET_CLAUDE_MD"; then
-  BLOCK_FILE=$(mktemp); printf '%s\n' "$BLOCK" > "$BLOCK_FILE"
   BLOCK_FILE="$BLOCK_FILE" perl -i -0pe '
     BEGIN { local $/; open($f, "<", $ENV{BLOCK_FILE}); $b = <$f>; chomp $b; }
     s{<!-- BEGIN: AGENT-DELEGATION.*?<!-- END: AGENT-DELEGATION -->}{$b}s;
   ' "$TARGET_CLAUDE_MD"
-  rm -f "$BLOCK_FILE"
 else
-  printf '\n%s\n' "$BLOCK" >> "$TARGET_CLAUDE_MD"
+  printf '\n' >> "$TARGET_CLAUDE_MD"; cat "$BLOCK_FILE" >> "$TARGET_CLAUDE_MD"
 fi
+rm -f "$BLOCK_FILE"
 ```
 
 ### Step 8 — Clean up the temp clone
@@ -598,9 +599,12 @@ This always runs — every Infinite Leverage project ships a Next.js app at `web
 **Important:** the canonical scaffold ships a starter kit inside `website/` (chat, notifications, markdown rendering, Supabase migrations, vitest tests) with **no `package.json`** — it is designed to sit on top of a fresh `create-next-app` install. `create-next-app` refuses to install into a non-empty directory, so scaffold Next.js in a temp directory and merge it **underneath** the starter files. The starter uses a root-level `app/` layout, so create-next-app must run with `--no-src-dir`.
 
 ```bash
-# 9a. Scaffold Next.js in a temp dir (root-level app/, matching the starter kit)
+# 9a. Scaffold Next.js in a temp dir (root-level app/, matching the starter kit).
+# Pinned to the major the starter kit was verified against — this skill pins its
+# own content to a release tag, so it must not take whatever Next major npm
+# serves today. Bump the pin only after re-running 9e against the new major.
 NEXT_TMP=$(mktemp -d)
-npx create-next-app@latest "$NEXT_TMP/nextapp" \
+npx create-next-app@16 "$NEXT_TMP/nextapp" \
   --typescript --tailwind --app --eslint \
   --no-src-dir --import-alias "@/*" --yes
 rm -rf "$NEXT_TMP/nextapp/.git" "$NEXT_TMP/nextapp/node_modules"

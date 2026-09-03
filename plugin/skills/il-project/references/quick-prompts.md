@@ -4,7 +4,7 @@
 
 > "Create a new Infinite Leverage project called **Acme Bookstore** at
 > `~/code-projects/acme-bookstore`. First topic: `2026-05-20-welcome-launch`.
-> Owner: Dave Hajdu. Make it look like Linear. Here's the brief: …"
+> Make it look like Linear. Here's the brief: …"
 
 Anything the operator states in the invocation is taken as given — the skill asks
 only for what is still missing, in one question, then runs end to end. A pasted
@@ -18,9 +18,8 @@ getdesign.md reference is used so the project is never style-less.
 2. Human-readable project name?
 3. Parent directory? (default `~/code-projects`)
 4. First topic date? (default today) and slug? (default `welcome-launch`)
-5. Owner / default author? (optional)
-6. Any planning docs or a product description to seed `docs/product/`? (optional)
-7. Any styling preference — reference brand, palette, mood? (optional; random getdesign.md pick otherwise)
+5. Any planning docs or a product description to seed `docs/product/`? (optional)
+6. Any styling preference — reference brand, palette, mood? (optional; random getdesign.md pick otherwise)
 
 Not asked: Next.js — it is mandatory. GitHub — asked once, at the very end (Step 12),
 unless the invocation already answered it ("no GitHub" / "create the repo").

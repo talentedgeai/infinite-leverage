@@ -1,0 +1,42 @@
+name: mirror-release
+
+# The claude.ai org plugin directory syncs only from the private mirror
+# (talentedgeai/infiniteleverage-8-plugin). Mirroring by hand is how 2.7.1,
+# 2.7.2 and 2.8.0 never reached org seats — so the tag push does it now.
+#
+# Needs the repo secret MIRROR_TOKEN: a fine-grained personal access token with
+# "Contents: read and write" on the mirror repo only.
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tag matches the plugin version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          V=$(sed -nE 's/^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p' plugin/.claude-plugin/plugin.json | head -1)
+          [ "$TAG" = "$V" ] || { echo "::error::tag $GITHUB_REF_NAME but plugin.json says $V — not mirroring a mislabelled release"; exit 1; }
+          echo "tag $GITHUB_REF_NAME matches plugin.json"
+
+      - name: Push .claude-plugin + plugin to the private mirror
+        env:
+          MIRROR_TOKEN: ${{ secrets.MIRROR_TOKEN }}
+        run: |
+          [ -n "$MIRROR_TOKEN" ] || { echo "::error::MIRROR_TOKEN secret is not set — org seats stay on the previous version. See CLAUDE.md release flow step 5."; exit 1; }
+          git clone -q --depth 1 "https://x-access-token:${MIRROR_TOKEN}@github.com/talentedgeai/infiniteleverage-8-plugin.git" /tmp/il-dist
+          rm -rf /tmp/il-dist/.claude-plugin /tmp/il-dist/plugin
+          git archive HEAD -- .claude-plugin plugin | tar -x -C /tmp/il-dist
+          cd /tmp/il-dist
+          git config user.name  "infinite-leverage release"
+          git config user.email "khoa.doan@edge8.ai"
+          git add -A
+          if git diff --cached --quiet; then echo "mirror already carries $GITHUB_REF_NAME"; exit 0; fi
+          git commit -q -m "mirror $GITHUB_REF_NAME"
+          git push -q
+          echo "mirrored $GITHUB_REF_NAME"
