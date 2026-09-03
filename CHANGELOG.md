@@ -38,7 +38,28 @@ releases and the documented command failed on the first machine without an SSH k
   placeholder exists in the template. `{project-slug}` likewise. CI now asserts the set
   of tokens step 4 substitutes equals the set the template carries
 
+- **Step 7 could not run under macOS `/bin/bash` (3.2).** Both skills wrapped the
+  delegation-block heredoc in `$(cat <<'EOF' … )`; bash 3.2 scans that body for quotes
+  and dies on the apostrophe in "don't" with `unexpected EOF`. Found by the first real
+  Run 1 of the checklist. The block is now written straight to a temp file. CI runs
+  `bash -n` on every bash block in the shipped skills and bans the construct
+- **`il-adopt` step 8 was pseudo-shell** (`perl … <each copied file>`), so it could
+  never be run as written. It now tracks the anchors it seeded and substitutes only
+  those. Verified: an existing `product.md` is untouched, seeded files carry the name
+  verbatim, no placeholder left
+- **Offline, the pinning step said "the release was not tagged".** A failed
+  `git ls-remote` is now told apart from an empty result: both skills stop with
+  "cannot reach github.com" and write nothing
+- **Happy-path exit codes.** `il-project` step 2 and the retire block in both skills
+  ended in `[ cond ] && …`, which returns 1 whenever the condition is false — the Bash
+  tool reported a failed command on every fresh scaffold. Inverted to `|| …`
+
 ### Added
+- **Release checklist Run 8 is executed, not eyeballed** — `.github/scripts/negative-cases.sh`
+  runs the skills' own step 1/2/3 blocks, extracted from `SKILL.md`, under each fault
+  (existing target, unauthenticated `gh`, missing `rsync`, no network for `il-doctor` and
+  for the pinning step) and asserts the promised stop message. 23 assertions, in CI on
+  every PR
 - **`mirror-release` workflow** — on a `v*` tag push, checks the tag matches
   `plugin.json`, then pushes `.claude-plugin` + `plugin` to the private distribution
   repo. Requires the `MIRROR_TOKEN` repo secret (fine-grained PAT, *Contents: read and
@@ -48,10 +69,17 @@ releases and the documented command failed on the first machine without an SSH k
 - CI: scaffold-rules parity guard; placeholder-coverage and hostile-name substitution
   test; `RELEASE-CHECKLIST.md` Run 3 checks the mirror run
 
+### Verified
+- **Release checklist Run 1 executed for real**, driving steps 2–10 from the SKILL.md
+  blocks as written under macOS `/bin/bash` 3.2 with the project name `Mom & Pop / Co`:
+  lint, `tsc`, `next build` (15 routes) and vitest (20/20) green, first commit free of
+  `node_modules`/`.next`/`.env`, name landed verbatim, `/il-doctor` all-PASS inside the
+  new project. It is what surfaced the bash 3.2 step 7 failure above
+
 ### Not done
-- Runs 6–8 of the release checklist (agent chain, publishing chain, negative cases on a
-  live project) remain unexecuted end to end. They need a person at the keyboard with a
-  live Supabase/Vercel project; nothing in this release changes that status
+- Runs 6 and 7 of the release checklist (the agent chain and the publishing chain against
+  a live Supabase/Vercel project) remain unexecuted end to end. They need a person at the
+  keyboard — an interview, real GitHub issues, a linked Vercel project
 
 ---
 

@@ -129,7 +129,9 @@ IL_VERSION=$(sed -nE 's/^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"([^"]+)"
 PIN=""
 if [ -z "$IL_VERSION" ]; then
   echo "⚠️  could not read the installed plugin's version (CLAUDE_PLUGIN_ROOT unset?) — falling back to main."
-elif git ls-remote --tags "https://github.com/$REPO" "refs/tags/v$IL_VERSION" | grep -q .; then
+elif ! TAGS=$(git ls-remote --tags "https://github.com/$REPO" "refs/tags/v$IL_VERSION" 2>/dev/null); then
+  echo "❌ cannot reach github.com to fetch the canonical repo — check the connection and re-run"; exit 1
+elif [ -n "$TAGS" ]; then
   PIN="v$IL_VERSION"
 else
   echo "⚠️  no tag v$IL_VERSION on $REPO — the release was not tagged; falling back to main."
@@ -173,7 +175,7 @@ done
 for d in $RETIRED_SKILLS; do
   [ -d "$TARGET/.claude/skills/$d" ] && mkdir -p "$RET_DIR/skills" && mv "$TARGET/.claude/skills/$d" "$RET_DIR/skills/" && MOVED="$MOVED skills/$d"
 done
-[ -n "$MOVED" ] && echo "ℹ️  retired v2.4-era agents/skills moved to $RET_DIR:$MOVED — review, then delete the folder"
+[ -z "$MOVED" ] || echo "ℹ️  retired v2.4-era agents/skills moved to $RET_DIR:$MOVED — review, then delete the folder"
 ```
 
 Verify — hard gate, same as `/il-project`:
@@ -222,8 +224,11 @@ everything else the operator wrote stays byte-for-byte. Idempotent.
 TARGET_CLAUDE_MD="$TARGET/CLAUDE.md"
 touch "$TARGET_CLAUDE_MD"
 
-# Canonical block content — kept in lockstep with /il-project Step 7.
-BLOCK=$(cat <<'BLOCK_EOF'
+# Canonical block content — single source of truth lives here in the SKILL.md.
+# Written straight to a temp file: wrapping this heredoc in $(...) trips bash 3.2
+# (macOS /bin/bash) on the apostrophe in "don't" — unexpected EOF, step never runs.
+BLOCK_FILE=$(mktemp)
+cat > "$BLOCK_FILE" <<'BLOCK_EOF'
 <!-- BEGIN: AGENT-DELEGATION (managed by infiniteleverage skills — do not delete this block) -->
 ## Agent delegation (auto-routing)
 
@@ -245,18 +250,16 @@ When you receive a request, **delegate to the right specialist agent** before do
 6. Trigger phrases: `@product-manager`, `@developer`, etc. — but auto-route even without the `@` when intent is clear.
 <!-- END: AGENT-DELEGATION -->
 BLOCK_EOF
-)
 
 if grep -q 'BEGIN: AGENT-DELEGATION' "$TARGET_CLAUDE_MD"; then
-  BLOCK_FILE=$(mktemp); printf '%s\n' "$BLOCK" > "$BLOCK_FILE"
   BLOCK_FILE="$BLOCK_FILE" perl -i -0pe '
     BEGIN { local $/; open($f, "<", $ENV{BLOCK_FILE}); $b = <$f>; chomp $b; }
     s{<!-- BEGIN: AGENT-DELEGATION.*?<!-- END: AGENT-DELEGATION -->}{$b}s;
   ' "$TARGET_CLAUDE_MD"
-  rm -f "$BLOCK_FILE"
 else
-  printf '\n%s\n' "$BLOCK" >> "$TARGET_CLAUDE_MD"
+  printf '\n' >> "$TARGET_CLAUDE_MD"; cat "$BLOCK_FILE" >> "$TARGET_CLAUDE_MD"
 fi
+rm -f "$BLOCK_FILE"
 ```
 
 ### Step 8 — Seed missing doc anchors (only where missing)
@@ -264,7 +267,14 @@ fi
 The PM/QA agents key on a handful of files. Seed the placeholders **only where the
 repo doesn't already have them** — an existing project's real docs always win:
 
+Derive the display name from the repo folder unless the operator stated one. The
+branded placeholder is substituted **only in files this step just created** — the value
+reaches perl through the environment, since interpolating it into the program breaks
+on `/ @ & $` in the name:
+
 ```bash
+export PROJECT_NAME="My Project"          # operator-supplied or derived from basename
+SEEDED=""
 for rel in \
   docs/product/product.md \
   docs/product/epics.md \
@@ -275,18 +285,12 @@ for rel in \
   [ -e "$DST" ] && continue
   mkdir -p "$(dirname "$DST")"
   cp "$TMP/il-canonical/templates/project-scaffold/$rel" "$DST"
+  SEEDED="$SEEDED $rel"
 done
-```
-
-Then substitute the branded placeholders in any file this step just created (skip
-files that already existed). Derive the display name from the repo folder unless the
-operator stated one:
-
-```bash
-export PROJECT_NAME="My Project"          # operator-supplied or derived from basename
-# run ONLY on the files copied above. The value reaches perl through the
-# environment — interpolating it into the program breaks on / @ & $ in the name.
-perl -i -pe 's/\Q{Project Name}\E/$ENV{PROJECT_NAME}/g' <each copied file>
+for rel in $SEEDED; do
+  perl -i -pe 's/\Q{Project Name}\E/$ENV{PROJECT_NAME}/g' "$TARGET/$rel"
+done
+echo "seeded:${SEEDED:- nothing — every anchor already existed}"
 ```
 
 These are placeholders on purpose — `pm-client-interview` / `pm-epic-writing` fill

@@ -138,6 +138,37 @@ jobs:
           bash -n plugin/skills/il-doctor/scripts/doctor.sh
           bash .github/scripts/doctor-smoke.sh
 
+      - name: Every bash block in the shipped skills parses, including under bash 3.2 rules
+        run: |
+          python3 - <<'PY'
+          import glob, re, subprocess, sys, tempfile, os
+          # CI's bash is 5.x; a client's macOS /bin/bash is 3.2, which cannot parse a
+          # heredoc wrapped in $(...) when the body contains an apostrophe. Step 7
+          # shipped like that and the first real Run 1 died on it. So: bash -n on
+          # every block, plus a ban on the one construct 3.2 gets wrong.
+          bad = []
+          for f in sorted(glob.glob("plugin/skills/*/SKILL.md")):
+              t = open(f, encoding="utf-8").read()
+              for i, b in enumerate(re.findall(r"```bash\n(.*?)```", t, re.S), 1):
+                  if re.search(r'\$\(\s*cat\s*<<', b):
+                      bad.append(f"{f} block {i}: `$(cat <<...` — bash 3.2 cannot parse it; write the heredoc to a temp file instead")
+                  with tempfile.NamedTemporaryFile("w", suffix=".sh", delete=False) as fh:
+                      fh.write(b); n = fh.name
+                  r = subprocess.run(["bash", "-n", n], capture_output=True, text=True); os.unlink(n)
+                  if r.returncode:
+                      bad.append(f"{f} block {i}: {r.stderr.strip()}")
+          if bad:
+              print("\n".join(bad)); sys.exit(1)
+          print("all skill bash blocks parse; no $(cat <<) constructs")
+          PY
+
+      - name: Negative cases (release checklist Run 8) stop with the promised message
+        run: |
+          # Runs the skills' own step 1/2/3 blocks under a fault — existing target,
+          # unauthenticated gh, a missing tool, no network — and asserts each stops
+          # where the checklist says it will. Never executed before 2.8.2.
+          bash .github/scripts/negative-cases.sh
+
       - name: Scaffold rules identical to the canonical rules; no global-install advice
         run: |
           # il-project step 6 / il-adopt step 5 copy these from .claude/rules/; the
@@ -166,7 +197,7 @@ jobs:
               if prog[0] == '"' or "$ENV{" not in prog[1] or re.search(r'\$[A-Z_]+\b(?!\{)', prog[1].replace("$ENV{", "")):
                   bad.append(f"il-project step 4 perl program interpolates a shell value: {prog[1].strip()!r}")
           adopt = pathlib.Path("plugin/skills/il-adopt/SKILL.md").read_text(encoding="utf-8")
-          for prog in re.findall(r"perl -i -pe (['\"])(.*?)\1 <each", adopt, re.S):
+          for prog in re.findall(r"perl -i -pe (['\"])(.*?)\1 \"\$TARGET/\$rel\"", adopt, re.S):
               if prog[0] == '"' or "$ENV{" not in prog[1]:
                   bad.append(f"il-adopt step 8 perl program interpolates a shell value: {prog[1].strip()!r}")
           # 2. Tokens the step substitutes == tokens the template carries. A dead

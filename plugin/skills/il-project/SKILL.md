@@ -136,7 +136,7 @@ echo "✅ prerequisites OK"
 
 ```bash
 TARGET="$HOME/code-projects/<project-slug>"   # substitute real value
-[ -e "$TARGET" ] && { echo "❌ $TARGET exists — pick a different slug or remove the directory"; exit 1; }
+[ ! -e "$TARGET" ] || { echo "❌ $TARGET exists — pick a different slug or remove the directory"; exit 1; }
 ```
 
 ### Step 3 — Fetch the canonical scaffold
@@ -162,7 +162,9 @@ IL_VERSION=$(sed -nE 's/^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"([^"]+)"
 PIN=""
 if [ -z "$IL_VERSION" ]; then
   echo "⚠️  could not read the installed plugin's version (CLAUDE_PLUGIN_ROOT unset?) — falling back to main."
-elif git ls-remote --tags "https://github.com/$REPO" "refs/tags/v$IL_VERSION" | grep -q .; then
+elif ! TAGS=$(git ls-remote --tags "https://github.com/$REPO" "refs/tags/v$IL_VERSION" 2>/dev/null); then
+  echo "❌ cannot reach github.com to fetch the canonical repo — check the connection and re-run"; exit 1
+elif [ -n "$TAGS" ]; then
   PIN="v$IL_VERSION"
 else
   echo "⚠️  no tag v$IL_VERSION on $REPO — the release was not tagged; falling back to main."
@@ -255,7 +257,7 @@ done
 for d in $RETIRED_SKILLS; do
   [ -d "$TARGET/.claude/skills/$d" ] && mkdir -p "$RET_DIR/skills" && mv "$TARGET/.claude/skills/$d" "$RET_DIR/skills/" && MOVED="$MOVED skills/$d"
 done
-[ -n "$MOVED" ] && echo "ℹ️  retired v2.4-era agents/skills moved to $RET_DIR:$MOVED — review, then delete the folder"
+[ -z "$MOVED" ] || echo "ℹ️  retired v2.4-era agents/skills moved to $RET_DIR:$MOVED — review, then delete the folder"
 ```
 
 Verify before moving on. This is a hard gate, not a print — a partial install is
@@ -288,9 +290,13 @@ The scaffold ships with the block already (between `BEGIN: AGENT-DELEGATION` / `
 
 ```bash
 TARGET_CLAUDE_MD="$TARGET/CLAUDE.md"
+touch "$TARGET_CLAUDE_MD"
 
 # Canonical block content — single source of truth lives here in the SKILL.md.
-BLOCK=$(cat <<'BLOCK_EOF'
+# Written straight to a temp file: wrapping this heredoc in $(...) trips bash 3.2
+# (macOS /bin/bash) on the apostrophe in "don't" — unexpected EOF, step never runs.
+BLOCK_FILE=$(mktemp)
+cat > "$BLOCK_FILE" <<'BLOCK_EOF'
 <!-- BEGIN: AGENT-DELEGATION (managed by infiniteleverage skills — do not delete this block) -->
 ## Agent delegation (auto-routing)
 
@@ -312,18 +318,16 @@ When you receive a request, **delegate to the right specialist agent** before do
 6. Trigger phrases: `@product-manager`, `@developer`, etc. — but auto-route even without the `@` when intent is clear.
 <!-- END: AGENT-DELEGATION -->
 BLOCK_EOF
-)
 
 if grep -q 'BEGIN: AGENT-DELEGATION' "$TARGET_CLAUDE_MD"; then
-  BLOCK_FILE=$(mktemp); printf '%s\n' "$BLOCK" > "$BLOCK_FILE"
   BLOCK_FILE="$BLOCK_FILE" perl -i -0pe '
     BEGIN { local $/; open($f, "<", $ENV{BLOCK_FILE}); $b = <$f>; chomp $b; }
     s{<!-- BEGIN: AGENT-DELEGATION.*?<!-- END: AGENT-DELEGATION -->}{$b}s;
   ' "$TARGET_CLAUDE_MD"
-  rm -f "$BLOCK_FILE"
 else
-  printf '\n%s\n' "$BLOCK" >> "$TARGET_CLAUDE_MD"
+  printf '\n' >> "$TARGET_CLAUDE_MD"; cat "$BLOCK_FILE" >> "$TARGET_CLAUDE_MD"
 fi
+rm -f "$BLOCK_FILE"
 ```
 
 ### Step 8 — Clean up the temp clone
