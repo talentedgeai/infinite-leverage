@@ -95,7 +95,7 @@
 **Email:**
 - Subject line: (e.g. Curiosity gap style, no emojis, under 50 characters)
 - Body length: (e.g. 150–250 words — short and scannable)
-- Sign-off: (e.g. "— {Founder name}")
+- Sign-off: (e.g. "— <founder name>")
 
 **Social posts:**
 - LinkedIn: (e.g. Professional hook + 3–5 short paragraphs + question at end)

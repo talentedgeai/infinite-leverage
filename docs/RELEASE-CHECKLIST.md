@@ -20,6 +20,8 @@ green.
 | 4 agents / 16 skills, in lockstep across il-project's gate, il-adopt's gate and `doctor.sh` — retired v2.4 lists too | the names the tooling asserts match reality, in every place they are hard-coded |
 | `AGENT-DELEGATION` block identical in il-project, il-adopt and the scaffold; routes exactly the shipped agents | `/il-project` and `/il-adopt` install the same routing |
 | `doctor.sh` parses; smoke test drives its layout section over scaffolded, adopted, legacy-v2.4 and partial trees | the check a client reads actually fires — its adopted-repo path had never run |
+| Scaffold `.claude/rules/` byte-identical to the canonical rules; no `~/.claude` advice in them | the rules a project gets are the rules this repo reviews |
+| Step 4 substitution tokens equal the template's; the step runs against the template with a name containing `/ @ & $ \` | no dead substitutions, no leftover placeholders, no mangled project names |
 | Skill frontmatter `name` matches its directory | a mismatched skill is silently unroutable |
 | Plan-protocol engine suite (32 tests) | the enforcement engine still enforces |
 | Plan-protocol ships no domain vocabulary | the engine stays stack-neutral |
@@ -58,6 +60,8 @@ The published payload is `plugin/` only. Everything else in this repo is a *sour
 skills clone at run time.
 
 - [ ] the tag `vX.Y.Z` exists and points at the release commit (pinning depends on it)
+- [ ] the `mirror-release` workflow run for that tag is green, and the mirror repo's
+      newest commit is `mirror vX.Y.Z` — org seats get nothing until it is
 - [ ] `/il-doctor` on a deliberately older cached plugin reports the skew and names the
       update command
 

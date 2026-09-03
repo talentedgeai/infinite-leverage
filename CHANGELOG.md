@@ -6,6 +6,55 @@ Format: `## [version] — YYYY-MM-DD` with sections Added / Changed / Fixed / Re
 
 ---
 
+## [2.8.2] — 2026-09-03
+
+**The release stops depending on a human remembering the mirror, and the scaffold stops
+mangling project names.** Shipping 2.8.1 showed the mirror had been skipped for three
+releases and the documented command failed on the first machine without an SSH key.
+
+### Fixed
+- **Placeholder substitution broke on names containing `/`, `@`, `&` or `$`.** Step 4
+  interpolated the project name straight into the perl program: "Mom & Pop / Co" left
+  the placeholder in place with a perl error, "Team@Work" silently became "Team". Values
+  now reach perl through the environment (`$ENV{PROJECT_NAME}`), in `il-project` step 4
+  and `il-adopt` step 8. CI runs step 4 as written against the template with
+  `Mom & Pop / Team@Work $5 \ Books` and asserts it lands verbatim with nothing left behind
+- **`create-next-app` pinned to the major the starter kit was verified against** (`@16`).
+  The skill pins its own content to a release tag, then took whatever Next major npm
+  served that day — a new major would have broken step 9e on every client machine at once
+- **`agent-routing.md` is now installed into projects** by `il-project` step 6 and
+  `il-adopt` step 5 alongside `global-engineering.md`. It was written for projects (it
+  routes the project skills) but no installer copied it, and its "something not working"
+  pointer named a `docs/guide/troubleshooting.md` that never existed in the scaffold —
+  it now points at `/il-doctor` and `devops-ops`
+- **Scaffold rules were 36 lines behind the canonical rules.** The template's
+  `global-engineering.md` was an old short version; step 6 overwrote it, but an adopted
+  repo never saw the template and a reader of the scaffold saw the wrong rules. Both
+  rules files are now byte-identical in the template, with a CI guard. The canonical
+  file also dropped a v1-era comment telling teams to promote it to `~/.claude/rules/` —
+  nothing installs globally in v2
+- **Dead inputs removed from `il-project`.** The inputs table and quick-prompts asked
+  for an owner and a content author, and step 4 substituted `PH-author`, but no such
+  placeholder exists in the template. `{project-slug}` likewise. CI now asserts the set
+  of tokens step 4 substitutes equals the set the template carries
+
+### Added
+- **`mirror-release` workflow** — on a `v*` tag push, checks the tag matches
+  `plugin.json`, then pushes `.claude-plugin` + `plugin` to the private distribution
+  repo. Requires the `MIRROR_TOKEN` repo secret (fine-grained PAT, *Contents: read and
+  write* on the mirror only). CLAUDE.md's release flow now says to confirm the run is
+  green, with a `gh repo clone` (HTTPS) fallback replacing the SSH URL that fails on
+  machines without a registered key
+- CI: scaffold-rules parity guard; placeholder-coverage and hostile-name substitution
+  test; `RELEASE-CHECKLIST.md` Run 3 checks the mirror run
+
+### Not done
+- Runs 6–8 of the release checklist (agent chain, publishing chain, negative cases on a
+  live project) remain unexecuted end to end. They need a person at the keyboard with a
+  live Supabase/Vercel project; nothing in this release changes that status
+
+---
+
 ## [2.8.1] — 2026-09-02
 
 **`/il-adopt` catches up with 2.7.1, and `/il-doctor` finally checks adopted repos.**

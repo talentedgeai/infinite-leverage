@@ -1,9 +1,4 @@
 # Global Engineering Rules
-<!-- 
-  These rules apply to every project on this machine.
-  PROMOTE to ~/.claude/rules/global-engineering.md on each team member's machine
-  so they apply across all repos, not just this one.
--->
 
 ## Git discipline
 

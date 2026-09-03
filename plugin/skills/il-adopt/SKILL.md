@@ -1,7 +1,7 @@
 ---
 name: il-adopt
 description: This skill should be used when the operator says "il adopt", "il init", "install the agents", "add the agent team to this repo", "init the agents in this project", "set up infinite leverage here", "adopt infinite leverage", or has an already-established repository that needs the 4-agent team. Installs the canonical 4 agent definitions, the workflow skills, and the engineering rules into the CURRENT repo's `.claude/`, injects the AGENT-DELEGATION block into the repo's CLAUDE.md, and seeds only the missing doc anchors — without touching any existing project file. The existing-repo counterpart of `/il-project` (which scaffolds a brand-new project).
-version: 1.1.0
+version: 1.1.1
 ---
 
 # Infinite Leverage — Adopt the Agent Team into an Existing Repo
@@ -22,7 +22,7 @@ installed per-project).
 |---|---|
 | 4 agent definitions | `.claude/agents/*.md` |
 | Project workflow skills | `.claude/skills/*/SKILL.md` |
-| Engineering rules | `.claude/rules/global-engineering.md` |
+| Engineering rules | `.claude/rules/global-engineering.md`, `.claude/rules/agent-routing.md` |
 | Persona stubs | `templates/project-scaffold/agents/<name>/context/persona.md` |
 | Doc anchors (product, brand, status) | `templates/project-scaffold/docs/` |
 | AGENT-DELEGATION block content | embedded below — same block as `/il-project` Step 7 |
@@ -43,7 +43,7 @@ them. Agents are installed into the project itself; nothing is ever written to
    and (b) the overwrite confirmation in Step 3 — and only if an earlier install is
    detected. Nothing else asks.
 3. **Non-destructive by default.** Canonical-managed files (`.claude/agents/`,
-   `.claude/skills/`, `.claude/rules/global-engineering.md`) may be overwritten —
+   `.claude/skills/`, the two rules files in `.claude/rules/`) may be overwritten —
    that is what "refresh" means and Step 3 confirms it first. Everything else
    (personas, doc anchors, CLAUDE.md content outside the managed block) is written
    **only where missing**.
@@ -84,7 +84,7 @@ About to adopt the Infinite Leverage team into:
   Repo            : <$TARGET>
   Will install    : 4 agents → .claude/agents/
                     workflow skills → .claude/skills/
-                    engineering rules → .claude/rules/global-engineering.md
+                    engineering rules → .claude/rules/{global-engineering,agent-routing}.md
   Will inject     : AGENT-DELEGATION block into ./CLAUDE.md (created if missing)
   Only-if-missing : agents/<name>/context/persona.md stubs,
                     docs/product/{product,epics,epic-status}.md,
@@ -105,10 +105,10 @@ EXISTING=$(find "$TARGET/.claude/agents" -maxdepth 1 -name '*.md' 2>/dev/null | 
 
 - `EXISTING` = 0 → first install, continue silently.
 - `EXISTING` > 0 → this run is a **refresh**: the canonical agents, skills, and
-  `global-engineering.md` will be overwritten with the versions matching the running
+  rules files will be overwritten with the versions matching the running
   plugin. Ask: *"Found an existing team install (`<EXISTING>` agents). Refresh it to
   the canonical v<plugin version>? Any local edits to `.claude/agents/`,
-  `.claude/skills/`, or `.claude/rules/global-engineering.md` will be overwritten —
+  `.claude/skills/`, or `.claude/rules/` will be overwritten —
   project personas and docs are untouched. (y/N)"* Stop on no.
 
 ### Step 4 — Fetch the canonical repo, pinned to the plugin's version
@@ -154,7 +154,8 @@ mkdir -p "$TARGET/.claude/agents" "$TARGET/.claude/skills" "$TARGET/.claude/rule
 cp "$TMP/il-canonical/.claude/agents/"*.md "$TARGET/.claude/agents/"
 cp -R "$TMP/il-canonical/.claude/skills/." "$TARGET/.claude/skills/"
 rm -rf "$TARGET/.claude/skills/PH-skill-name"   # scaffold placeholder — not a real skill
-cp "$TMP/il-canonical/.claude/rules/global-engineering.md" "$TARGET/.claude/rules/"
+cp "$TMP/il-canonical/.claude/rules/global-engineering.md" \
+   "$TMP/il-canonical/.claude/rules/agent-routing.md" "$TARGET/.claude/rules/"
 
 # A repo whose team was installed on v2.4.x carries 2 agents and 8 skills that
 # v2.6 retired (writer/designer and their content pipeline). Retire them by
@@ -282,10 +283,10 @@ files that already existed). Derive the display name from the repo folder unless
 operator stated one:
 
 ```bash
-PROJECT_NAME="My Project"                 # operator-supplied or derived from basename
-PROJECT_SLUG=$(basename "$TARGET")
-# run ONLY on the files copied above:
-perl -i -pe "s/\Q{Project Name}\E/$PROJECT_NAME/g; s/\Q{project-slug}\E/$PROJECT_SLUG/g" <each copied file>
+export PROJECT_NAME="My Project"          # operator-supplied or derived from basename
+# run ONLY on the files copied above. The value reaches perl through the
+# environment — interpolating it into the program breaks on / @ & $ in the name.
+perl -i -pe 's/\Q{Project Name}\E/$ENV{PROJECT_NAME}/g' <each copied file>
 ```
 
 These are placeholders on purpose — `pm-client-interview` / `pm-epic-writing` fill
@@ -305,7 +306,7 @@ Print:
 ✅ Team adopted into <$TARGET>
    .claude/agents/     — 4 agents (product-manager, developer, qa, devops)
    .claude/skills/     — <S> workflow skills
-   .claude/rules/      — global-engineering.md
+   .claude/rules/      — global-engineering.md, agent-routing.md
    agents/*/context/   — persona stubs (<N> created, <M> already existed)
    CLAUDE.md           — AGENT-DELEGATION block <injected|refreshed>
    docs/               — <K> anchors seeded, existing files untouched

@@ -138,6 +138,71 @@ jobs:
           bash -n plugin/skills/il-doctor/scripts/doctor.sh
           bash .github/scripts/doctor-smoke.sh
 
+      - name: Scaffold rules identical to the canonical rules; no global-install advice
+        run: |
+          # il-project step 6 / il-adopt step 5 copy these from .claude/rules/; the
+          # template copies exist so a scaffold is coherent before step 6 runs. The
+          # template's global-engineering.md had drifted 36 lines behind.
+          for f in global-engineering.md agent-routing.md; do
+            diff -u ".claude/rules/$f" "templates/project-scaffold/.claude/rules/$f" \
+              || { echo "::error::templates/project-scaffold/.claude/rules/$f drifted from .claude/rules/$f — copy it over"; exit 1; }
+          done
+          if grep -rn '~/\.claude' .claude/rules/; then
+            echo "::error::rules tell people to install something under ~/.claude — nothing installs globally in v2"; exit 1
+          fi
+          echo "scaffold rules match canonical; no global-install advice"
+
+      - name: Placeholder substitution covers the template and survives awkward names
+        run: |
+          python3 - <<'PY'
+          import glob, os, pathlib, re, shutil, subprocess, sys, tempfile
+          skill = pathlib.Path("plugin/skills/il-project/SKILL.md").read_text(encoding="utf-8")
+          step4 = skill.split("### Step 4")[1].split("### Step 5")[0]
+          code = "\n".join(re.findall(r"```bash\n(.*?)```", step4, re.S))
+          bad = []
+          # 1. No value may be interpolated into the perl program — that is the
+          #    "Team@Work" -> "Team" bug. Values travel via $ENV{...}.
+          for prog in re.findall(r"perl -i -pe (['\"])(.*?)\1", code, re.S):
+              if prog[0] == '"' or "$ENV{" not in prog[1] or re.search(r'\$[A-Z_]+\b(?!\{)', prog[1].replace("$ENV{", "")):
+                  bad.append(f"il-project step 4 perl program interpolates a shell value: {prog[1].strip()!r}")
+          adopt = pathlib.Path("plugin/skills/il-adopt/SKILL.md").read_text(encoding="utf-8")
+          for prog in re.findall(r"perl -i -pe (['\"])(.*?)\1 <each", adopt, re.S):
+              if prog[0] == '"' or "$ENV{" not in prog[1]:
+                  bad.append(f"il-adopt step 8 perl program interpolates a shell value: {prog[1].strip()!r}")
+          # 2. Tokens the step substitutes == tokens the template carries. A dead
+          #    substitution (PH-author) and an unsubstituted token are both drift.
+          subs = set(re.findall(r'\\Q(.+?)\\E', code))
+          exts = ('.md', '.html', '.json', '.txt', '.example')
+          tpl = set()
+          for f in glob.glob("templates/project-scaffold/**/*", recursive=True):
+              if not os.path.isfile(f) or "/website/" in f or not (f.endswith(exts) or os.path.basename(f) in ('.gitignore',) or os.path.basename(f).startswith('.env')):
+                  continue
+              t = open(f, encoding="utf-8", errors="ignore").read()
+              tpl |= set(re.findall(r'\{[A-Z][A-Za-z -]*\}', t))
+              if "YYYY-MM-DD" in t: tpl.add("YYYY-MM-DD")
+          if subs != tpl:
+              bad.append(f"step 4 substitutes {sorted(subs)} but the template carries {sorted(tpl)}")
+          # 3. Run the step as written against the template with a hostile name.
+          NAME = "Mom & Pop / Team@Work $5 \\ Books"
+          tmp = tempfile.mkdtemp(); target = os.path.join(tmp, "proj")
+          shutil.copytree("templates/project-scaffold", target, symlinks=True)
+          run = re.sub(r'^export (PROJECT_NAME|PROJECT_SLUG|FIRST_DATE)=.*$', '', code, flags=re.M)
+          env = dict(os.environ, TARGET=target, PROJECT_NAME=NAME, PROJECT_SLUG="mom-pop", FIRST_DATE="2031-02-03")
+          r = subprocess.run(["bash", "-e", "-c", run], env=env, capture_output=True, text=True)
+          if r.returncode != 0:
+              bad.append(f"step 4 exited {r.returncode}:\n{r.stderr.strip()}")
+          left = subprocess.run(["grep", "-rl", "{Project Name}", target, "--exclude-dir=website"], capture_output=True, text=True).stdout.split()
+          if left: bad.append(f"{{Project Name}} still present after step 4 in: {left[:5]}")
+          readme = open(os.path.join(target, "README.md"), encoding="utf-8").read()
+          if NAME not in readme: bad.append(f"README.md does not contain the name verbatim after substitution: {NAME!r}")
+          topics = subprocess.run(["grep", "-rl", "2031-02-03", os.path.join(target, "content/topics")], capture_output=True, text=True).stdout.split()
+          if not topics: bad.append("FIRST_DATE was not substituted under content/topics")
+          shutil.rmtree(tmp)
+          if bad:
+              print("\n".join(bad)); sys.exit(1)
+          print(f"step 4 covers {sorted(subs)}; hostile name {NAME!r} substituted verbatim, nothing left behind")
+          PY
+
       - name: Every skill has frontmatter whose name matches its directory
         run: |
           python3 - <<'PY'
